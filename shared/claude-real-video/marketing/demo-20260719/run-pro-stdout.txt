@@ -1,0 +1,26 @@
+objc[60609]: Class AVFFrameReceiver is implemented in both /Users/leo/Projects/crv-pro/.venv/lib/python3.14/site-packages/cv2/.dylibs/libavdevice.61.3.100.dylib (0x10735c3a8) and /Users/leo/Projects/crv-pro/.venv/lib/python3.14/site-packages/av/.dylibs/libavdevice.62.3.102.dylib (0x10ec983a8). This may cause spurious casting failures and mysterious crashes. One of the duplicates must be removed or renamed.
+objc[60609]: Class AVFAudioReceiver is implemented in both /Users/leo/Projects/crv-pro/.venv/lib/python3.14/site-packages/cv2/.dylibs/libavdevice.61.3.100.dylib (0x10735c3f8) and /Users/leo/Projects/crv-pro/.venv/lib/python3.14/site-packages/av/.dylibs/libavdevice.62.3.102.dylib (0x10ec983f8). This may cause spurious casting failures and mysterious crashes. One of the duplicates must be removed or renamed.
+I0000 00:00:1784475117.435372 9709805 init-domain.cc:128] Fiber init: default domain = pthread, concurrency = 11, prefix = pthread-default
+W0000 00:00:1784475117.438712 9709805 face_landmarker_graph.cc:180] Sets FaceBlendshapesGraph acceleration to xnnpack by default.
+I0000 00:00:1784475117.495304 9709805 gl_context.cc:407] GL version: 2.1 (2.1 Metal - 89.4), renderer: Apple M4
+INFO: Created TensorFlow Lite XNNPACK delegate for CPU.
+W0000 00:00:1784475117.499409 9709810 inference_feedback_manager.cc:121] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+W0000 00:00:1784475117.507442 9709813 inference_feedback_manager.cc:121] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+/Users/leo/Projects/crv-pro/src/crv_pro/perception.py:163: FutureWarning: librosa.beat.tempo
+	This function was moved to 'librosa.feature.rhythm.tempo' in librosa version 0.10.0.
+	This alias will be removed in librosa version 1.0.
+  tempo = float(librosa.beat.tempo(y=y, sr=sr).item())
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+[transformers] Model config: bos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49406. This may result in unexpected behavior.
+[transformers] Model config: eos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49407. This may result in unexpected behavior.
+Loading weights:   0%|          | 0/408 [00:00<?, ?it/s]Loading weights: 100%|██████████| 408/408 [00:00<00:00, 6349.18it/s]
+
+✓ Done → crv-pro-out
+  128 frames  (deduped from 172 extracted)  in crv-pro-out/frames
+  manifest:   crv-pro-out/MANIFEST.txt
+  viewer:     crv-pro-out/viewer.html  (double-click to open)
+  transcript: crv-pro-out/transcript.txt
+  perception: 51 events → crv-pro-out/perception.json (timeline also in MANIFEST.txt)
+real 124.10
+user 380.42
+sys 28.35

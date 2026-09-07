@@ -1,0 +1,27 @@
+Collecting claude-real-video
+  Downloading claude_real_video-0.7.15-py3-none-any.whl.metadata (18 kB)
+Collecting yt-dlp>=2024.1.0 (from claude-real-video)
+  Using cached yt_dlp-2026.7.4-py3-none-any.whl.metadata (183 kB)
+Collecting Pillow>=9.0.0 (from claude-real-video)
+  Using cached pillow-12.3.0-cp314-cp314-macosx_11_0_arm64.whl.metadata (9.1 kB)
+Downloading claude_real_video-0.7.15-py3-none-any.whl (47 kB)
+Using cached pillow-12.3.0-cp314-cp314-macosx_11_0_arm64.whl (4.8 MB)
+Using cached yt_dlp-2026.7.4-py3-none-any.whl (3.2 MB)
+Installing collected packages: yt-dlp, Pillow, claude-real-video
+
+Successfully installed Pillow-12.3.0 claude-real-video-0.7.15 yt-dlp-2026.7.4
+Requirement already satisfied: claude-real-video[speakers] in ./demo-venv/lib/python3.14/site-packages (0.7.15)
+Requirement already satisfied: yt-dlp>=2024.1.0 in ./demo-venv/lib/python3.14/site-packages (from claude-real-video[speakers]) (2026.7.4)
+Requirement already satisfied: Pillow>=9.0.0 in ./demo-venv/lib/python3.14/site-packages (from claude-real-video[speakers]) (12.3.0)
+Collecting sherpa-onnx>=1.13.4 (from claude-real-video[speakers])
+  Using cached sherpa_onnx-1.13.4-cp314-cp314-macosx_11_0_arm64.whl.metadata (50 kB)
+Collecting numpy>=1.24 (from claude-real-video[speakers])
+  Using cached numpy-2.5.1-cp314-cp314-macosx_14_0_arm64.whl.metadata (6.6 kB)
+Collecting sherpa-onnx-core==1.13.4 (from sherpa-onnx>=1.13.4->claude-real-video[speakers])
+  Using cached sherpa_onnx_core-1.13.4-py3-none-macosx_11_0_arm64.whl.metadata (518 bytes)
+Using cached numpy-2.5.1-cp314-cp314-macosx_14_0_arm64.whl (5.3 MB)
+Using cached sherpa_onnx-1.13.4-cp314-cp314-macosx_11_0_arm64.whl (2.1 MB)
+Using cached sherpa_onnx_core-1.13.4-py3-none-macosx_11_0_arm64.whl (16.9 MB)
+Installing collected packages: sherpa-onnx-core, sherpa-onnx, numpy
+
+Successfully installed numpy-2.5.1 sherpa-onnx-1.13.4 sherpa-onnx-core-1.13.4

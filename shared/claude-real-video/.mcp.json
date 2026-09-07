@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "crv": {
+      "command": "crv-mcp",
+      "args": []
+    }
+  }
+}

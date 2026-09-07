@@ -1,0 +1,127 @@
+{
+ "rhythm": {
+  "shots": 9,
+  "cuts_per_min": 2.9,
+  "avg_shot_s": 18.31,
+  "median_shot_s": 6.07,
+  "shortest_s": 0.7,
+  "longest_s": 65.03,
+  "cuts_by_third": {
+   "open": 2,
+   "middle": 4,
+   "close": 2
+  }
+ },
+ "shots": [
+  {
+   "index": 1,
+   "start": 0.0,
+   "end": 28.77,
+   "duration": 28.77,
+   "camera": "zoom-in",
+   "intensity": "high",
+   "intensity_score": 64.18,
+   "burst_frames": [
+    "bursts/burst_shot01_1.jpg",
+    "bursts/burst_shot01_2.jpg",
+    "bursts/burst_shot01_3.jpg",
+    "bursts/burst_shot01_4.jpg"
+   ]
+  },
+  {
+   "index": 2,
+   "start": 28.77,
+   "end": 52.0,
+   "duration": 23.23,
+   "camera": "zoom-in",
+   "intensity": "high",
+   "intensity_score": 36.49,
+   "burst_frames": [
+    "bursts/burst_shot02_1.jpg",
+    "bursts/burst_shot02_2.jpg",
+    "bursts/burst_shot02_3.jpg",
+    "bursts/burst_shot02_4.jpg"
+   ]
+  },
+  {
+   "index": 3,
+   "start": 52.0,
+   "end": 55.37,
+   "duration": 3.37,
+   "camera": "zoom-out",
+   "intensity": "low",
+   "intensity_score": 0.0,
+   "burst_frames": []
+  },
+  {
+   "index": 4,
+   "start": 55.37,
+   "end": 61.43,
+   "duration": 6.07,
+   "camera": "zoom-in",
+   "intensity": "medium",
+   "intensity_score": 2.75,
+   "burst_frames": []
+  },
+  {
+   "index": 5,
+   "start": 61.43,
+   "end": 92.53,
+   "duration": 31.1,
+   "camera": "pan-left",
+   "intensity": "low",
+   "intensity_score": 0.0,
+   "burst_frames": []
+  },
+  {
+   "index": 6,
+   "start": 92.53,
+   "end": 93.3,
+   "duration": 0.77,
+   "camera": "handheld",
+   "intensity": "high",
+   "intensity_score": 445.41,
+   "burst_frames": [
+    "bursts/burst_shot06_1.jpg",
+    "bursts/burst_shot06_2.jpg",
+    "bursts/burst_shot06_3.jpg",
+    "bursts/burst_shot06_4.jpg"
+   ]
+  },
+  {
+   "index": 7,
+   "start": 93.3,
+   "end": 158.33,
+   "duration": 65.03,
+   "camera": "zoom-out",
+   "intensity": "low",
+   "intensity_score": 0.5,
+   "burst_frames": []
+  },
+  {
+   "index": 8,
+   "start": 158.33,
+   "end": 159.03,
+   "duration": 0.7,
+   "camera": "static",
+   "intensity": "low",
+   "intensity_score": 0.0,
+   "burst_frames": []
+  },
+  {
+   "index": 9,
+   "start": 159.03,
+   "end": 164.8,
+   "duration": 5.77,
+   "camera": "handheld",
+   "intensity": "high",
+   "intensity_score": 79.28,
+   "burst_frames": [
+    "bursts/burst_shot09_1.jpg",
+    "bursts/burst_shot09_2.jpg",
+    "bursts/burst_shot09_3.jpg",
+    "bursts/burst_shot09_4.jpg"
+   ]
+  }
+ ]
+}

@@ -1,0 +1,24 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{width:1270px;height:760px;background:#0d1117;color:#e6edf3;font-family:-apple-system,'SF Pro Display','Segoe UI',sans-serif;overflow:hidden;position:relative}
+.mono{font-family:'SF Mono',ui-monospace,Menlo,monospace}
+.accent{color:#f78166}
+.dim{color:#8b949e}
+.grid-bg{position:absolute;inset:0;background-image:linear-gradient(rgba(240,246,252,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(240,246,252,.03) 1px,transparent 1px);background-size:40px 40px}
+
+.wrap{position:relative;height:100%;display:flex;flex-direction:column;justify-content:center;padding:0 110px}
+h1{font-size:64px;font-weight:800;line-height:1.18;letter-spacing:-1.5px}
+h1 .strike{color:#8b949e;text-decoration:line-through;text-decoration-color:#f78166;text-decoration-thickness:5px}
+.sub{margin-top:30px;font-size:28px;color:#8b949e;line-height:1.5}
+.cmd{margin-top:44px;display:inline-flex;align-items:center;gap:14px;background:#161b22;border:1px solid #30363d;border-radius:12px;padding:18px 26px;font-size:24px;width:fit-content}
+.dot{width:12px;height:12px;border-radius:50%}
+.badges{position:absolute;top:52px;right:110px;display:flex;gap:12px}
+.badge{background:#161b22;border:1px solid #30363d;border-radius:100px;padding:8px 18px;font-size:16px;color:#8b949e}
+.badge b{color:#f78166}
+</style></head><body><div class="grid-bg"></div><div class="badges">
+<div class="badge"><b>▲</b> Hacker News front page</div><div class="badge"><b>★</b> 1,600+ GitHub stars</div><div class="badge">MIT · local-first</div></div>
+<div class="wrap">
+<h1>Your LLM isn't <span class="strike">watching</span> the video.<br>It's reading subtitles.</h1>
+<div class="sub"><b style="color:#e6edf3">claude-real-video</b> — let Claude, ChatGPT or any LLM <b style="color:#f78166">actually watch</b> a video.<br>Keyframes, transcript, fused timeline & speed forensics — all on your own machine.</div>
+<div class="cmd mono"><span class="dot" style="background:#f78166"></span><span class="dim">$</span> pip install claude-real-video <span class="dim">&&</span> crv "youtube.com/watch?v=…"</div>
+</div></body></html>

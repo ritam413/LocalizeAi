@@ -1,0 +1,20 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-07-09/server.schema.json",
+  "name": "io.github.HUANGCHIHHUNGLeo/claude-real-video",
+  "description": "Let any LLM actually watch a video: scene-aware keyframes plus a timestamped transcript, local.",
+  "repository": {
+    "url": "https://github.com/HUANGCHIHHUNGLeo/claude-real-video",
+    "source": "github"
+  },
+  "version": "0.8.1",
+  "packages": [
+    {
+      "registryType": "pypi",
+      "identifier": "claude-real-video",
+      "version": "0.8.1",
+      "transport": {
+        "type": "stdio"
+      }
+    }
+  ]
+}

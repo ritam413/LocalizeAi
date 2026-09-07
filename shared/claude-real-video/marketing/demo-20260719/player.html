@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="player/asciinema-player.css">
+<style>
+  html,body{margin:0;padding:0;background:#0d0f12;height:100%;overflow:hidden}
+  #wrap{display:flex;align-items:center;justify-content:center;height:100vh}
+  .ap-player{border-radius:8px;box-shadow:0 0 60px rgba(0,0,0,.6)}
+</style>
+</head>
+<body>
+<div id="wrap"><div id="player"></div></div>
+<script src="player/asciinema-player.min.js"></script>
+<script>
+  window.player = AsciinemaPlayer.create('terminal-v2.cast', document.getElementById('player'), {
+    autoPlay: false,
+    controls: false,
+    fit: false,
+    terminalFontSize: '26px',
+    terminalFontFamily: "'Menlo', 'SF Mono', monospace",
+    theme: 'asciinema'
+  });
+  window.startPlayback = function(){ return window.player.play(); };
+  window.isEnded = false;
+  window.player.addEventListener('ended', function(){ window.isEnded = true; });
+</script>
+</body>
+</html>

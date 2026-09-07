@@ -1,0 +1,5 @@
+{
+  "name": "claude-real-video",
+  "description": "Let Claude actually watch a video — scene-aware, deduplicated keyframes + timestamped transcript. Runs 100% locally, no API key.",
+  "version": "0.7.16"
+}

@@ -1,0 +1,1318 @@
+{
+ "schema": "crv-timeline/1",
+ "intervals": [
+  {
+   "start": 0.0,
+   "end": 4.24,
+   "speech": null,
+   "speaker": null,
+   "frames": [
+    {
+     "file": "frame_001.jpg",
+     "pts": 0.0
+    },
+    {
+     "file": "frame_002.jpg",
+     "pts": 1.0
+    },
+    {
+     "file": "frame_003.jpg",
+     "pts": 4.0
+    }
+   ],
+   "events": [
+    {
+     "track": "mood",
+     "label": "low-key, somber",
+     "confidence": 1.0,
+     "detail": null,
+     "start": 0.0,
+     "end": 1.0
+    },
+    {
+     "track": "scene",
+     "label": "text on screen",
+     "confidence": 0.48,
+     "detail": "frame_001.jpg",
+     "start": 0.0,
+     "end": 1.0
+    },
+    {
+     "track": "music",
+     "label": "building",
+     "confidence": null,
+     "detail": null,
+     "start": 0.0,
+     "end": 4.99
+    },
+    {
+     "track": "mood",
+     "label": "tense, high-contrast dark",
+     "confidence": 0.61,
+     "detail": null,
+     "start": 1.0,
+     "end": 12.0
+    }
+   ],
+   "camera": "zoom-in",
+   "motion": "high",
+   "cuts": []
+  },
+  {
+   "start": 4.24,
+   "end": 10.24,
+   "speech": "The future of human space exploration is being driven by what we can discover and accomplish on the Moon.",
+   "speaker": null,
+   "frames": [
+    {
+     "file": "frame_004.jpg",
+     "pts": 5.0
+    },
+    {
+     "file": "frame_005.jpg",
+     "pts": 6.0
+    },
+    {
+     "file": "frame_006.jpg",
+     "pts": 7.0
+    },
+    {
+     "file": "frame_007.jpg",
+     "pts": 8.0
+    },
+    {
+     "file": "frame_008.jpg",
+     "pts": 9.0
+    },
+    {
+     "file": "frame_009.jpg",
+     "pts": 10.0
+    }
+   ],
+   "events": [
+    {
+     "track": "music",
+     "label": "steady bed under the voice",
+     "confidence": null,
+     "detail": null,
+     "start": 4.99,
+     "end": 94.85
+    }
+   ],
+   "camera": "zoom-in",
+   "motion": "high",
+   "cuts": []
+  },
+  {
+   "start": 10.24,
+   "end": 14.59,
+   "speech": "And with NASA's confirmation of ice existing at the lunar South Pole,",
+   "speaker": null,
+   "frames": [
+    {
+     "file": "frame_010.jpg",
+     "pts": 11.0
+    },
+    {
+     "file": "frame_011.jpg",
+     "pts": 12.0
+    },
+    {
+     "file": "frame_012.jpg",
+     "pts": 14.0
+    }
+   ],
+   "events": [
+    {
+     "track": "mood",
+     "label": "tense, high-contrast dark",
+     "confidence": 0.5,
+     "detail": null,
+     "start": 14.0,
+     "end": 18.0
+    },
+    {
+     "track": "text",
+     "label": "South Pole",
+     "confidence": 0.85,
+     "detail": "frame_012.jpg → frame_015.jpg",
+     "start": 14.0,
+     "end": 20.0
+    }
+   ],
+   "camera": "zoom-in",
+   "motion": "high",
+   "cuts": []
+  },
+  {
+   "start": 14.59,
+   "end": 21.59,
+   "speech": "the critical task of finding and mapping where water exists, what form it is in, and where it came from, can now begin.",
+   "speaker": null,
+   "frames": [
+    {
+     "file": "frame_013.jpg",
+     "pts": 16.0
+    },
+    {
+     "file": "frame_014.jpg",
+     "pts": 18.0
+    },
+    {
+     "file": "frame_015.jpg",
+     "pts": 19.0
+    },
+    {
+     "file": "frame_016.jpg",
+     "pts": 20.0
+    }
+   ],
+   "events": [
+    {
+     "track": "mood",
+     "label": "low-key, somber",
+     "confidence": 0.87,
+     "detail": null,
+     "start": 18.0,
+     "end": 28.77
+    }
+   ],
+   "camera": "zoom-in",
+   "motion": "high",
+   "cuts": []
+  },
+  {
+   "start": 21.59,
+   "end": 29.19,
+   "speech": "Leading us on that journey will be NASA's first mobile robotic mission on the Moon, known as VIPER,",
+   "speaker": null,
+   "frames": [
+    {
+     "file": "frame_017.jpg",
+     "pts": 22.0
+    },
+    {
+     "file": "frame_018.jpg",
+     "pts": 26.0
+    },
+    {
+     "file": "frame_019.jpg",
+     "pts": 27.0
+    },
+    {
+     "file": "frame_020.jpg",
+     "pts": 28.0
+    },
+    {
+     "file": "frame_021.jpg",
+     "pts": 28.77
+    },
+    {
+     "file": "frame_022.jpg",
+     "pts": 29.0
+    }
+   ],
+   "events": [
+    {
+     "track": "scene",
+     "label": "text on screen",
+     "confidence": 0.44,
+     "detail": "frame_021.jpg",
+     "start": 28.77,
+     "end": 29.0
+    },
+    {
+     "track": "text",
+     "label": "ATING POLAA",
+     "confidence": 0.77,
+     "detail": "frame_021.jpg",
+     "start": 28.77,
+     "end": 29.0
+    },
+    {
+     "track": "text",
+     "label": "IPER / VOLATILESINVESTIGATING POLAREXPLORATION ROVER",
+     "confidence": 0.82,
+     "detail": "frame_022.jpg",
+     "start": 29.0,
+     "end": 30.0
+    },
+    {
+     "track": "mood",
+     "label": "tense, high-contrast dark",
+     "confidence": 0.49,
+     "detail": null,
+     "start": 29.0,
+     "end": 34.0
+    }
+   ],
+   "camera": "zoom-in",
+   "motion": "high",
+   "cuts": [
+    28.77
+   ]
+  },
+  {
+   "start": 29.19,
+   "end": 33.19,
+   "speech": "the Volatiles Investigating Polar Exploration Rover.",
+   "speaker": null,
+   "frames": [
+    {
+     "file": "frame_023.jpg",
+     "pts": 30.0
+    },
+    {
+     "file": "frame_024.jpg",
+     "pts": 31.0
+    },
+    {
+     "file": "frame_025.jpg",
+     "pts": 32.0
+    },
+    {
+     "file": "frame_026.jpg",
+     "pts": 33.0
+    }
+   ],
+   "events": [
+    {
+     "track": "text",
+     "label": "VIPER / VOLATILESINVESTIGATINGPOLAREXPLORATIONROVER",
+     "confidence": 0.84,
+     "detail": "frame_023.jpg",
+     "start": 30.0,
+     "end": 31.0
+    },
+    {
+     "track": "text",
+     "label": "VOLATILESNVESTIGATING POLAREXPLORATIONROVER",
+     "confidence": 0.9,
+     "detail": "frame_024.jpg",
+     "start": 31.0,
+     "end": 32.0
+    },
+    {
+     "track": "text",
+     "label": "VIRER / VOLATILESINVESTIGATING POLAREXPLORATIONROVER",
+     "confidence": 0.85,
+     "detail": "frame_025.jpg",
+     "start": 32.0,
+     "end": 33.0
+    },
+    {
+     "track": "text",
+     "label": "VIPER / VOLATILESINVESTIGATINGPOLAR EXPLORATIONROVER",
+     "confidence": 0.85,
+     "detail": "frame_026.jpg",
+     "start": 33.0,
+     "end": 34.0
+    }
+   ],
+   "camera": "zoom-in",
+   "motion": "high",
+   "cuts": []
+  },
+  {
+   "start": 33.19,
+   "end": 37.51,
+   "speech": "It will be delivered to the Nobile region of the South Pole as part of NASA's Commercial",
+   "speaker": null,
+   "frames": [
+    {
+     "file": "frame_027.jpg",
+     "pts": 34.0
+    },
+    {
+     "file": "frame_028.jpg",
+     "pts": 35.0
+    },
+    {
+     "file": "frame_029.jpg",
+     "pts": 36.0
+    },
+    {
+     "file": "frame_030.jpg",
+     "pts": 37.0
+    }
+   ],
+   "events": [
+    {
+     "track": "mood",
+     "label": "low-key, somber",
+     "confidence": 0.92,
+     "detail": null,
+     "start": 34.0,
+     "end": 41.0
+    },
+    {
+     "track": "text",
+     "label": "NOBILE / CRATER",
+     "confidence": 0.81,
+     "detail": "frame_028.jpg → frame_029.jpg",
+     "start": 35.0,
+     "end": 37.0
+    },
+    {
+     "track": "text",
+     "label": "CRATER",
+     "confidence": 0.79,
+     "detail": "frame_030.jpg",
+     "start": 37.0,
+     "end": 38.0
+    }
+   ],
+   "camera": "zoom-in",
+   "motion": "high",
+   "cuts": []
+  },
+  {
+   "start": 37.51,
+   "end": 40.07,
+   "speech": "Lunar Payload Services Initiative.",
+   "speaker": null,
+   "frames": [
+    {
+     "file": "frame_031.jpg",
+     "pts": 38.0
+    },
+    {
+     "file": "frame_032.jpg",
+     "pts": 39.0
+    },
+    {
+     "file": "frame_033.jpg",
+     "pts": 40.0
+    }
+   ],
+   "events": [
+    {
+     "track": "text",
+     "label": "NOBHE / CRATER",
+     "confidence": 0.81,
+     "detail": "frame_031.jpg",
+     "start": 38.0,
+     "end": 39.0
+    },
+    {
+     "track": "text",
+     "label": "NOBILE / CRATER",
+     "confidence": 0.83,
+     "detail": "frame_032.jpg → frame_035.jpg",
+     "start": 39.0,
+     "end": 43.0
+    }
+   ],
+   "camera": "zoom-in",
+   "motion": "high",
+   "cuts": []
+  },
+  {
+   "start": 40.07,
+   "end": 45.43,
+   "speech": "This region sits just outside the western rim of Nobile crater and covers an area of 36",
+   "speaker": null,
+   "frames": [
+    {
+     "file": "frame_034.jpg",
+     "pts": 41.0
+    },
+    {
+     "file": "frame_035.jpg",
+     "pts": 42.0
+    },
+    {
+     "file": "frame_036.jpg",
+     "pts": 43.0
+    },
+    {
+     "file": "frame_037.jpg",
+     "pts": 44.0
+    },
+    {
+     "file": "frame_038.jpg",
+     "pts": 45.0
+    }
+   ],
+   "events": [
+    {
+     "track": "mood",
+     "label": "tense, high-contrast dark",
+     "confidence": 0.45,
+     "detail": null,
+     "start": 41.0,
+     "end": 45.0
+    },
+    {
+     "track": "scene",
+     "label": "a game or gameplay footage",
+     "confidence": 0.33,
+     "detail": "frame_035.jpg",
+     "start": 42.0,
+     "end": 43.0
+    },
+    {
+     "track": "scene",
+     "label": "a screen recording of software",
+     "confidence": 0.33,
+     "detail": "frame_036.jpg",
+     "start": 43.0,
+     "end": 44.0
+    },
+    {
+     "track": "text",
+     "label": "NOBIL / CRATE",
+     "confidence": 0.76,
+     "detail": "frame_036.jpg",
+     "start": 43.0,
+     "end": 44.0
+    },
+    {
+     "track": "mood",
+     "label": "low-key, somber",
+     "confidence": 0.84,
+     "detail": null,
+     "start": 45.0,
+     "end": 48.0
+    },
+    {
+     "track": "scene",
+     "label": "a 3d animation or cgi scene",
+     "confidence": 0.7,
+     "detail": "through frame_040.jpg",
+     "start": 45.0,
+     "end": 48.0
+    }
+   ],
+   "camera": "zoom-in",
+   "motion": "high",
+   "cuts": []
+  },
+  {
+   "start": 45.43,
+   "end": 48.1,
+   "speech": "square miles.",
+   "speaker": null,
+   "frames": [
+    {
+     "file": "frame_039.jpg",
+     "pts": 46.0
+    },
+    {
+     "file": "frame_040.jpg",
+     "pts": 47.0
+    },
+    {
+     "file": "frame_041.jpg",
+     "pts": 48.0
+    }
+   ],
+   "events": [],
+   "camera": "zoom-in",
+   "motion": "high",
+   "cuts": []
+  },
+  {
+   "start": 48.1,
+   "end": 52.86,
+   "speech": "As the first ever resource mapping mission on the surface of another celestial body, Viper",
+   "speaker": null,
+   "frames": [
+    {
+     "file": "frame_042.jpg",
+     "pts": 49.0
+    },
+    {
+     "file": "frame_043.jpg",
+     "pts": 50.0
+    },
+    {
+     "file": "frame_044.jpg",
+     "pts": 52.0
+    }
+   ],
+   "events": [
+    {
+     "track": "mood",
+     "label": "low-key, somber",
+     "confidence": 0.8,
+     "detail": null,
+     "start": 49.0,
+     "end": 52.0
+    },
+    {
+     "track": "scene",
+     "label": "a 3d animation or cgi scene",
+     "confidence": 0.7,
+     "detail": "through frame_043.jpg",
+     "start": 49.0,
+     "end": 52.0
+    }
+   ],
+   "camera": "zoom-in",
+   "motion": "high",
+   "cuts": [
+    52.0
+   ]
+  },
+  {
+   "start": 52.86,
+   "end": 57.18,
+   "speech": "will roam the surface equipped with three science instruments and a drill to detect",
+   "speaker": null,
+   "frames": [
+    {
+     "file": "frame_045.jpg",
+     "pts": 55.37
+    },
+    {
+     "file": "frame_046.jpg",
+     "pts": 56.0
+    },
+    {
+     "file": "frame_047.jpg",
+     "pts": 57.0
+    }
+   ],
+   "events": [
+    {
+     "track": "scene",
+     "label": "a 3d animation or cgi scene",
+     "confidence": 0.8,
+     "detail": "frame_045.jpg",
+     "start": 55.37,
+     "end": 56.0
+    },
+    {
+     "track": "mood",
+     "label": "tense, high-contrast dark",
+     "confidence": 0.48,
+     "detail": null,
+     "start": 55.37,
+     "end": 57.0
+    }
+   ],
+   "camera": "zoom-out",
+   "motion": "low",
+   "cuts": [
+    55.37
+   ]
+  },
+  {
+   "start": 57.18,
+   "end": 62.83,
+   "speech": "and analyze various lunar soil environments at a range of depths and temperatures.",
+   "speaker": null,
+   "frames": [
+    {
+     "file": "frame_048.jpg",
+     "pts": 58.0
+    },
+    {
+     "file": "frame_049.jpg",
+     "pts": 59.0
+    },
+    {
+     "file": "frame_050.jpg",
+     "pts": 61.43
+    }
+   ],
+   "events": [
+    {
+     "track": "scene",
+     "label": "a 3d animation or cgi scene",
+     "confidence": 0.72,
+     "detail": "frame_050.jpg",
+     "start": 61.43,
+     "end": 63.0
+    },
+    {
+     "track": "mood",
+     "label": "low-key, somber",
+     "confidence": 0.93,
+     "detail": null,
+     "start": 61.43,
+     "end": 69.0
+    }
+   ],
+   "camera": "zoom-in",
+   "motion": "medium",
+   "cuts": [
+    61.43
+   ]
+  },
+  {
+   "start": 62.83,
+   "end": 66.75,
+   "speech": "The rover will venture into permanently shadowed craters, some of the coldest spots in the",
+   "speaker": null,
+   "frames": [
+    {
+     "file": "frame_051.jpg",
+     "pts": 63.0
+    },
+    {
+     "file": "frame_052.jpg",
+     "pts": 64.0
+    },
+    {
+     "file": "frame_053.jpg",
+     "pts": 65.0
+    },
+    {
+     "file": "frame_054.jpg",
+     "pts": 66.0
+    }
+   ],
+   "events": [],
+   "camera": "pan-left",
+   "motion": "low",
+   "cuts": []
+  },
+  {
+   "start": 66.75,
+   "end": 76.0,
+   "speech": "solar system, where ice reserves have been preserved for billions of years.",
+   "speaker": null,
+   "frames": [
+    {
+     "file": "frame_055.jpg",
+     "pts": 67.0
+    },
+    {
+     "file": "frame_056.jpg",
+     "pts": 68.0
+    },
+    {
+     "file": "frame_057.jpg",
+     "pts": 69.0
+    },
+    {
+     "file": "frame_058.jpg",
+     "pts": 70.0
+    },
+    {
+     "file": "frame_059.jpg",
+     "pts": 71.0
+    },
+    {
+     "file": "frame_060.jpg",
+     "pts": 72.0
+    },
+    {
+     "file": "frame_061.jpg",
+     "pts": 73.0
+    },
+    {
+     "file": "frame_062.jpg",
+     "pts": 74.0
+    },
+    {
+     "file": "frame_063.jpg",
+     "pts": 75.0
+    }
+   ],
+   "events": [
+    {
+     "track": "mood",
+     "label": "tense, high-contrast dark",
+     "confidence": 0.56,
+     "detail": null,
+     "start": 69.0,
+     "end": 71.0
+    },
+    {
+     "track": "scene",
+     "label": "typing on a keyboard",
+     "confidence": 0.71,
+     "detail": "through frame_059.jpg",
+     "start": 70.0,
+     "end": 72.0
+    },
+    {
+     "track": "mood",
+     "label": "low-key, somber",
+     "confidence": 0.93,
+     "detail": null,
+     "start": 71.0,
+     "end": 76.0
+    }
+   ],
+   "camera": "pan-left",
+   "motion": "low",
+   "cuts": []
+  },
+  {
+   "start": 76.0,
+   "end": 80.6,
+   "speech": "NASA had four critical parameters when choosing a landing site for Viper.",
+   "speaker": null,
+   "frames": [
+    {
+     "file": "frame_064.jpg",
+     "pts": 76.0
+    },
+    {
+     "file": "frame_065.jpg",
+     "pts": 77.0
+    },
+    {
+     "file": "frame_066.jpg",
+     "pts": 79.0
+    }
+   ],
+   "events": [
+    {
+     "track": "mood",
+     "label": "tense, high-contrast dark",
+     "confidence": 0.49,
+     "detail": null,
+     "start": 76.0,
+     "end": 92.53
+    }
+   ],
+   "camera": "pan-left",
+   "motion": "low",
+   "cuts": []
+  },
+  {
+   "start": 80.6,
+   "end": 85.88,
+   "speech": "Available sunlight, Earth visibility for communications from the Moon to the Earth,",
+   "speaker": null,
+   "frames": [
+    {
+     "file": "frame_067.jpg",
+     "pts": 81.0
+    },
+    {
+     "file": "frame_068.jpg",
+     "pts": 83.0
+    },
+    {
+     "file": "frame_069.jpg",
+     "pts": 85.0
+    }
+   ],
+   "events": [],
+   "camera": "pan-left",
+   "motion": "low",
+   "cuts": []
+  },
+  {
+   "start": 85.88,
+   "end": 90.3,
+   "speech": "data showing the potential presence of water and other resources, and terrain that is well",
+   "speaker": null,
+   "frames": [
+    {
+     "file": "frame_070.jpg",
+     "pts": 86.0
+    },
+    {
+     "file": "frame_071.jpg",
+     "pts": 89.0
+    }
+   ],
+   "events": [],
+   "camera": "pan-left",
+   "motion": "low",
+   "cuts": []
+  },
+  {
+   "start": 90.3,
+   "end": 97.11,
+   "speech": "suited for Viper to navigate.",
+   "speaker": null,
+   "frames": [
+    {
+     "file": "frame_072.jpg",
+     "pts": 92.0
+    },
+    {
+     "file": "frame_073.jpg",
+     "pts": 92.53
+    },
+    {
+     "file": "frame_074.jpg",
+     "pts": 93.0
+    },
+    {
+     "file": "frame_075.jpg",
+     "pts": 93.3
+    },
+    {
+     "file": "frame_076.jpg",
+     "pts": 96.0
+    }
+   ],
+   "events": [
+    {
+     "track": "mood",
+     "label": "low-key, somber",
+     "confidence": 0.85,
+     "detail": null,
+     "start": 93.3,
+     "end": 133.0
+    },
+    {
+     "track": "music",
+     "label": "building",
+     "confidence": null,
+     "detail": null,
+     "start": 94.85,
+     "end": 104.84
+    },
+    {
+     "track": "text",
+     "label": "Nobile Region",
+     "confidence": 0.89,
+     "detail": "frame_076.jpg → frame_080.jpg",
+     "start": 96.0,
+     "end": 102.0
+    }
+   ],
+   "camera": "zoom-out",
+   "motion": "low",
+   "cuts": [
+    92.53,
+    93.3
+   ]
+  },
+  {
+   "start": 97.11,
+   "end": 103.74,
+   "speech": "The area to the west of Nobile Crater met these conditions.",
+   "speaker": null,
+   "frames": [
+    {
+     "file": "frame_077.jpg",
+     "pts": 98.0
+    },
+    {
+     "file": "frame_078.jpg",
+     "pts": 99.0
+    },
+    {
+     "file": "frame_079.jpg",
+     "pts": 100.0
+    },
+    {
+     "file": "frame_080.jpg",
+     "pts": 101.0
+    },
+    {
+     "file": "frame_081.jpg",
+     "pts": 102.0
+    },
+    {
+     "file": "frame_082.jpg",
+     "pts": 103.0
+    }
+   ],
+   "events": [],
+   "camera": "zoom-out",
+   "motion": "low",
+   "cuts": []
+  },
+  {
+   "start": 103.74,
+   "end": 109.06,
+   "speech": "Once on the surface, Viper's mission will last 100 days and cover between 10 to 15 miles.",
+   "speaker": null,
+   "frames": [
+    {
+     "file": "frame_083.jpg",
+     "pts": 104.0
+    },
+    {
+     "file": "frame_084.jpg",
+     "pts": 105.0
+    },
+    {
+     "file": "frame_085.jpg",
+     "pts": 106.0
+    },
+    {
+     "file": "frame_086.jpg",
+     "pts": 107.0
+    },
+    {
+     "file": "frame_087.jpg",
+     "pts": 108.0
+    },
+    {
+     "file": "frame_088.jpg",
+     "pts": 109.0
+    }
+   ],
+   "events": [
+    {
+     "track": "music",
+     "label": "steady bed under the voice",
+     "confidence": null,
+     "detail": null,
+     "start": 104.84,
+     "end": 154.76
+    }
+   ],
+   "camera": "zoom-out",
+   "motion": "low",
+   "cuts": []
+  },
+  {
+   "start": 109.06,
+   "end": 113.1,
+   "speech": "And while a baseline traverse route through the Nobile region has been identified for",
+   "speaker": null,
+   "frames": [
+    {
+     "file": "frame_089.jpg",
+     "pts": 110.0
+    },
+    {
+     "file": "frame_090.jpg",
+     "pts": 111.0
+    },
+    {
+     "file": "frame_091.jpg",
+     "pts": 112.0
+    },
+    {
+     "file": "frame_092.jpg",
+     "pts": 113.0
+    }
+   ],
+   "events": [],
+   "camera": "zoom-out",
+   "motion": "low",
+   "cuts": []
+  },
+  {
+   "start": 113.1,
+   "end": 118.04,
+   "speech": "the rover, the scientific discoveries Viper makes along the way will actually influence",
+   "speaker": null,
+   "frames": [
+    {
+     "file": "frame_093.jpg",
+     "pts": 114.0
+    },
+    {
+     "file": "frame_094.jpg",
+     "pts": 115.0
+    },
+    {
+     "file": "frame_095.jpg",
+     "pts": 117.0
+    }
+   ],
+   "events": [],
+   "camera": "zoom-out",
+   "motion": "low",
+   "cuts": []
+  },
+  {
+   "start": 118.04,
+   "end": 125.07,
+   "speech": "where the mission team sends it next, so its planned route will most likely change.",
+   "speaker": null,
+   "frames": [
+    {
+     "file": "frame_096.jpg",
+     "pts": 119.0
+    },
+    {
+     "file": "frame_097.jpg",
+     "pts": 122.0
+    },
+    {
+     "file": "frame_098.jpg",
+     "pts": 125.0
+    }
+   ],
+   "events": [],
+   "camera": "zoom-out",
+   "motion": "low",
+   "cuts": []
+  },
+  {
+   "start": 125.07,
+   "end": 129.87,
+   "speech": "During its travels, Viper will visit at least six locations where data suggests ice could",
+   "speaker": null,
+   "frames": [
+    {
+     "file": "frame_099.jpg",
+     "pts": 129.0
+    }
+   ],
+   "events": [],
+   "camera": "zoom-out",
+   "motion": "low",
+   "cuts": []
+  },
+  {
+   "start": 129.87,
+   "end": 138.09,
+   "speech": "be found.",
+   "speaker": null,
+   "frames": [
+    {
+     "file": "frame_100.jpg",
+     "pts": 131.0
+    },
+    {
+     "file": "frame_101.jpg",
+     "pts": 133.0
+    },
+    {
+     "file": "frame_102.jpg",
+     "pts": 134.0
+    },
+    {
+     "file": "frame_103.jpg",
+     "pts": 135.0
+    },
+    {
+     "file": "frame_104.jpg",
+     "pts": 136.0
+    },
+    {
+     "file": "frame_105.jpg",
+     "pts": 137.0
+    },
+    {
+     "file": "frame_106.jpg",
+     "pts": 138.0
+    }
+   ],
+   "events": [
+    {
+     "track": "scene",
+     "label": "a screen recording of software",
+     "confidence": 0.55,
+     "detail": "frame_100.jpg",
+     "start": 131.0,
+     "end": 133.0
+    },
+    {
+     "track": "mood",
+     "label": "tense, high-contrast dark",
+     "confidence": 0.45,
+     "detail": null,
+     "start": 134.0,
+     "end": 141.0
+    }
+   ],
+   "camera": "zoom-out",
+   "motion": "low",
+   "cuts": []
+  },
+  {
+   "start": 138.09,
+   "end": 143.11,
+   "speech": "By helping determine the locations of where water and other resources exist, Vyper's findings",
+   "speaker": null,
+   "frames": [
+    {
+     "file": "frame_107.jpg",
+     "pts": 139.0
+    },
+    {
+     "file": "frame_108.jpg",
+     "pts": 140.0
+    },
+    {
+     "file": "frame_109.jpg",
+     "pts": 141.0
+    },
+    {
+     "file": "frame_110.jpg",
+     "pts": 142.0
+    },
+    {
+     "file": "frame_111.jpg",
+     "pts": 143.0
+    }
+   ],
+   "events": [
+    {
+     "track": "mood",
+     "label": "low-key, somber",
+     "confidence": 0.86,
+     "detail": null,
+     "start": 141.0,
+     "end": 142.0
+    },
+    {
+     "track": "mood",
+     "label": "tense, high-contrast dark",
+     "confidence": 0.45,
+     "detail": null,
+     "start": 142.0,
+     "end": 145.0
+    }
+   ],
+   "camera": "zoom-out",
+   "motion": "low",
+   "cuts": []
+  },
+  {
+   "start": 143.11,
+   "end": 148.07,
+   "speech": "will help pave the way for future landing sites under NASA's Artemis program.",
+   "speaker": null,
+   "frames": [
+    {
+     "file": "frame_112.jpg",
+     "pts": 144.0
+    },
+    {
+     "file": "frame_113.jpg",
+     "pts": 145.0
+    },
+    {
+     "file": "frame_114.jpg",
+     "pts": 146.0
+    },
+    {
+     "file": "frame_115.jpg",
+     "pts": 147.0
+    },
+    {
+     "file": "frame_116.jpg",
+     "pts": 148.0
+    }
+   ],
+   "events": [],
+   "camera": "zoom-out",
+   "motion": "low",
+   "cuts": []
+  },
+  {
+   "start": 148.07,
+   "end": 152.65,
+   "speech": "The prospects of achieving a long-term human presence on our Moon never look so bright.",
+   "speaker": null,
+   "frames": [
+    {
+     "file": "frame_117.jpg",
+     "pts": 149.0
+    },
+    {
+     "file": "frame_118.jpg",
+     "pts": 150.0
+    },
+    {
+     "file": "frame_119.jpg",
+     "pts": 151.0
+    },
+    {
+     "file": "frame_120.jpg",
+     "pts": 152.0
+    }
+   ],
+   "events": [],
+   "camera": "zoom-out",
+   "motion": "low",
+   "cuts": []
+  },
+  {
+   "start": 152.65,
+   "end": 164.8,
+   "speech": null,
+   "speaker": null,
+   "frames": [
+    {
+     "file": "frame_121.jpg",
+     "pts": 153.0
+    },
+    {
+     "file": "frame_122.jpg",
+     "pts": 154.0
+    },
+    {
+     "file": "frame_123.jpg",
+     "pts": 155.0
+    },
+    {
+     "file": "frame_124.jpg",
+     "pts": 157.0
+    },
+    {
+     "file": "frame_125.jpg",
+     "pts": 158.33
+    },
+    {
+     "file": "frame_126.jpg",
+     "pts": 159.03
+    },
+    {
+     "file": "frame_127.jpg",
+     "pts": 160.0
+    },
+    {
+     "file": "frame_128.jpg",
+     "pts": 161.0
+    }
+   ],
+   "events": [
+    {
+     "track": "mood",
+     "label": "tense, high-contrast dark",
+     "confidence": 0.66,
+     "detail": null,
+     "start": 153.0,
+     "end": 158.33
+    },
+    {
+     "track": "scene",
+     "label": "text on screen",
+     "confidence": 0.48,
+     "detail": "frame_125.jpg",
+     "start": 158.33,
+     "end": 159.03
+    },
+    {
+     "track": "scene",
+     "label": "a 3d animation or cgi scene",
+     "confidence": 0.83,
+     "detail": "frame_127.jpg",
+     "start": 160.0,
+     "end": 161.0
+    },
+    {
+     "track": "mood",
+     "label": "low-key, somber",
+     "confidence": 0.89,
+     "detail": null,
+     "start": 160.0,
+     "end": 164.8
+    },
+    {
+     "track": "scene",
+     "label": "a game or gameplay footage",
+     "confidence": 0.51,
+     "detail": "frame_128.jpg",
+     "start": 161.0,
+     "end": 164.8
+    },
+    {
+     "track": "text",
+     "label": "ARTEMIS",
+     "confidence": 0.86,
+     "detail": "frame_128.jpg",
+     "start": 161.0,
+     "end": 164.8
+    }
+   ],
+   "camera": "static",
+   "motion": "low",
+   "cuts": [
+    158.33,
+    159.03
+   ]
+  }
+ ]
+}

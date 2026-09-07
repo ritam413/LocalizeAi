@@ -1,0 +1,418 @@
+{
+ "events": [
+  {
+   "start": 0.0,
+   "end": 1.0,
+   "track": "mood",
+   "label": "low-key, somber",
+   "confidence": 1.0,
+   "detail": null
+  },
+  {
+   "start": 0.0,
+   "end": 1.0,
+   "track": "scene",
+   "label": "text on screen",
+   "confidence": 0.48,
+   "detail": "frame_001.jpg"
+  },
+  {
+   "start": 0.0,
+   "end": 4.99,
+   "track": "music",
+   "label": "building",
+   "confidence": null,
+   "detail": null
+  },
+  {
+   "start": 1.0,
+   "end": 12.0,
+   "track": "mood",
+   "label": "tense, high-contrast dark",
+   "confidence": 0.61,
+   "detail": null
+  },
+  {
+   "start": 4.99,
+   "end": 94.85,
+   "track": "music",
+   "label": "steady bed under the voice",
+   "confidence": null,
+   "detail": null
+  },
+  {
+   "start": 14.0,
+   "end": 18.0,
+   "track": "mood",
+   "label": "tense, high-contrast dark",
+   "confidence": 0.5,
+   "detail": null
+  },
+  {
+   "start": 14.0,
+   "end": 20.0,
+   "track": "text",
+   "label": "South Pole",
+   "confidence": 0.85,
+   "detail": "frame_012.jpg → frame_015.jpg"
+  },
+  {
+   "start": 18.0,
+   "end": 28.77,
+   "track": "mood",
+   "label": "low-key, somber",
+   "confidence": 0.87,
+   "detail": null
+  },
+  {
+   "start": 28.77,
+   "end": 29.0,
+   "track": "scene",
+   "label": "text on screen",
+   "confidence": 0.44,
+   "detail": "frame_021.jpg"
+  },
+  {
+   "start": 28.77,
+   "end": 29.0,
+   "track": "text",
+   "label": "ATING POLAA",
+   "confidence": 0.77,
+   "detail": "frame_021.jpg"
+  },
+  {
+   "start": 29.0,
+   "end": 30.0,
+   "track": "text",
+   "label": "IPER / VOLATILESINVESTIGATING POLAREXPLORATION ROVER",
+   "confidence": 0.82,
+   "detail": "frame_022.jpg"
+  },
+  {
+   "start": 29.0,
+   "end": 34.0,
+   "track": "mood",
+   "label": "tense, high-contrast dark",
+   "confidence": 0.49,
+   "detail": null
+  },
+  {
+   "start": 30.0,
+   "end": 31.0,
+   "track": "text",
+   "label": "VIPER / VOLATILESINVESTIGATINGPOLAREXPLORATIONROVER",
+   "confidence": 0.84,
+   "detail": "frame_023.jpg"
+  },
+  {
+   "start": 31.0,
+   "end": 32.0,
+   "track": "text",
+   "label": "VOLATILESNVESTIGATING POLAREXPLORATIONROVER",
+   "confidence": 0.9,
+   "detail": "frame_024.jpg"
+  },
+  {
+   "start": 32.0,
+   "end": 33.0,
+   "track": "text",
+   "label": "VIRER / VOLATILESINVESTIGATING POLAREXPLORATIONROVER",
+   "confidence": 0.85,
+   "detail": "frame_025.jpg"
+  },
+  {
+   "start": 33.0,
+   "end": 34.0,
+   "track": "text",
+   "label": "VIPER / VOLATILESINVESTIGATINGPOLAR EXPLORATIONROVER",
+   "confidence": 0.85,
+   "detail": "frame_026.jpg"
+  },
+  {
+   "start": 34.0,
+   "end": 41.0,
+   "track": "mood",
+   "label": "low-key, somber",
+   "confidence": 0.92,
+   "detail": null
+  },
+  {
+   "start": 35.0,
+   "end": 37.0,
+   "track": "text",
+   "label": "NOBILE / CRATER",
+   "confidence": 0.81,
+   "detail": "frame_028.jpg → frame_029.jpg"
+  },
+  {
+   "start": 37.0,
+   "end": 38.0,
+   "track": "text",
+   "label": "CRATER",
+   "confidence": 0.79,
+   "detail": "frame_030.jpg"
+  },
+  {
+   "start": 38.0,
+   "end": 39.0,
+   "track": "text",
+   "label": "NOBHE / CRATER",
+   "confidence": 0.81,
+   "detail": "frame_031.jpg"
+  },
+  {
+   "start": 39.0,
+   "end": 43.0,
+   "track": "text",
+   "label": "NOBILE / CRATER",
+   "confidence": 0.83,
+   "detail": "frame_032.jpg → frame_035.jpg"
+  },
+  {
+   "start": 41.0,
+   "end": 45.0,
+   "track": "mood",
+   "label": "tense, high-contrast dark",
+   "confidence": 0.45,
+   "detail": null
+  },
+  {
+   "start": 42.0,
+   "end": 43.0,
+   "track": "scene",
+   "label": "a game or gameplay footage",
+   "confidence": 0.33,
+   "detail": "frame_035.jpg"
+  },
+  {
+   "start": 43.0,
+   "end": 44.0,
+   "track": "scene",
+   "label": "a screen recording of software",
+   "confidence": 0.33,
+   "detail": "frame_036.jpg"
+  },
+  {
+   "start": 43.0,
+   "end": 44.0,
+   "track": "text",
+   "label": "NOBIL / CRATE",
+   "confidence": 0.76,
+   "detail": "frame_036.jpg"
+  },
+  {
+   "start": 45.0,
+   "end": 48.0,
+   "track": "mood",
+   "label": "low-key, somber",
+   "confidence": 0.84,
+   "detail": null
+  },
+  {
+   "start": 45.0,
+   "end": 48.0,
+   "track": "scene",
+   "label": "a 3d animation or cgi scene",
+   "confidence": 0.7,
+   "detail": "through frame_040.jpg"
+  },
+  {
+   "start": 49.0,
+   "end": 52.0,
+   "track": "mood",
+   "label": "low-key, somber",
+   "confidence": 0.8,
+   "detail": null
+  },
+  {
+   "start": 49.0,
+   "end": 52.0,
+   "track": "scene",
+   "label": "a 3d animation or cgi scene",
+   "confidence": 0.7,
+   "detail": "through frame_043.jpg"
+  },
+  {
+   "start": 55.37,
+   "end": 56.0,
+   "track": "scene",
+   "label": "a 3d animation or cgi scene",
+   "confidence": 0.8,
+   "detail": "frame_045.jpg"
+  },
+  {
+   "start": 55.37,
+   "end": 57.0,
+   "track": "mood",
+   "label": "tense, high-contrast dark",
+   "confidence": 0.48,
+   "detail": null
+  },
+  {
+   "start": 61.43,
+   "end": 63.0,
+   "track": "scene",
+   "label": "a 3d animation or cgi scene",
+   "confidence": 0.72,
+   "detail": "frame_050.jpg"
+  },
+  {
+   "start": 61.43,
+   "end": 69.0,
+   "track": "mood",
+   "label": "low-key, somber",
+   "confidence": 0.93,
+   "detail": null
+  },
+  {
+   "start": 69.0,
+   "end": 71.0,
+   "track": "mood",
+   "label": "tense, high-contrast dark",
+   "confidence": 0.56,
+   "detail": null
+  },
+  {
+   "start": 70.0,
+   "end": 72.0,
+   "track": "scene",
+   "label": "typing on a keyboard",
+   "confidence": 0.71,
+   "detail": "through frame_059.jpg"
+  },
+  {
+   "start": 71.0,
+   "end": 76.0,
+   "track": "mood",
+   "label": "low-key, somber",
+   "confidence": 0.93,
+   "detail": null
+  },
+  {
+   "start": 76.0,
+   "end": 92.53,
+   "track": "mood",
+   "label": "tense, high-contrast dark",
+   "confidence": 0.49,
+   "detail": null
+  },
+  {
+   "start": 93.3,
+   "end": 133.0,
+   "track": "mood",
+   "label": "low-key, somber",
+   "confidence": 0.85,
+   "detail": null
+  },
+  {
+   "start": 94.85,
+   "end": 104.84,
+   "track": "music",
+   "label": "building",
+   "confidence": null,
+   "detail": null
+  },
+  {
+   "start": 96.0,
+   "end": 102.0,
+   "track": "text",
+   "label": "Nobile Region",
+   "confidence": 0.89,
+   "detail": "frame_076.jpg → frame_080.jpg"
+  },
+  {
+   "start": 104.84,
+   "end": 154.76,
+   "track": "music",
+   "label": "steady bed under the voice",
+   "confidence": null,
+   "detail": null
+  },
+  {
+   "start": 131.0,
+   "end": 133.0,
+   "track": "scene",
+   "label": "a screen recording of software",
+   "confidence": 0.55,
+   "detail": "frame_100.jpg"
+  },
+  {
+   "start": 134.0,
+   "end": 141.0,
+   "track": "mood",
+   "label": "tense, high-contrast dark",
+   "confidence": 0.45,
+   "detail": null
+  },
+  {
+   "start": 141.0,
+   "end": 142.0,
+   "track": "mood",
+   "label": "low-key, somber",
+   "confidence": 0.86,
+   "detail": null
+  },
+  {
+   "start": 142.0,
+   "end": 145.0,
+   "track": "mood",
+   "label": "tense, high-contrast dark",
+   "confidence": 0.45,
+   "detail": null
+  },
+  {
+   "start": 153.0,
+   "end": 158.33,
+   "track": "mood",
+   "label": "tense, high-contrast dark",
+   "confidence": 0.66,
+   "detail": null
+  },
+  {
+   "start": 158.33,
+   "end": 159.03,
+   "track": "scene",
+   "label": "text on screen",
+   "confidence": 0.48,
+   "detail": "frame_125.jpg"
+  },
+  {
+   "start": 160.0,
+   "end": 161.0,
+   "track": "scene",
+   "label": "a 3d animation or cgi scene",
+   "confidence": 0.83,
+   "detail": "frame_127.jpg"
+  },
+  {
+   "start": 160.0,
+   "end": 164.8,
+   "track": "mood",
+   "label": "low-key, somber",
+   "confidence": 0.89,
+   "detail": null
+  },
+  {
+   "start": 161.0,
+   "end": 164.8,
+   "track": "scene",
+   "label": "a game or gameplay footage",
+   "confidence": 0.51,
+   "detail": "frame_128.jpg"
+  },
+  {
+   "start": 161.0,
+   "end": 164.8,
+   "track": "text",
+   "label": "ARTEMIS",
+   "confidence": 0.86,
+   "detail": "frame_128.jpg"
+  }
+ ],
+ "prosody_summary": null,
+ "notes": [
+  "cinematic footage detected — skipped the voice + gesture tracks (few frontal faces / no direct-address speech); the emotional read comes from visual mood, music and camera motion instead",
+  "music: covers 93% of the runtime, ~136 BPM",
+  "screen text (track `text`) is OCR'd straight off the frames — burned-in captions are the video's own script: prefer their wording over the ASR transcript for names, numbers and terms"
+ ]
+}

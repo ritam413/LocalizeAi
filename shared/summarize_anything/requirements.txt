@@ -1,0 +1,12 @@
+litellm==1.55.3
+yt-dlp==2024.10.7
+argparse
+dotenv
+python-dotenv~=1.0.1
+requests~=2.32.3
+pydantic~=2.9.2
+openai~=1.51.2
+pydub~=0.25.1
+backoff~=2.2.1
+webvtt-py~=0.5.1
+weasyprint~=63.1

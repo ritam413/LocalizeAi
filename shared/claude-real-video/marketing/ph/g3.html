@@ -1,0 +1,32 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{width:1270px;height:760px;background:#0d1117;color:#e6edf3;font-family:-apple-system,'SF Pro Display','Segoe UI',sans-serif;overflow:hidden;position:relative}
+.mono{font-family:'SF Mono',ui-monospace,Menlo,monospace}
+.accent{color:#f78166}
+.dim{color:#8b949e}
+.grid-bg{position:absolute;inset:0;background-image:linear-gradient(rgba(240,246,252,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(240,246,252,.03) 1px,transparent 1px);background-size:40px 40px}
+
+.wrap{position:relative;height:100%;padding:70px 100px}
+h2{font-size:44px;font-weight:800;letter-spacing:-1px}
+.term{margin-top:40px;background:#161b22;border:1px solid #30363d;border-radius:14px;overflow:hidden}
+.tbar{display:flex;gap:8px;padding:14px 18px;border-bottom:1px solid #30363d}
+.tdot{width:12px;height:12px;border-radius:50%}
+.tbody{padding:26px 30px;font-size:22px;line-height:1.85}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:26px;margin-top:40px}
+.step{background:#161b22;border:1px solid #30363d;border-radius:14px;padding:26px}
+.step .k{font-size:17px;color:#f78166;font-weight:700;letter-spacing:2px}
+.step h3{font-size:23px;margin:8px 0 8px}
+.step p{font-size:17px;color:#8b949e;line-height:1.55}
+</style></head><body><div class="grid-bg"></div><div class="wrap">
+<h2>One command. Everything local.</h2>
+<div class="term mono"><div class="tbar"><span class="tdot" style="background:#ff5f57"></span><span class="tdot" style="background:#febc2e"></span><span class="tdot" style="background:#28c840"></span></div>
+<div class="tbody"><span class="dim">$</span> crv "https://youtube.com/watch?v=…"<br>
+<span class="dim">→ crv-out/frames/*.jpg&nbsp;&nbsp;# keyframes that actually matter</span><br>
+<span class="dim">→ crv-out/transcript.txt&nbsp;# Whisper, on your machine</span><br>
+<span class="dim">→ crv-out/MANIFEST.txt&nbsp;&nbsp;# fused timeline: frames × speech, one clock</span><br>
+<span class="dim">→ crv-out/highlights.llc&nbsp;# optional: a lossless-cut editing project</span></div></div>
+<div class="steps">
+<div class="step"><div class="k">01 · EXTRACT</div><h3>Scene-change keyframes</h3><p>Every cut detected, near-duplicates deduped. No fixed quota, no ML downloads.</p></div>
+<div class="step"><div class="k">02 · TRANSCRIBE</div><h3>Local Whisper audio</h3><p>Timestamped transcript, gated by voice-activity detection — music can no longer fake a caption.</p></div>
+<div class="step"><div class="k">03 · FEED</div><h3>Paste into any LLM</h3><p>Claude, ChatGPT, Gemini — drop the folder in and ask away.</p></div>
+</div></div></body></html>

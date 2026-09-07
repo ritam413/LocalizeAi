@@ -1,0 +1,1347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LOCALIZE — Autonomous Post-Production Studio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      /* Ditto Color System */
+      --color-deep-ink: #130e30;
+      --color-hi-yellow: #ffe228;
+      --color-moss-green: #59e25d;
+      --color-fuchsia: #e261e5;
+      --color-slate: #5f5c6e;
+      --color-canvas: #f9fbf2;
+      --color-soft-meadow: #eff2e5;
+      --color-charcoal: #222222;
+      --color-onyx: #000000;
+      --color-pure-white: #ffffff;
+
+      /* Netflix Sans Typography Token (Inter with custom weights) */
+      --font-netflix-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+
+      /* Emil Kowalski Motion Curves */
+      --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+      --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--color-canvas);
+      color: var(--color-deep-ink);
+      font-family: var(--font-netflix-sans);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* Top Navigation Bar */
+    header {
+      padding: 16px 36px;
+      border-bottom: 1.5px solid var(--color-soft-meadow);
+      background: var(--color-soft-meadow);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand-wordmark {
+      font-size: 24px;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      color: var(--color-deep-ink);
+      text-transform: uppercase;
+    }
+
+    .brand-divider {
+      width: 1.5px;
+      height: 22px;
+      background: var(--color-slate);
+      opacity: 0.3;
+    }
+
+    .studio-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--color-deep-ink);
+      letter-spacing: -0.01em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .studio-badge {
+      font-size: 10px;
+      font-family: var(--font-mono);
+      padding: 3px 10px;
+      border-radius: 9999px;
+      background: var(--color-canvas);
+      border: 1px solid var(--color-deep-ink);
+      color: var(--color-deep-ink);
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* Buttons */
+    .btn {
+      font-family: var(--font-netflix-sans);
+      font-size: 13px;
+      font-weight: 600;
+      padding: 10px 20px;
+      border-radius: 9999px;
+      border: 1.5px solid var(--color-deep-ink);
+      background: var(--color-soft-meadow);
+      color: var(--color-deep-ink);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: transform 160ms var(--ease-out), background 160ms ease;
+      user-select: none;
+    }
+
+    .btn:active {
+      transform: scale(0.97);
+    }
+
+    .btn:hover {
+      background: var(--color-canvas);
+    }
+
+    .btn-yellow {
+      background: var(--color-hi-yellow);
+      border-color: var(--color-deep-ink);
+      color: var(--color-deep-ink);
+      font-weight: 700;
+    }
+
+    .btn-yellow:hover {
+      background: #ebd020;
+    }
+
+    .btn-dark {
+      background: var(--color-deep-ink);
+      border-color: var(--color-deep-ink);
+      color: var(--color-pure-white);
+      font-weight: 600;
+    }
+
+    .btn-dark:hover {
+      background: var(--color-charcoal);
+    }
+
+    /* Main Grid */
+    main {
+      padding: 28px 36px;
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 28px;
+      flex: 1;
+    }
+
+    @media (max-width: 1200px) {
+      main {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Top Metrics Ribbon */
+    .metrics-ribbon {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    @media (max-width: 900px) {
+      .metrics-ribbon {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .metric-card {
+      background: var(--color-soft-meadow);
+      border: 1.5px solid rgba(19, 14, 48, 0.08);
+      border-radius: 16px;
+      padding: 18px 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      transition: transform 160ms var(--ease-out), border-color 160ms ease;
+    }
+
+    .metric-card:hover {
+      border-color: var(--color-deep-ink);
+    }
+
+    .metric-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--color-slate);
+    }
+
+    .metric-value {
+      font-family: var(--font-mono);
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--color-deep-ink);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .metric-sub {
+      font-size: 11px;
+      color: var(--color-slate);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .gauge-bar-bg {
+      height: 6px;
+      background: rgba(19, 14, 48, 0.1);
+      border-radius: 9999px;
+      overflow: hidden;
+      margin-top: 8px;
+    }
+
+    .gauge-bar-fill {
+      height: 100%;
+      background: var(--color-hi-yellow);
+      width: 25%;
+      border-radius: 9999px;
+      transition: width 400ms var(--ease-out);
+    }
+
+    /* Workflow Studio Panel */
+    .workflow-panel {
+      background: var(--color-soft-meadow);
+      border: 1.5px solid rgba(19, 14, 48, 0.12);
+      border-radius: 24px;
+      padding: 26px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      position: relative;
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1.5px solid rgba(19, 14, 48, 0.08);
+      padding-bottom: 14px;
+    }
+
+    .panel-title {
+      font-size: 14px;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      text-transform: uppercase;
+      color: var(--color-deep-ink);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .live-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--color-hi-yellow);
+      border: 1.5px solid var(--color-deep-ink);
+      animation: pulse-dot 1.8s infinite;
+    }
+
+    @keyframes pulse-dot {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.2); }
+    }
+
+    /* Serpentine (Boustrophedon) Workflow Track */
+    .serpentine-container {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      position: relative;
+      padding: 6px 0;
+    }
+
+    .pipeline-row {
+      display: grid;
+      grid-template-columns: 1fr 36px 1fr 36px 1fr;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* Animated Downward SVG Conduit Flow Between Row 1 and Row 2 */
+    .turn-conduit-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-right: calc(16.6% - 18px);
+      height: 48px;
+      margin: -6px 0;
+      position: relative;
+    }
+
+    .downward-svg-line {
+      width: 44px;
+      height: 48px;
+      overflow: visible;
+    }
+
+    .downward-svg-path {
+      fill: none;
+      stroke: var(--color-slate);
+      stroke-width: 2.5;
+      stroke-linecap: round;
+      opacity: 0.3;
+      transition: stroke 200ms ease, opacity 200ms ease;
+    }
+
+    .downward-svg-path.active {
+      stroke: var(--color-deep-ink);
+      stroke-width: 3;
+      opacity: 1;
+      stroke-dasharray: 8 4;
+      animation: dash-flow 0.8s linear infinite;
+    }
+
+    @keyframes dash-flow {
+      from { stroke-dashoffset: 24; }
+      to { stroke-dashoffset: 0; }
+    }
+
+    .turn-label-badge {
+      position: absolute;
+      right: calc(16.6% + 36px);
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      font-weight: 700;
+      padding: 3px 12px;
+      border-radius: 9999px;
+      background: var(--color-canvas);
+      border: 1.5px solid var(--color-deep-ink);
+      color: var(--color-deep-ink);
+      text-transform: uppercase;
+      opacity: 0;
+      transform: scale(0.95);
+      transition: opacity 220ms var(--ease-out), transform 220ms var(--ease-out);
+    }
+
+    .turn-label-badge.visible {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    /* Agent Card in Ditto Warm Canvas & Soft Meadow */
+    .agent-card {
+      background: var(--color-canvas);
+      border: 1.5px solid rgba(19, 14, 48, 0.15);
+      border-radius: 16px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      cursor: pointer;
+      position: relative;
+      user-select: none;
+      min-width: 0;
+      
+      /* Emil Kowalski smooth entrance */
+      transition: transform 220ms var(--ease-out), opacity 220ms var(--ease-out), border-color 180ms ease, background 180ms ease, box-shadow 180ms ease;
+    }
+
+    .agent-card.hidden-node {
+      opacity: 0;
+      pointer-events: none;
+      transform: scale(0.95) translateY(6px);
+    }
+
+    .agent-card.visible-node {
+      opacity: 1;
+      pointer-events: auto;
+      transform: scale(1) translateY(0);
+    }
+
+    .agent-card:hover {
+      border-color: var(--color-deep-ink);
+      transform: translateY(-2px);
+    }
+
+    .agent-card:active {
+      transform: scale(0.97);
+    }
+
+    .agent-card.active {
+      background: var(--color-canvas);
+      border-color: var(--color-deep-ink);
+      box-shadow: 0 0 0 3px var(--color-hi-yellow), 0 4px 16px rgba(19, 14, 48, 0.08);
+    }
+
+    .agent-card.retrying {
+      border-color: var(--color-fuchsia);
+      box-shadow: 0 0 0 3px rgba(226, 97, 229, 0.35);
+    }
+
+    .agent-card.completed {
+      border-color: rgba(19, 14, 48, 0.25);
+    }
+
+    .agent-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .agent-step {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 800;
+      color: var(--color-slate);
+    }
+
+    .status-pill {
+      font-family: var(--font-mono);
+      font-size: 9.5px;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 9999px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .status-pending { background: rgba(19, 14, 48, 0.06); color: var(--color-slate); }
+    .status-running { background: var(--color-hi-yellow); color: var(--color-deep-ink); border: 1px solid var(--color-deep-ink); animation: pulse-yellow-pill 1.2s infinite alternate; }
+    .status-retrying { background: var(--color-fuchsia); color: var(--color-pure-white); }
+    .status-completed { background: var(--color-moss-green); color: var(--color-deep-ink); font-weight: 800; }
+
+    @keyframes pulse-yellow-pill {
+      from { transform: scale(1); }
+      to { transform: scale(1.04); }
+    }
+
+    .agent-name-group {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .agent-name {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--color-deep-ink);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .agent-role {
+      font-size: 11px;
+      color: var(--color-slate);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .agent-duration {
+      font-family: var(--font-mono);
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--color-deep-ink);
+      font-variant-numeric: tabular-nums;
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+    }
+
+    .agent-duration-label {
+      font-size: 9px;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--color-slate);
+      letter-spacing: 0.04em;
+    }
+
+    .agent-progress-bar {
+      height: 4px;
+      background: rgba(19, 14, 48, 0.08);
+      border-radius: 9999px;
+      overflow: hidden;
+    }
+
+    .agent-progress-fill {
+      height: 100%;
+      background: var(--color-deep-ink);
+      width: 0%;
+      border-radius: 9999px;
+      transition: width 150ms linear;
+    }
+
+    .agent-footer {
+      font-size: 10.5px;
+      color: var(--color-slate);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 1px solid rgba(19, 14, 48, 0.08);
+      padding-top: 6px;
+      font-family: var(--font-mono);
+    }
+
+    /* Flow Conduit Arrows */
+    .conduit-arrow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-slate);
+      font-weight: 800;
+      font-size: 16px;
+      opacity: 0;
+      transform: scale(0.85);
+      transition: opacity 220ms var(--ease-out), transform 220ms var(--ease-out), color 180ms ease;
+    }
+
+    .conduit-arrow.visible {
+      opacity: 0.5;
+      transform: scale(1);
+    }
+
+    .conduit-arrow.active {
+      opacity: 1;
+      color: var(--color-deep-ink);
+      animation: pulse-arrow 1s infinite alternate;
+    }
+
+    .conduit-arrow.left.active {
+      animation: pulse-arrow-left 1s infinite alternate;
+    }
+
+    @keyframes pulse-arrow {
+      from { transform: translateX(0); }
+      to { transform: translateX(4px); }
+    }
+
+    @keyframes pulse-arrow-left {
+      from { transform: translateX(0); }
+      to { transform: translateX(-4px); }
+    }
+
+    /* Active Expanded Drilldown Box */
+    .agent-drilldown {
+      background: var(--color-canvas);
+      border: 1.5px solid var(--color-deep-ink);
+      border-radius: 16px;
+      padding: 18px 20px;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 16px;
+      margin-top: 6px;
+      animation: enter-drilldown 200ms var(--ease-out);
+    }
+
+    @keyframes enter-drilldown {
+      from { opacity: 0; transform: scale(0.98) translateY(4px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .drilldown-col {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .drilldown-title {
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--color-slate);
+    }
+
+    .drilldown-content {
+      font-size: 12px;
+      color: var(--color-deep-ink);
+      line-height: 1.45;
+    }
+
+    .code-pill {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      background: var(--color-soft-meadow);
+      padding: 2px 7px;
+      border-radius: 6px;
+      border: 1px solid rgba(19, 14, 48, 0.2);
+      color: var(--color-deep-ink);
+      font-weight: 600;
+    }
+
+    /* Producer Board Sidebar */
+    .producer-board {
+      background: var(--color-soft-meadow);
+      border: 1.5px solid rgba(19, 14, 48, 0.12);
+      border-radius: 24px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .board-header {
+      border-bottom: 1.5px solid rgba(19, 14, 48, 0.08);
+      padding-bottom: 12px;
+    }
+
+    .board-title {
+      font-size: 14px;
+      font-weight: 900;
+      letter-spacing: -0.01em;
+      text-transform: uppercase;
+      color: var(--color-deep-ink);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .board-badge {
+      background: var(--color-deep-ink);
+      color: var(--color-hi-yellow);
+      font-size: 9.5px;
+      padding: 3px 8px;
+      border-radius: 9999px;
+      font-weight: 800;
+    }
+
+    .verdict-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .verdict-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 12px;
+      padding: 10px 14px;
+      border-radius: 12px;
+      background: var(--color-canvas);
+      border: 1px solid rgba(19, 14, 48, 0.08);
+    }
+
+    .verdict-label {
+      color: var(--color-slate);
+      font-weight: 500;
+    }
+
+    .verdict-val {
+      font-family: var(--font-mono);
+      font-weight: 700;
+      color: var(--color-deep-ink);
+    }
+
+    .summary-box {
+      background: var(--color-canvas);
+      border: 1.5px solid rgba(19, 14, 48, 0.12);
+      border-left: 4px solid var(--color-moss-green);
+      border-radius: 12px;
+      padding: 14px;
+      font-size: 12px;
+      color: var(--color-deep-ink);
+      line-height: 1.45;
+    }
+
+    .summary-box.alert {
+      border-left-color: var(--color-fuchsia);
+      background: #fdf3fe;
+    }
+
+    .action-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: auto;
+    }
+
+    .btn-full {
+      width: 100%;
+      justify-content: center;
+      padding: 12px;
+      font-size: 13px;
+    }
+
+    /* Targeted Retry Arc Banner */
+    .retry-loop-banner {
+      background: #fdf3fe;
+      border: 1.5px dashed var(--color-fuchsia);
+      border-radius: 12px;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      font-size: 12px;
+      color: var(--color-deep-ink);
+    }
+
+    .retry-loop-tag {
+      font-family: var(--font-mono);
+      background: var(--color-fuchsia);
+      color: var(--color-pure-white);
+      padding: 3px 8px;
+      border-radius: 9999px;
+      font-weight: 800;
+      font-size: 9.5px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation Bar -->
+  <header>
+    <div class="brand-group">
+      <div class="brand-wordmark">LOCALIZE</div>
+      <div class="brand-divider"></div>
+      <div class="studio-title">
+        Autonomous Post-Production Swarm
+        <span class="studio-badge">Gemini Reasoning Core</span>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <button class="btn btn-yellow" id="sim-btn" onclick="startOrRestartSimulation()">
+        <span id="sim-icon">▶</span>
+        <span id="sim-text">Simulate Step-by-Step Flow</span>
+      </button>
+      <button class="btn" onclick="triggerRetryDemo()">
+        <span>⚡ Demo Targeted Self-Repair</span>
+      </button>
+      <button class="btn btn-dark" onclick="resetToInitialState()">
+        <span>↺ Reset (Step 1 Only)</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Grid -->
+  <main>
+    <!-- Left Column: HUD & Serpentine Workflow Track -->
+    <div style="display: flex; flex-direction: column; gap: 20px;">
+
+      <!-- Top Metrics Ribbon -->
+      <div class="metrics-ribbon">
+        <div class="metric-card">
+          <span class="metric-label">Total Execution Time</span>
+          <span class="metric-value" id="total-time-val">1.85s</span>
+          <span class="metric-sub">
+            <span id="active-agent-count">● 1 Active Agent</span>
+          </span>
+        </div>
+
+        <div class="metric-card">
+          <span class="metric-label">Reasoning & Compute</span>
+          <span class="metric-value" id="tokens-val">480 tok</span>
+          <span class="metric-sub">
+            <span>Google Cloud Gemini 2.5</span>
+          </span>
+        </div>
+
+        <div class="metric-card">
+          <span class="metric-label">Release Readiness Score</span>
+          <span class="metric-value" id="score-val" style="color: var(--color-deep-ink);">Analyzing...</span>
+          <div class="gauge-bar-bg">
+            <div class="gauge-bar-fill" id="score-fill" style="width: 25%;"></div>
+          </div>
+        </div>
+
+        <div class="metric-card">
+          <span class="metric-label">Production Status</span>
+          <span class="metric-value" id="status-val" style="color: var(--color-deep-ink); font-size: 20px;">IN PROGRESS</span>
+          <span class="metric-sub" id="status-sub">Step 1 of 6 Executing</span>
+        </div>
+      </div>
+
+      <!-- Swarm Agent Workflow Route Canvas -->
+      <div class="workflow-panel">
+        <div class="panel-header">
+          <div class="panel-title">
+            <span class="live-dot"></span>
+            Serpentine Agent Workflow Route (Progressive Reveal Flow)
+          </div>
+          <span style="font-size: 11px; color: var(--color-slate); font-family: var(--font-mono);">
+            Click card to inspect Gemini reasoning
+          </span>
+        </div>
+
+        <!-- Targeted Retry Loop Banner (Dynamic) -->
+        <div class="retry-loop-banner" id="retry-banner" style="display: none;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span class="retry-loop-tag">CLOSED SELF-REPAIR LOOP</span>
+            <span>QA Continuity Agent detected <strong>TIMING_OVERFLOW (1.40s)</strong> → Dispatched targeted speed reconciliation (atempo 1.25x) directly to Sync Engineer in Row 2.</span>
+          </div>
+          <span style="font-family: var(--font-mono); font-size: 11px; font-weight: 700;">Iteration #1 (Resolved)</span>
+        </div>
+
+        <!-- Serpentine Two-Row Track Container -->
+        <div class="serpentine-container" id="serpentine-container">
+
+          <!-- ROW 1: Steps 01 -> 02 -> 03 (Going Right ➔) -->
+          <div class="pipeline-row">
+
+            <!-- 01. Story Analyst (Visible at start) -->
+            <div class="agent-card visible-node active" id="card-story" onclick="selectAgent('story')">
+              <div class="agent-header">
+                <span class="agent-step">STEP 01</span>
+                <span class="status-pill status-running" id="status-story">RUNNING</span>
+              </div>
+              <div class="agent-name-group">
+                <span class="agent-name">Story Analyst</span>
+                <span class="agent-role">Demucs + Whisper + Diarize</span>
+              </div>
+              <div class="agent-duration">
+                <span id="time-story">0.00s</span>
+                <span class="agent-duration-label">DURATION</span>
+              </div>
+              <div class="agent-progress-bar">
+                <div class="agent-progress-fill" id="progress-story" style="width: 0%;"></div>
+              </div>
+              <div class="agent-footer">
+                <span>Tone: Analyzing</span>
+                <span>➔ Localizer</span>
+              </div>
+            </div>
+
+            <!-- Conduit Arrow 1-2 -->
+            <div class="conduit-arrow" id="arrow-1">➔</div>
+
+            <!-- 02. Localization Director (Hidden at start) -->
+            <div class="agent-card hidden-node" id="card-localizer" onclick="selectAgent('localizer')">
+              <div class="agent-header">
+                <span class="agent-step">STEP 02</span>
+                <span class="status-pill status-pending" id="status-localizer">PENDING</span>
+              </div>
+              <div class="agent-name-group">
+                <span class="agent-name">Localization Director</span>
+                <span class="agent-role">Cultural Script Adaptation</span>
+              </div>
+              <div class="agent-duration">
+                <span id="time-localizer">0.00s</span>
+                <span class="agent-duration-label">DURATION</span>
+              </div>
+              <div class="agent-progress-bar">
+                <div class="agent-progress-fill" id="progress-localizer" style="width: 0%;"></div>
+              </div>
+              <div class="agent-footer">
+                <span>Rationale: Waiting</span>
+                <span>➔ Voice Cast</span>
+              </div>
+            </div>
+
+            <!-- Conduit Arrow 2-3 -->
+            <div class="conduit-arrow" id="arrow-2">➔</div>
+
+            <!-- 03. Voice Director (Hidden at start) -->
+            <div class="agent-card hidden-node" id="card-voice" onclick="selectAgent('voice')">
+              <div class="agent-header">
+                <span class="agent-step">STEP 03</span>
+                <span class="status-pill status-pending" id="status-voice">PENDING</span>
+              </div>
+              <div class="agent-name-group">
+                <span class="agent-name">Voice Director</span>
+                <span class="agent-role">Neural Voice Casting & TTS</span>
+              </div>
+              <div class="agent-duration">
+                <span id="time-voice">0.00s</span>
+                <span class="agent-duration-label">DURATION</span>
+              </div>
+              <div class="agent-progress-bar">
+                <div class="agent-progress-fill" id="progress-voice" style="width: 0%;"></div>
+              </div>
+              <div class="agent-footer">
+                <span>Cast: Waiting</span>
+                <span>⤵ Turn to Row 2</span>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Downward Flow Connector Conduit from Step 03 down into Step 04 -->
+          <div class="turn-conduit-wrapper">
+            <span class="turn-label-badge" id="turn-badge">Handoff Down to Audio Stems ⤵</span>
+            <svg class="downward-svg-line" viewBox="0 0 44 48">
+              <path class="downward-svg-path" id="turn-svg-path" d="M 22 2 L 22 28 C 22 38, 22 46, 22 46" />
+              <polygon points="16,36 28,36 22,46" fill="var(--color-deep-ink)" id="turn-svg-arrow" />
+            </svg>
+          </div>
+
+          <!-- ROW 2: Steps 06 <- 05 <- 04 (Spawned under Step 3, going Left 🠔!) -->
+          <div class="pipeline-row">
+
+            <!-- 06. QA Continuity Agent (Directly under Step 01) -->
+            <div class="agent-card hidden-node" id="card-qa" onclick="selectAgent('qa')">
+              <div class="agent-header">
+                <span class="agent-step">STEP 06</span>
+                <span class="status-pill status-pending" id="status-qa">PENDING</span>
+              </div>
+              <div class="agent-name-group">
+                <span class="agent-name">QA / Continuity</span>
+                <span class="agent-role">Release Readiness & Self-Repair</span>
+              </div>
+              <div class="agent-duration">
+                <span id="time-qa">0.00s</span>
+                <span class="agent-duration-label">DURATION</span>
+              </div>
+              <div class="agent-progress-bar">
+                <div class="agent-progress-fill" id="progress-qa" style="width: 0%;"></div>
+              </div>
+              <div class="agent-footer">
+                <span>Score: Pending</span>
+                <span>➔ Master Cut</span>
+              </div>
+            </div>
+
+            <!-- Conduit Arrow 5-6 (Pointing Left 🠔) -->
+            <div class="conduit-arrow left" id="arrow-5">🠔</div>
+
+            <!-- 05. Subtitle Director (Directly under Step 02) -->
+            <div class="agent-card hidden-node" id="card-subtitles" onclick="selectAgent('subtitles')">
+              <div class="agent-header">
+                <span class="agent-step">STEP 05</span>
+                <span class="status-pill status-pending" id="status-subtitles">PENDING</span>
+              </div>
+              <div class="agent-name-group">
+                <span class="agent-name">Subtitle Director</span>
+                <span class="agent-role">SRT/VTT Sync & Formatting</span>
+              </div>
+              <div class="agent-duration">
+                <span id="time-subtitles">0.00s</span>
+                <span class="agent-duration-label">DURATION</span>
+              </div>
+              <div class="agent-progress-bar">
+                <div class="agent-progress-fill" id="progress-subtitles" style="width: 0%;"></div>
+              </div>
+              <div class="agent-footer">
+                <span>Drift: Pending</span>
+                <span>🠔 To QA</span>
+              </div>
+            </div>
+
+            <!-- Conduit Arrow 4-5 (Pointing Left 🠔) -->
+            <div class="conduit-arrow left" id="arrow-4">🠔</div>
+
+            <!-- 04. Sync Engineer (Directly under Step 03) -->
+            <div class="agent-card hidden-node" id="card-sync" onclick="selectAgent('sync')">
+              <div class="agent-header">
+                <span class="agent-step">STEP 04</span>
+                <span class="status-pill status-pending" id="status-sync">PENDING</span>
+              </div>
+              <div class="agent-name-group">
+                <span class="agent-name">Sync Engineer</span>
+                <span class="agent-role">Duration Reconciliation</span>
+              </div>
+              <div class="agent-duration">
+                <span id="time-sync">0.00s</span>
+                <span class="agent-duration-label">DURATION</span>
+              </div>
+              <div class="agent-progress-bar">
+                <div class="agent-progress-fill" id="progress-sync" style="width: 0%;"></div>
+              </div>
+              <div class="agent-footer">
+                <span>Atempo: Waiting</span>
+                <span>🠔 To Subtitles</span>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- Detailed Telemetry Drilldown Box (Dynamic) -->
+        <div class="agent-drilldown" id="drilldown-box">
+          <div class="drilldown-col">
+            <span class="drilldown-title" id="dd-agent-title">Agent Telemetry: Story Analyst (Step 01)</span>
+            <div class="drilldown-content" id="dd-agent-desc">
+              Extracts speaker diarization, scene boundaries, emotional tone tags, and cultural idiom flags from raw audio/video stems.
+            </div>
+          </div>
+          <div class="drilldown-col">
+            <span class="drilldown-title">Reasoning & Inputs</span>
+            <div class="drilldown-content" id="dd-agent-input">
+              Input: 44.1kHz audio stream | VAD segments: 3 | Speaker count: 2 characters
+            </div>
+          </div>
+          <div class="drilldown-col">
+            <span class="drilldown-title">Action & Handoff</span>
+            <div class="drilldown-content" id="dd-agent-action">
+              Extracting tone and character profiles. Once complete, will fade in Localization Director (Step 02).
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- Right Column: The Producer Board -->
+    <div class="producer-board">
+      <div class="board-header">
+        <div class="board-title">
+          THE PRODUCER BOARD
+          <span class="board-badge">LIVE MASTER</span>
+        </div>
+      </div>
+
+      <div class="verdict-list">
+        <div class="verdict-row">
+          <span class="verdict-label">Director Continuity</span>
+          <span class="verdict-val" id="pb-continuity" style="color: var(--color-deep-ink);">In Progress...</span>
+        </div>
+        <div class="verdict-row">
+          <span class="verdict-label">Active Stage</span>
+          <span class="verdict-val" id="pb-handoff">Step 01: Story Analyst</span>
+        </div>
+        <div class="verdict-row">
+          <span class="verdict-label">Cumulative Latency</span>
+          <span class="verdict-val" id="pb-latency">0.00s</span>
+        </div>
+        <div class="verdict-row">
+          <span class="verdict-label">Self-Repair Retries</span>
+          <span class="verdict-val" id="pb-retries">0 Loops</span>
+        </div>
+        <div class="verdict-row">
+          <span class="verdict-label">Audio-Lip Drift</span>
+          <span class="verdict-val" id="pb-drift" style="color: var(--color-slate);">Measuring...</span>
+        </div>
+      </div>
+
+      <div>
+        <span style="font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--color-slate); letter-spacing: 0.04em;">Summary Verdict</span>
+        <div class="summary-box" id="pb-summary" style="margin-top: 6px;">
+          Autonomous post-production crew initialized. Step 01 (Story Analyst) is currently analyzing dialogue acoustics and narrative context.
+        </div>
+      </div>
+
+      <div class="action-group">
+        <button class="btn btn-yellow btn-full" id="btn-approve" onclick="alert('Master release candidate approved for distribution!')">
+          ✓ APPROVE FOR DISTRIBUTION
+        </button>
+        <button class="btn btn-dark btn-full" onclick="alert('Opening Grafana MCP Control Tower on port 3000...')">
+          📊 Inspect Telemetry in Grafana
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const AGENT_DATA = {
+      story: {
+        title: 'Agent Telemetry: Story Analyst (Step 01)',
+        desc: 'Extracts speaker diarization, scene boundaries, emotional tone tags, and cultural idiom flags from raw audio/video stems.',
+        input: 'Input: 44.1kHz audio stream | VAD segments: 3 | Speaker count: 2 characters',
+        action: 'Extracted tone: "Tense / Melodramatic". Identified 1 cultural idiom needing regional adaptation. Handoff to Localization Director.'
+      },
+      localizer: {
+        title: 'Agent Telemetry: Localization Director (Step 02)',
+        desc: 'Produces culturally adapted translations in target language (Spanish/Hindi/French) with explicit reasoning rationale per dialogue segment.',
+        input: 'Target Language: Hindi (hi) | Dialogue: "Break a leg out there tonight!"',
+        action: 'Adapted idiom to "शुभकामनाएं, आज मंच तुम्हारा है" with explicit rationale to preserve theatrical context. Handoff to Voice Director.'
+      },
+      voice: {
+        title: 'Agent Telemetry: Voice Director (Step 03)',
+        desc: 'Selects character-consistent neural voices and synthesizes audio dialogue segments matching character age and emotional tone.',
+        input: 'Character: Raul (Male, 30s) -> Neural Voice: hi-IN-MadhurNeural | Pace: 1.05x',
+        action: 'Synthesized 3 wav speech segments with character-consistent emotional resonance. Drawing flow down to Sync Engineer in Row 2.'
+      },
+      sync: {
+        title: 'Agent Telemetry: Sync Engineer (Step 04)',
+        desc: 'Reconciles translated speech duration against original dialogue timing windows using speed adjustment (atempo), timing shifts, or line shortening.',
+        input: 'Original duration: 3.20s | Synthesized: 4.60s (Delta: +1.40s overflow)',
+        action: 'Applied atempo=1.25x + silence compression -> Speech duration normalized to 3.18s. Handoff leftward to Subtitle Director.'
+      },
+      subtitles: {
+        title: 'Agent Telemetry: Subtitle Director (Step 05)',
+        desc: 'Generates synchronized subtitle files (.srt/.vtt) aligned with final adjusted audio timing and character limits.',
+        input: 'Synchronized wav stems + translated text strings | Target CPS limit: 17 chars/sec',
+        action: 'Generated drift-free subtitles_hi.srt and subtitles_hi.vtt with perfect 0.00s drift offset. Handoff leftward to QA Continuity Agent.'
+      },
+      qa: {
+        title: 'Agent Telemetry: QA / Continuity Agent (Step 06)',
+        desc: 'Inspects assembled cut, calculates release readiness score (0-100), detects defect classes, and coordinates targeted repair loops.',
+        input: 'Assembled cut inspection: Audio stems + Subtitles + Source video timing windows',
+        action: 'Verified timing adherence (>95%), verified subtitle alignment. Readiness score: 98.0/100 (PASS). Handoff to Director for final cut.'
+      }
+    };
+
+    function selectAgent(key) {
+      const data = AGENT_DATA[key];
+      if (!data) return;
+
+      document.querySelectorAll('.agent-card').forEach(c => c.classList.remove('active'));
+      const activeCard = document.getElementById(`card-${key}`);
+      if (activeCard) activeCard.classList.add('active');
+
+      document.getElementById('dd-agent-title').innerText = data.title;
+      document.getElementById('dd-agent-desc').innerText = data.desc;
+      document.getElementById('dd-agent-input').innerText = data.input;
+      document.getElementById('dd-agent-action').innerText = data.action;
+    }
+
+    let simInterval = null;
+    let isSimulating = false;
+
+    function resetToInitialState() {
+      if (isSimulating) {
+        clearInterval(simInterval);
+        isSimulating = false;
+        document.getElementById('sim-text').innerText = 'Simulate Step-by-Step Flow';
+      }
+
+      // Step 1 visible and running
+      const cardStory = document.getElementById('card-story');
+      cardStory.className = 'agent-card visible-node active';
+      document.getElementById('status-story').className = 'status-pill status-running';
+      document.getElementById('status-story').innerText = 'RUNNING';
+      document.getElementById('time-story').innerText = '0.00s';
+      document.getElementById('progress-story').style.width = '0%';
+
+      // Hide steps 2 through 6
+      const hiddenAgents = ['localizer', 'voice', 'sync', 'subtitles', 'qa'];
+      hiddenAgents.forEach(a => {
+        const card = document.getElementById(`card-${a}`);
+        const status = document.getElementById(`status-${a}`);
+        const time = document.getElementById(`time-${a}`);
+        const progress = document.getElementById(`progress-${a}`);
+        
+        card.className = 'agent-card hidden-node';
+        status.className = 'status-pill status-pending';
+        status.innerText = 'PENDING';
+        time.innerText = '0.00s';
+        progress.style.width = '0%';
+      });
+
+      // Hide conduit arrows
+      [1, 2, 4, 5].forEach(num => {
+        const arr = document.getElementById(`arrow-${num}`);
+        if (arr) arr.className = 'conduit-arrow' + (num >= 4 ? ' left' : '');
+      });
+
+      // Hide downward turn line
+      document.getElementById('turn-svg-path').className = 'downward-svg-path';
+      document.getElementById('turn-badge').className = 'turn-label-badge';
+
+      // Reset metrics
+      document.getElementById('retry-banner').style.display = 'none';
+      document.getElementById('total-time-val').innerText = '0.00s';
+      document.getElementById('tokens-val').innerText = '480 tok';
+      document.getElementById('score-val').innerText = 'Analyzing...';
+      document.getElementById('score-fill').style.width = '20%';
+      document.getElementById('status-val').innerText = 'IN PROGRESS';
+      document.getElementById('active-agent-count').innerText = '● 1 Active Agent';
+      document.getElementById('pb-continuity').innerText = 'In Progress...';
+      document.getElementById('pb-handoff').innerText = 'Step 01: Story Analyst';
+      document.getElementById('pb-latency').innerText = '0.00s';
+      document.getElementById('pb-retries').innerText = '0 Loops';
+      document.getElementById('pb-drift').innerText = 'Measuring...';
+      document.getElementById('pb-summary').className = 'summary-box';
+      document.getElementById('pb-summary').innerText = 'Autonomous post-production crew initialized. Step 01 (Story Analyst) is currently analyzing dialogue acoustics and narrative context.';
+
+      selectAgent('story');
+    }
+
+    function startOrRestartSimulation() {
+      if (isSimulating) {
+        clearInterval(simInterval);
+        isSimulating = false;
+        document.getElementById('sim-text').innerText = 'Simulate Step-by-Step Flow';
+        return;
+      }
+
+      resetToInitialState();
+      isSimulating = true;
+      document.getElementById('sim-text').innerText = 'Simulating...';
+
+      const stages = [
+        { key: 'story', dur: 1800, nextArrow: 1, nextKey: 'localizer', name: 'Story Analyst', tokens: '480 tok', score: '35%' },
+        { key: 'localizer', dur: 2000, nextArrow: 2, nextKey: 'voice', name: 'Localization Director', tokens: '1,120 tok', score: '55%' },
+        { key: 'voice', dur: 2800, nextTurn: true, nextKey: 'sync', name: 'Voice Director', tokens: '1,840 tok', score: '70%' },
+        { key: 'sync', dur: 1400, nextArrow: 4, nextKey: 'subtitles', name: 'Sync Engineer', tokens: '2,020 tok', score: '82%' },
+        { key: 'subtitles', dur: 1000, nextArrow: 5, nextKey: 'qa', name: 'Subtitle Director', tokens: '2,210 tok', score: '90%' },
+        { key: 'qa', dur: 2000, nextKey: null, name: 'QA Continuity Agent', tokens: '2,410 tok', score: '98.0%' }
+      ];
+
+      let stageIdx = 0;
+      let totalElapsed = 0;
+
+      function runStage() {
+        if (stageIdx >= stages.length) {
+          isSimulating = false;
+          document.getElementById('sim-text').innerText = 'Restart Simulation';
+          document.getElementById('status-val').innerText = 'APPROVED';
+          document.getElementById('score-val').innerText = '98.0%';
+          document.getElementById('score-fill').style.width = '98%';
+          document.getElementById('pb-continuity').innerText = 'Plan Secured';
+          document.getElementById('pb-handoff').innerText = 'Master Release Cut';
+          document.getElementById('pb-drift').innerText = '< 18ms';
+          document.getElementById('pb-summary').innerText = 'Release Candidate approved for distribution. Timing overflows reconciled, cultural script rationale verified compliant with target audience.';
+          selectAgent('qa');
+          return;
+        }
+
+        const stage = stages[stageIdx];
+        const card = document.getElementById(`card-${stage.key}`);
+        const status = document.getElementById(`status-${stage.key}`);
+        const time = document.getElementById(`time-${stage.key}`);
+        const progress = document.getElementById(`progress-${stage.key}`);
+
+        // Reveal this card with smooth Emil Kowalski ease
+        card.className = 'agent-card visible-node active';
+        status.className = 'status-pill status-running';
+        status.innerText = 'RUNNING';
+        selectAgent(stage.key);
+
+        document.getElementById('pb-handoff').innerText = `Step 0${stageIdx + 1}: ${stage.name}`;
+        document.getElementById('tokens-val').innerText = stage.tokens;
+        document.getElementById('active-agent-count').innerText = `● ${stageIdx + 1} of 6 Stages Active`;
+
+        let stageElapsed = 0;
+        const stepInterval = 50;
+
+        const timer = setInterval(() => {
+          stageElapsed += stepInterval;
+          totalElapsed += stepInterval;
+          
+          const pct = Math.min(100, (stageElapsed / stage.dur) * 100);
+          progress.style.width = `${pct}%`;
+          time.innerText = (stageElapsed / 1000).toFixed(2) + 's';
+          document.getElementById('total-time-val').innerText = (totalElapsed / 1000).toFixed(2) + 's';
+          document.getElementById('pb-latency').innerText = (totalElapsed / 1000).toFixed(2) + 's';
+
+          if (stageElapsed >= stage.dur) {
+            clearInterval(timer);
+            card.className = 'agent-card visible-node completed';
+            status.className = 'status-pill status-completed';
+            status.innerText = 'DONE';
+
+            // Check if downward line needs to be drawn after Step 03 (Voice Director)
+            if (stage.nextTurn) {
+              const turnPath = document.getElementById('turn-svg-path');
+              const turnBadge = document.getElementById('turn-badge');
+              
+              turnPath.className = 'downward-svg-path active';
+              turnBadge.className = 'turn-label-badge visible';
+
+              setTimeout(() => {
+                stageIdx++;
+                runStage();
+              }, 400);
+            } else {
+              if (stage.nextArrow) {
+                const arrowEl = document.getElementById(`arrow-${stage.nextArrow}`);
+                if (arrowEl) {
+                  arrowEl.className = 'conduit-arrow visible active' + (stage.nextArrow >= 4 ? ' left' : '');
+                }
+              }
+              stageIdx++;
+              runStage();
+            }
+          }
+        }, stepInterval);
+      }
+
+      runStage();
+    }
+
+    function triggerRetryDemo() {
+      resetToInitialState();
+      
+      // Make all cards visible
+      ['story', 'localizer', 'voice', 'sync', 'subtitles', 'qa'].forEach((a, i) => {
+        const c = document.getElementById(`card-${a}`);
+        c.className = 'agent-card visible-node completed';
+        document.getElementById(`status-${a}`).className = 'status-pill status-completed';
+        document.getElementById(`status-${a}`).innerText = 'DONE';
+        document.getElementById(`progress-${a}`).style.width = '100%';
+      });
+
+      // Show conduits
+      [1, 2, 4, 5].forEach(num => {
+        const arr = document.getElementById(`arrow-${num}`);
+        if (arr) arr.className = 'conduit-arrow visible' + (num >= 4 ? ' left' : '');
+      });
+
+      document.getElementById('turn-svg-path').className = 'downward-svg-path active';
+      document.getElementById('turn-badge').className = 'turn-label-badge visible';
+
+      // Activate retry state
+      document.getElementById('retry-banner').style.display = 'flex';
+      const syncCard = document.getElementById('card-sync');
+      const syncStatus = document.getElementById('status-sync');
+      syncCard.className = 'agent-card visible-node retrying';
+      syncStatus.className = 'status-pill status-retrying';
+      syncStatus.innerText = 'RETRYING #1';
+      document.getElementById('time-sync').innerText = '1.40s (atempo)';
+
+      const qaCard = document.getElementById('card-qa');
+      const qaStatus = document.getElementById('status-qa');
+      qaCard.className = 'agent-card visible-node active';
+      qaStatus.className = 'status-pill status-running';
+      qaStatus.innerText = 'EVALUATING';
+
+      document.getElementById('score-val').innerText = '78.5% → 98.0%';
+      document.getElementById('score-fill').style.width = '78.5%';
+      document.getElementById('pb-summary').className = 'summary-box alert';
+      document.getElementById('pb-summary').innerText = 'TIMING_OVERFLOW detected in Scene 07: Targeted retry dispatched across Row 2 to Sync Engineer with atempo=1.25x fix proposal.';
+      document.getElementById('pb-retries').innerText = '1 Loop (Active)';
+
+      selectAgent('sync');
+
+      setTimeout(() => {
+        syncCard.className = 'agent-card visible-node completed';
+        syncStatus.className = 'status-pill status-completed';
+        syncStatus.innerText = 'FIXED';
+        qaCard.className = 'agent-card visible-node completed';
+        qaStatus.className = 'status-pill status-completed';
+        qaStatus.innerText = 'DONE';
+        document.getElementById('score-val').innerText = '98.0%';
+        document.getElementById('score-fill').style.width = '98%';
+        document.getElementById('pb-summary').className = 'summary-box';
+        document.getElementById('pb-summary').innerText = 'Self-repair completed successfully. Quality score restored to 98.0% (Release Ready).';
+        document.getElementById('pb-retries').innerText = '1 Loop (Resolved)';
+        selectAgent('qa');
+      }, 2500);
+    }
+
+    // Initialize on page load
+    window.onload = resetToInitialState;
+  </script>
+</body>
+</html>

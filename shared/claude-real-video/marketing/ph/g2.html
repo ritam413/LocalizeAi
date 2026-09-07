@@ -1,0 +1,31 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{width:1270px;height:760px;background:#0d1117;color:#e6edf3;font-family:-apple-system,'SF Pro Display','Segoe UI',sans-serif;overflow:hidden;position:relative}
+.mono{font-family:'SF Mono',ui-monospace,Menlo,monospace}
+.accent{color:#f78166}
+.dim{color:#8b949e}
+.grid-bg{position:absolute;inset:0;background-image:linear-gradient(rgba(240,246,252,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(240,246,252,.03) 1px,transparent 1px);background-size:40px 40px}
+
+.wrap{position:relative;height:100%;padding:70px 100px}
+h2{font-size:44px;font-weight:800;letter-spacing:-1px}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-top:48px}
+.col{background:#161b22;border:1px solid #30363d;border-radius:16px;padding:34px}
+.col h3{font-size:24px;margin-bottom:6px}
+.col .n{font-size:64px;font-weight:800;margin:10px 0 4px}
+.col p{font-size:19px;color:#8b949e;line-height:1.5}
+.frames{display:grid;grid-template-columns:repeat(12,1fr);gap:5px;margin-top:22px}
+.f{aspect-ratio:16/10;border-radius:3px;background:#21262d}
+.f.keep{background:linear-gradient(135deg,#f78166,#d05c3f)}
+.f.dup{background:#21262d;border:1px dashed #30363d}
+.bottom{margin-top:44px;text-align:center;font-size:26px;color:#e6edf3}
+.bottom b{color:#f78166}
+</style></head><body><div class="grid-bg"></div><div class="wrap">
+<h2>Same 58-second clip. Two very different diets.</h2>
+<div class="cols">
+<div class="col"><h3 class="dim">Fixed 1 fps sampling</h3><div class="n dim">58 frames</div><p>Blind quota. Fast cuts slip through, near-duplicates flood your context window.</p>
+<div class="frames"><div class="f dup"></div><div class="f dup"></div><div class="f dup"></div><div class="f dup"></div><div class="f dup"></div><div class="f dup"></div><div class="f dup"></div><div class="f dup"></div><div class="f dup"></div><div class="f dup"></div><div class="f dup"></div><div class="f dup"></div><div class="f dup"></div><div class="f dup"></div><div class="f dup"></div><div class="f dup"></div><div class="f dup"></div><div class="f dup"></div><div class="f dup"></div><div class="f dup"></div><div class="f dup"></div><div class="f dup"></div><div class="f dup"></div><div class="f dup"></div></div></div>
+<div class="col" style="border-color:#f78166"><h3 style="color:#f78166">crv scene-change detection</h3><div class="n">26 frames</div><p>Every cut kept, duplicates dropped. <b style="color:#e6edf3">--grid</b> packs them into 3 contact sheets.</p>
+<div class="frames"><div class="f dup"></div><div class="f keep"></div><div class="f keep"></div><div class="f dup"></div><div class="f keep"></div><div class="f keep"></div><div class="f dup"></div><div class="f keep"></div><div class="f keep"></div><div class="f dup"></div><div class="f keep"></div><div class="f keep"></div><div class="f dup"></div><div class="f keep"></div><div class="f keep"></div><div class="f dup"></div><div class="f keep"></div><div class="f keep"></div><div class="f dup"></div><div class="f keep"></div><div class="f keep"></div><div class="f dup"></div><div class="f keep"></div><div class="f keep"></div></div></div>
+</div>
+<div class="bottom">Fewer tokens. <b>Nothing missed.</b></div>
+</div></body></html>

@@ -1,0 +1,14 @@
+{
+  "name": "claude-real-video",
+  "owner": {
+    "name": "Leo Huang",
+    "url": "https://leoaido.com"
+  },
+  "plugins": [
+    {
+      "name": "claude-real-video",
+      "source": "./plugins/claude-real-video",
+      "description": "Let Claude actually watch a video — scene-aware, deduplicated keyframes + timestamped transcript from a URL or local file. Runs 100% locally, no API key."
+    }
+  ]
+}

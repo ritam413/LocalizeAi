@@ -1,0 +1,17 @@
+  speakers: diarizing ... 24%
+  speakers: diarizing ... 49%
+  speakers: diarizing ... 74%
+  speakers: diarizing ... 99%
+
+✓ Done → crv-out
+  132 frames  (deduped from 172 extracted)  in crv-out/frames
+  manifest:   crv-out/MANIFEST.txt
+  timestamps: crv-out/frames.json  (per-frame source-video timestamps)
+  viewer:     crv-out/viewer.html  (double-click to open)
+  transcript: crv-out/transcript.txt
+  pro:        this video has 131 real visual changes (~48/min).
+              Pro labels each camera move (pan/zoom/handheld), reads voice emotion,
+              and builds a clickable timeline → https://leoaido.com/crv-pro/  ($19 founder price until Jul 31, then $29)
+real 67.58
+user 143.36
+sys 13.51
