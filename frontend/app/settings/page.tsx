@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { Settings, Save, CheckCircle2, Sliders, Cpu, ShieldAlert } from 'lucide-react';
 import { AccessibleErrorReport } from '../../components/ui/AccessibleErrorReport';
+import { SettingsSkeleton } from '../../components/ui/skeleton';
 
 export default function SettingsPage() {
   const [settings, setSettings] = useState({
@@ -14,6 +15,7 @@ export default function SettingsPage() {
   });
   const [saved, setSaved] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
@@ -30,6 +32,8 @@ export default function SettingsPage() {
       } catch (err: any) {
         console.error('Failed to load settings:', err);
         setErrorMsg(err?.message || 'Failed to connect to backend on port 8000');
+      } finally {
+        setIsLoading(false);
       }
     }
     loadSettings();
@@ -58,6 +62,10 @@ export default function SettingsPage() {
       setIsSaving(false);
     }
   };
+
+  if (isLoading && !errorMsg) {
+    return <SettingsSkeleton />;
+  }
 
   return (
     <div className="space-y-8 max-w-4xl font-sans text-[#130e30]">

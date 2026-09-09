@@ -771,6 +771,51 @@ Repository is protected from accidental commits of personal, PDF, and internship
 ### Next Agent Instructions
 Continue regular project development. When creating new media sample assets or document generators, ensure they are placed appropriately or marked in `.gitignore` if they contain sensitive or non-essential data.
 
+## 2026-09-10 — Impeccable Skeleton Loading System (`/impeccable`)
+
+### Objective
+Design and implement a unified, accessible, geometry-matched skeleton loading system across all pages and studio components, eliminating jarring loading spinners and blank flashes.
+
+### Changes Made
+- **CSS Shimmer Engine**: Added `@keyframes shimmer` and `.animate-shimmer` utility class in [frontend/app/globals.css](file:///c:/CCodes_WebDevelopment/hckthon/localize_movie_dub/frontend/app/globals.css) using Emil Kowalski motion curves (`--ease-out`) and accessible `prefers-reduced-motion` fallbacks.
+- **Core Skeleton Primitive**: Implemented [Skeleton.tsx](file:///c:/CCodes_WebDevelopment/hckthon/localize_movie_dub/frontend/components/ui/skeleton/Skeleton.tsx) with semantic accessibility (`role="status"`, `aria-busy="true"`, `aria-live="polite"`, `sr-only` text) and 7 geometry variants (`default`, `card`, `text`, `circular`, `pill`, `button`, `badge`).
+- **Domain-Specific Skeleton Components in `frontend/components/ui/skeleton/`**:
+  - `RunListSkeleton.tsx`: Skeletons for Swarm Run History table rows.
+  - `StudioConsoleSkeleton.tsx`: Complete multi-agent workbench skeleton (banner, track, producer board, repair card, video player, decision feed).
+  - `MasterVideoPreviewSkeleton.tsx`: 16:9 video frame skeleton with transport controls and timecode badges.
+  - `MultiAudioPlayerSkeleton.tsx`: Dual audio player and 32-bar waveform skeleton.
+  - `AgentSequenceTrackSkeleton.tsx`: 7-node agent pipeline sequence track skeleton.
+  - `ProducerBoardSkeleton.tsx`: Producer board and metrics skeleton.
+  - `DecisionFeedSkeleton.tsx`: Telemetry decision stream skeleton.
+  - `QARepairCardSkeleton.tsx`: Self-repair and metric comparison card skeleton.
+  - `ReadinessGaugeSkeleton.tsx`: Circular radial gauge skeleton.
+  - `BeforeAfterPlayerSkeleton.tsx`: Dual original vs dubbed audio comparison skeleton.
+  - `SubtitleEditorSkeleton.tsx`: CPS compliance dialogue review table skeleton.
+  - `OutputDeliverablesSkeleton.tsx`: Downloadable deliverables and stems grid skeleton.
+  - `ModelRegistrySkeleton.tsx`: Pluggable ML model and ASR adapter card grid skeleton.
+  - `SettingsSkeleton.tsx`: Hardware constraints and QA guardrail form skeleton.
+  - `index.ts`: Barrel export.
+- **Re-exports in `frontend/components/studio/index.ts`**: Exposed studio skeletons for easy import.
+- **Page Integrations**:
+  - [frontend/app/runs/page.tsx](file:///c:/CCodes_WebDevelopment/hckthon/localize_movie_dub/frontend/app/runs/page.tsx): Replaced plain text with `RunListSkeleton`.
+  - [frontend/app/runs/[id]/page.tsx](file:///c:/CCodes_WebDevelopment/hckthon/localize_movie_dub/frontend/app/runs/%5Bid%5D/page.tsx): Replaced generic spinning loader with `StudioConsoleSkeleton`.
+  - [frontend/app/runs/[id]/output/page.tsx](file:///c:/CCodes_WebDevelopment/hckthon/localize_movie_dub/frontend/app/runs/%5Bid%5D/output/page.tsx): Replaced spinner with `OutputDeliverablesSkeleton`.
+  - [frontend/app/runs/[id]/subtitles/page.tsx](file:///c:/CCodes_WebDevelopment/hckthon/localize_movie_dub/frontend/app/runs/%5Bid%5D/subtitles/page.tsx): Replaced spinner with `SubtitleEditorSkeleton`.
+  - [frontend/app/models/page.tsx](file:///c:/CCodes_WebDevelopment/hckthon/localize_movie_dub/frontend/app/models/page.tsx): Added loading state with `ModelRegistrySkeleton`.
+  - [frontend/app/settings/page.tsx](file:///c:/CCodes_WebDevelopment/hckthon/localize_movie_dub/frontend/app/settings/page.tsx): Added loading state with `SettingsSkeleton`.
+- **Test Suite**: Created [frontend/__tests__/skeleton_components.test.tsx](file:///c:/CCodes_WebDevelopment/hckthon/localize_movie_dub/frontend/__tests__/skeleton_components.test.tsx) testing all 15 skeleton components and variants.
+
+### Verification
+- `vitest run` — 15 / 15 test files passed (74 / 74 tests passed).
+- `tsc --noEmit` — passed with 0 errors.
+
+### Current State
+Every page, studio surface, card, and player in DubForge Studio has an accessible, geometry-matched skeleton loading state with smooth shimmer wave feedback.
+
+### Next Agent Instructions
+When building future pages or views, import and reuse the primitives from `@/components/ui/skeleton` to maintain visual consistency.
+
+
 
 
 

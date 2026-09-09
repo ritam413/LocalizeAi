@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { History, Play, CheckCircle2, Clock, AlertCircle, ArrowRight, XCircle, Sparkles } from 'lucide-react';
+import { RunListSkeleton } from '../../components/ui/skeleton';
 
 interface RunItem {
   id: string;
@@ -88,10 +89,12 @@ export default function RunHistoryPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-[#130e30]/8 bg-[#f9fbf2]">
-            {runs.length === 0 ? (
+            {loading ? (
+              <RunListSkeleton rows={4} />
+            ) : runs.length === 0 ? (
               <tr>
                 <td colSpan={6} className="px-6 py-10 text-center text-[#5f5c6e] italic">
-                  {loading ? 'Fetching pipeline runs…' : 'No runs created yet. Click "New Localization Run" to dispatch your first crew.'}
+                  No runs created yet. Click "New Localization Run" to dispatch your first crew.
                 </td>
               </tr>
             ) : (

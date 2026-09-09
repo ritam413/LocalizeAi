@@ -14,6 +14,7 @@ import { BeforeAfterPlayer } from '../../../components/studio/BeforeAfterPlayer'
 import { MasterVideoPreview } from '../../../components/studio/MasterVideoPreview';
 import { MultiAudioPlayer } from '../../../components/studio/MultiAudioPlayer';
 import { AccessibleErrorReport } from '../../../components/ui/AccessibleErrorReport';
+import { StudioConsoleSkeleton } from '../../../components/ui/skeleton';
 import { TelemetryEvent, summarizeTelemetryEvents } from '../../../lib/telemetry';
 import { AgentName } from '../../../lib/telemetry';
 import { CrewMemberStatus } from '../../../lib/agents/director';
@@ -230,12 +231,7 @@ export default function RunDashboardPage() {
   const stagesList = ['extraction', 'denoise', 'transcription', 'translation'];
 
   if (!runData) {
-    return (
-      <div className="flex items-center justify-center h-64 text-gray-400 space-x-3">
-        <RefreshCw className="w-5 h-5 animate-spin text-indigo-400" />
-        <span>Loading pipeline state...</span>
-      </div>
-    );
+    return <StudioConsoleSkeleton />;
   }
 
   const getStageStatus = (stageName: string) => {

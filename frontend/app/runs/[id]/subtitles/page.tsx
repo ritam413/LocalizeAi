@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { Subtitles, AlertTriangle, CheckCircle, Save, ArrowLeft, RefreshCw, Sparkles, CheckCircle2 } from 'lucide-react';
+import { SubtitleEditorSkeleton } from '../../../../components/ui/skeleton';
 
 interface Segment {
   id: string;
@@ -89,12 +90,7 @@ export default function SubtitleReviewPage() {
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64 text-[#5f5c6e] space-x-3 font-mono text-xs">
-        <RefreshCw className="w-5 h-5 animate-spin text-[#130e30]" />
-        <span>Loading Subtitle Editor…</span>
-      </div>
-    );
+    return <SubtitleEditorSkeleton rows={5} />;
   }
 
   return (

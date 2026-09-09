@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { Download, FileText, ArrowLeft, RefreshCw, Film, CheckCircle2 } from 'lucide-react';
+import { OutputDeliverablesSkeleton } from '../../../../components/ui/skeleton';
 
 interface Artifact {
   id: string;
@@ -35,12 +36,7 @@ export default function OutputPage() {
   }, [runId]);
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64 text-[#5f5c6e] space-x-3 font-mono text-xs">
-        <RefreshCw className="w-5 h-5 animate-spin text-[#130e30]" />
-        <span>Fetching Output Deliverables…</span>
-      </div>
-    );
+    return <OutputDeliverablesSkeleton cards={4} />;
   }
 
   return (

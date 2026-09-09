@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { Cpu, CheckCircle2, Shield, HardDrive, Tag } from 'lucide-react';
+import { ModelRegistrySkeleton } from '../../components/ui/skeleton';
 
 interface ModelItem {
   id: string;
@@ -14,6 +15,7 @@ interface ModelItem {
 
 export default function ModelRegistryPage() {
   const [models, setModels] = useState<ModelItem[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     async function loadModels() {
@@ -25,10 +27,16 @@ export default function ModelRegistryPage() {
         }
       } catch (err) {
         console.error('Failed to load models:', err);
+      } finally {
+        setLoading(false);
       }
     }
     loadModels();
   }, []);
+
+  if (loading) {
+    return <ModelRegistrySkeleton cards={6} />;
+  }
 
   return (
     <div className="space-y-8 max-w-5xl font-sans text-[#130e30]">
