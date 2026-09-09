@@ -23,6 +23,9 @@
 
 Most automated dubbing tools treat localization like an assembly line: audio gets transcribed to text, translated by a generic LLM, pushed through text-to-speech, and slapped back onto video. If a translated phrase takes two seconds longer to speak than the original actor's mouth movement, or if an idiom translates literally into nonsense, the pipeline still outputs the file without checking the result.
 
+https://localize-ai-8sy1.vercel.app/
+
+
 Human dubbing studios do not work this way. Directors, script translators, voice actors, sound engineers, and QA reviewers work together. When a translated sentence runs too long, the team rewrites the line or adjusts speech cadence to fit the dialogue window before publishing. We wanted to build an autonomous crew that behaves like a real post-production room, complete with automated quality control and targeted repair loops.
 
 ## What it does
