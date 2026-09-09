@@ -416,11 +416,8 @@ export const AgentSequenceTrack: React.FC<AgentSequenceTrackProps> = ({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#130e30]/10 pb-4">
         <div className="flex items-center gap-3">
           <div className="w-2.5 h-2.5 rounded-full bg-[#ffe228] border-[1.5px] border-[#130e30] animate-pulse" />
-          <h2 className="text-sm font-extrabold uppercase tracking-tight text-[#130e30] flex items-center gap-2">
+          <h2 className="text-sm font-extrabold uppercase tracking-tight text-[#130e30]">
             Serpentine Agent Workflow Route
-            <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[#f9fbf2] border border-[#130e30] font-bold">
-              Ditto × Netflix Sans
-            </span>
           </h2>
         </div>
 

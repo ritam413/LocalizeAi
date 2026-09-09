@@ -91,16 +91,10 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
         {/* Header Right Actions */}
         <div className="flex items-center space-x-3">
-          <div className="hidden sm:flex items-center space-x-2 bg-[#f9fbf2] px-3 py-1 rounded-full border border-[#130e30]/15 text-[11px] font-mono font-bold text-[#5f5c6e]">
+          <div className="flex items-center space-x-2 bg-[#f9fbf2] px-3 py-1 rounded-full border border-[#130e30]/15 text-[11px] font-mono font-bold text-[#5f5c6e]">
             <Activity className="w-3.5 h-3.5 text-[#59e25d] animate-pulse stroke-[3]" />
             <span className="text-[#130e30]">Crew Ready</span>
           </div>
-
-          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-mono font-extrabold bg-[#ffe228] text-[#130e30] border border-[#130e30] shadow-xs">
-            <Sparkles className="w-3.5 h-3.5 mr-1 fill-current" />
-            <span className="hidden sm:inline">Ditto × Netflix Sans Edition</span>
-            <span className="sm:hidden">Ditto UI</span>
-          </span>
         </div>
       </header>
 
