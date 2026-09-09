@@ -1,13 +1,26 @@
 import os
 from pathlib import Path
+from typing import List
 from pydantic_settings import BaseSettings
+from pydantic import ConfigDict
 
 class Settings(BaseSettings):
+    model_config = ConfigDict(env_file=".env", extra="ignore")
+
     BASE_DIR: Path = Path(__file__).resolve().parent.parent.parent
     DB_PATH: Path = BASE_DIR / "dubforge.db"
     STORAGE_DIR: Path = BASE_DIR / "storage"
     SHARED_FOLDER_PATH: Path = BASE_DIR / "shared"
     
+    # Server & Environment
+    HOST: str = "0.0.0.0"
+    PORT: int = 8000
+    ENVIRONMENT: str = "production"
+    CORS_ORIGINS: str = "*"
+
+    # Core AI Reasoning
+    GEMINI_API_KEY: str = ""
+
     # Defaults matching 15-schema.md
     GPU_VRAM_MB: int = 4096
     QA_MIN_GAP_MS: int = 100
@@ -15,10 +28,13 @@ class Settings(BaseSettings):
     QA_MIN_DURATION_S: float = 1.0
     QA_MAX_LINE_CHARS: int = 42
 
-    class Config:
-        env_file = ".env"
-        extra = "ignore"
+    @property
+    def cors_origins_list(self) -> List[str]:
+        if not self.CORS_ORIGINS or self.CORS_ORIGINS.strip() == "*":
+            return ["*"]
+        return [origin.strip() for origin in self.CORS_ORIGINS.split(",") if origin.strip()]
 
 settings = Settings()
 settings.STORAGE_DIR.mkdir(parents=True, exist_ok=True)
 settings.SHARED_FOLDER_PATH.mkdir(parents=True, exist_ok=True)
+

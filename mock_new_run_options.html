@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LOCALIZE — New Run Configuration Mockup (Ditto × Netflix Sans)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            canvas: '#f9fbf2',
+            softMeadow: '#eff2e5',
+            deepInk: '#130e30',
+            hiYellow: '#ffe228',
+            mossGreen: '#59e25d',
+            fuchsia: '#e261e5',
+            slateText: '#5f5c6e',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #f9fbf2;
+      color: #130e30;
+      font-family: 'Inter', sans-serif;
+    }
+    .active-preset {
+      border-color: #130e30 !important;
+      box-shadow: 0 0 0 3px #ffe228, 0 8px 24px rgba(19, 14, 48, 0.08);
+      background-color: #f9fbf2 !important;
+    }
+    .toggle-active {
+      background-color: #f9fbf2;
+      border-color: #130e30;
+      box-shadow: 0 0 0 2px #ffe228;
+    }
+  </style>
+</head>
+<body class="p-8 max-w-6xl mx-auto space-y-8 antialiased selection:bg-[#ffe228]">
+
+  <!-- Header -->
+  <div class="border-b border-[#130e30]/10 pb-6 flex items-center justify-between">
+    <div>
+      <div class="flex items-center gap-2 mb-1">
+        <span class="text-xs font-mono font-bold uppercase tracking-wider text-slateText">LOCALIZE Studio Atelier</span>
+        <span class="w-1.5 h-1.5 rounded-full bg-hiYellow border border-deepInk"></span>
+        <span class="text-xs font-mono font-bold text-deepInk">New Run Setup</span>
+      </div>
+      <h1 class="text-3xl font-black uppercase tracking-tight text-deepInk">Launch Autonomous Pipeline Run</h1>
+      <p class="text-xs text-slateText mt-1">Configure language targets, acoustic isolation, and dispatch autonomous agent crew presets.</p>
+    </div>
+    <span class="px-3 py-1 rounded-full font-mono text-xs font-bold bg-softMeadow border border-deepInk/20">
+      6 Agents Armed
+    </span>
+  </div>
+
+  <!-- SECTION 2: LANGUAGES & PIPELINE CONFIGURATION -->
+  <section class="space-y-3">
+    <div class="flex items-center justify-between">
+      <h2 class="text-sm font-extrabold uppercase tracking-tight text-deepInk flex items-center gap-2">
+        <span class="w-5 h-5 rounded-md bg-deepInk text-hiYellow flex items-center justify-center font-mono text-xs">2</span>
+        <span>Languages &amp; Acoustic Engineering Strategy</span>
+      </h2>
+      <span class="text-[11px] font-mono font-bold text-slateText">Adaptive Voice Stems &amp; ASR Engine</span>
+    </div>
+
+    <!-- 2-Column Balanced Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+      
+      <!-- Left Column (7 cols): Language Matrix & ASR Model -->
+      <div class="lg:col-span-7 bg-softMeadow border-[1.5px] border-deepInk/15 rounded-[24px] p-6 space-y-4 shadow-sm">
+        <div class="flex items-center justify-between pb-2 border-b border-deepInk/10">
+          <span class="text-xs font-black uppercase tracking-wider text-deepInk">Language Pair &amp; Speech Recognition</span>
+          <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-canvas border border-deepInk/15">VAD Chunked</span>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <!-- Source Language -->
+          <div>
+            <label class="block text-[11px] font-extrabold uppercase tracking-wider text-slateText mb-1.5">
+              Source Spoken Language
+            </label>
+            <div class="relative">
+              <select class="w-full bg-canvas border-[1.5px] border-deepInk/20 focus:border-deepInk rounded-xl px-3.5 py-3 text-xs font-bold text-deepInk focus:outline-none focus:ring-2 focus:ring-hiYellow appearance-none cursor-pointer">
+                <option value="auto">✨ Auto-Detect (Neural VAD + Whisper)</option>
+                <option value="es" selected>Spanish / Latin American (es)</option>
+                <option value="hi">Hindi (hi)</option>
+                <option value="bn">Bengali (bn)</option>
+                <option value="fr">French (fr)</option>
+                <option value="pt">Portuguese (pt)</option>
+                <option value="ru">Russian (ru)</option>
+                <option value="de">German (de)</option>
+                <option value="ja">Japanese (ja)</option>
+              </select>
+              <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-deepInk">
+                <svg class="fill-current h-4 w-4" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
+              </div>
+            </div>
+            <p class="text-[10px] text-slateText mt-1 font-mono">Auto-identifies native idioms and tone tags</p>
+          </div>
+
+          <!-- Target Dub Language -->
+          <div>
+            <label class="block text-[11px] font-extrabold uppercase tracking-wider text-slateText mb-1.5">
+              Target Release Language
+            </label>
+            <div class="relative">
+              <select class="w-full bg-canvas border-[1.5px] border-deepInk/20 focus:border-deepInk rounded-xl px-3.5 py-3 text-xs font-bold text-deepInk focus:outline-none focus:ring-2 focus:ring-hiYellow appearance-none cursor-pointer">
+                <option value="en" selected>English — Global Distribution (en)</option>
+                <option value="es">Spanish (es)</option>
+                <option value="hi">Hindi — Bollywood Neutral (hi)</option>
+                <option value="fr">French (fr)</option>
+                <option value="de">German (de)</option>
+                <option value="pt">Portuguese (pt)</option>
+                <option value="ru">Russian (ru)</option>
+              </select>
+              <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-deepInk">
+                <svg class="fill-current h-4 w-4" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
+              </div>
+            </div>
+            <p class="text-[10px] text-slateText mt-1 font-mono">Culture-adapted script + character tone</p>
+          </div>
+        </div>
+
+        <!-- Whisper ASR Engine Selector with Details -->
+        <div>
+          <label class="block text-[11px] font-extrabold uppercase tracking-wider text-slateText mb-1.5">
+            Whisper ASR Speech Recognition Engine
+          </label>
+          <div class="relative">
+            <select class="w-full bg-canvas border-[1.5px] border-deepInk/20 focus:border-deepInk rounded-xl px-3.5 py-3 text-xs font-bold text-deepInk focus:outline-none focus:ring-2 focus:ring-hiYellow appearance-none cursor-pointer">
+              <option value="large-v3" selected>Whisper Large v3 (1550M params • Max Acoustic Precision &amp; Diarization)</option>
+              <option value="turbo">Whisper Turbo (809M params • 8x Realtime Ultra Fast Path)</option>
+              <option value="medium">Whisper Medium (769M params • Balanced VRAM)</option>
+            </select>
+            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-deepInk">
+              <svg class="fill-current h-4 w-4" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
+            </div>
+          </div>
+          <div class="flex items-center justify-between text-[10.5px] font-mono text-slateText mt-1.5 bg-canvas/60 p-2 rounded-lg border border-deepInk/10">
+            <span>VRAM: <strong class="text-deepInk">~3.2 GB Footprint</strong></span>
+            <span>Timing Precision: <strong class="text-mossGreen">&lt;10ms Word Boundaries</strong></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column (5 cols): Stem Isolation & Delivery Track Options -->
+      <div class="lg:col-span-5 bg-softMeadow border-[1.5px] border-deepInk/15 rounded-[24px] p-6 space-y-4 shadow-sm flex flex-col justify-between">
+        <div class="flex items-center justify-between pb-2 border-b border-deepInk/10">
+          <span class="text-xs font-black uppercase tracking-wider text-deepInk">Audio Processing &amp; Mix Output</span>
+          <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-mossGreen text-deepInk border border-deepInk">Stem Ready</span>
+        </div>
+
+        <div class="space-y-3">
+          <!-- Demucs Vocal Split Card -->
+          <div class="p-3.5 rounded-2xl border-[1.5px] border-deepInk bg-canvas shadow-[0_0_0_2px_#ffe228] transition-all cursor-pointer select-none">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-mossGreen border border-deepInk"></span>
+                <span class="text-xs font-extrabold text-deepInk uppercase">Demucs Vocal &amp; BGM Split</span>
+              </div>
+              <span class="text-[10px] font-mono font-black px-2 py-0.5 rounded-full bg-hiYellow text-deepInk border border-deepInk">
+                RECOMMENDED
+              </span>
+            </div>
+            <p class="text-[11px] text-slateText mt-1.5 leading-relaxed">
+              Isolates speech dialogue from background music and sound effects (SFX) so original score is <strong>100% preserved</strong> under the localized dub.
+            </p>
+          </div>
+
+          <!-- Execution Depth: Full Dub vs Subtitle-Only -->
+          <div class="p-3.5 rounded-2xl border border-deepInk/20 bg-canvas/70 hover:border-deepInk transition-all cursor-pointer select-none">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-deepInk"></span>
+                <span class="text-xs font-extrabold text-deepInk uppercase">Execution Pipeline Depth</span>
+              </div>
+              <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-softMeadow text-deepInk border border-deepInk/20">
+                FULL 6-AGENT DUB
+              </span>
+            </div>
+            <p class="text-[11px] text-slateText mt-1.5 leading-relaxed">
+              Generates neural in-character voices, phonetically syncs speech duration via <code>atempo</code> stretch, and validates subtitle CPS drift.
+            </p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- SECTION 3: PROJECT MODE PRESETS -->
+  <section class="space-y-3">
+    <div class="flex items-center justify-between">
+      <h2 class="text-sm font-extrabold uppercase tracking-tight text-deepInk flex items-center gap-2">
+        <span class="w-5 h-5 rounded-md bg-deepInk text-hiYellow flex items-center justify-center font-mono text-xs">3</span>
+        <span>Select Autonomous Crew Project Preset</span>
+      </h2>
+      <span class="text-[11px] font-mono font-bold text-slateText">Tailored Model Chains &amp; Execution Profiles</span>
+    </div>
+
+    <!-- 3 Rich Preset Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+
+      <!-- PRESET A: High Fidelity Cinema -->
+      <div class="active-preset border-[2px] rounded-[24px] p-6 flex flex-col justify-between gap-4 cursor-pointer transition-all">
+        <div>
+          <div class="flex items-center justify-between mb-3">
+            <span class="font-mono text-[9.5px] font-extrabold px-2.5 py-0.5 rounded-full bg-hiYellow text-deepInk border border-deepInk uppercase tracking-wider">
+              MAX FIDELITY CINEMA
+            </span>
+            <span class="w-4 h-4 rounded-full bg-deepInk text-hiYellow flex items-center justify-center text-[10px] font-black">✓</span>
+          </div>
+
+          <h3 class="text-base font-black text-deepInk tracking-tight">Project A — Cinema Master Dub</h3>
+          <p class="text-xs font-mono font-bold text-slateText mt-0.5">Hindi • Bengali • Spanish Master Stems</p>
+          
+          <p class="text-xs text-slateText mt-3 leading-relaxed">
+            Deep cultural adaptation reasoning via <strong>Gemini 2.5 Pro</strong>, Demucs HTDemucs 4-stem vocal separation, and pitch-matched neural voice casting.
+          </p>
+        </div>
+
+        <!-- Structured Operational Metrics -->
+        <div class="space-y-2 pt-3 border-t border-deepInk/10 text-xs">
+          <div class="flex items-center justify-between p-2 rounded-xl bg-softMeadow border border-deepInk/10">
+            <span class="text-slateText font-medium">Active Crew:</span>
+            <span class="font-mono font-bold text-deepInk">6 Agents (Full Swarm)</span>
+          </div>
+          <div class="flex items-center justify-between p-2 rounded-xl bg-softMeadow border border-deepInk/10">
+            <span class="text-slateText font-medium">Est. Turnaround:</span>
+            <span class="font-mono font-bold text-deepInk">~2m 15s (4K Clip)</span>
+          </div>
+          <div class="flex items-center justify-between p-2 rounded-xl bg-softMeadow border border-deepInk/10">
+            <span class="text-slateText font-medium">Deliverables:</span>
+            <span class="font-mono font-bold text-deepInk">Master MP4 + Dual WAV + SRT</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- PRESET B: High Speed Throughput -->
+      <div class="bg-softMeadow border-[1.5px] border-deepInk/15 hover:border-deepInk rounded-[24px] p-6 flex flex-col justify-between gap-4 cursor-pointer transition-all">
+        <div>
+          <div class="flex items-center justify-between mb-3">
+            <span class="font-mono text-[9.5px] font-extrabold px-2.5 py-0.5 rounded-full bg-canvas text-deepInk border border-deepInk/20 uppercase tracking-wider">
+              HIGH SPEED THROUGHPUT
+            </span>
+          </div>
+
+          <h3 class="text-base font-black text-deepInk tracking-tight">Project B — Fast Broadcast Dub</h3>
+          <p class="text-xs font-mono font-bold text-slateText mt-0.5">Spanish • French • Portuguese Releases</p>
+          
+          <p class="text-xs text-slateText mt-3 leading-relaxed">
+            Optimized for rapid streaming turnaround with <strong>Whisper Turbo ASR</strong>, fast neural voice models, and continuous phonetic alignment.
+          </p>
+        </div>
+
+        <!-- Structured Operational Metrics -->
+        <div class="space-y-2 pt-3 border-t border-deepInk/10 text-xs">
+          <div class="flex items-center justify-between p-2 rounded-xl bg-canvas border border-deepInk/10">
+            <span class="text-slateText font-medium">Active Crew:</span>
+            <span class="font-mono font-bold text-deepInk">6 Agents (Fast TTS)</span>
+          </div>
+          <div class="flex items-center justify-between p-2 rounded-xl bg-canvas border border-deepInk/10">
+            <span class="text-slateText font-medium">Est. Turnaround:</span>
+            <span class="font-mono font-bold text-deepInk">~1m 05s</span>
+          </div>
+          <div class="flex items-center justify-between p-2 rounded-xl bg-canvas border border-deepInk/10">
+            <span class="text-slateText font-medium">Deliverables:</span>
+            <span class="font-mono font-bold text-deepInk">Master MP4 + SRT Subtitles</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- PRESET C: Universal Subtitle & Fast Path -->
+      <div class="bg-softMeadow border-[1.5px] border-deepInk/15 hover:border-deepInk rounded-[24px] p-6 flex flex-col justify-between gap-4 cursor-pointer transition-all">
+        <div>
+          <div class="flex items-center justify-between mb-3">
+            <span class="font-mono text-[9.5px] font-extrabold px-2.5 py-0.5 rounded-full bg-mossGreen text-deepInk border border-deepInk uppercase tracking-wider">
+              FASTEST SPRINT
+            </span>
+          </div>
+
+          <h3 class="text-base font-black text-deepInk tracking-tight">Project C — Universal Subtitle Track</h3>
+          <p class="text-xs font-mono font-bold text-slateText mt-0.5">Any Language → English Subtitles (16 CPS)</p>
+          
+          <p class="text-xs text-slateText mt-3 leading-relaxed">
+            Fastest pipeline path. Skips heavy voice cloning and delivers Netflix-compliant SRT/VTT master subtitle tracks with zero audio distortion.
+          </p>
+        </div>
+
+        <!-- Structured Operational Metrics -->
+        <div class="space-y-2 pt-3 border-t border-deepInk/10 text-xs">
+          <div class="flex items-center justify-between p-2 rounded-xl bg-canvas border border-deepInk/10">
+            <span class="text-slateText font-medium">Active Crew:</span>
+            <span class="font-mono font-bold text-deepInk">4 Agents (No Voice Dir)</span>
+          </div>
+          <div class="flex items-center justify-between p-2 rounded-xl bg-canvas border border-deepInk/10">
+            <span class="text-slateText font-medium">Est. Turnaround:</span>
+            <span class="font-mono font-bold text-deepInk">&lt; 35 seconds</span>
+          </div>
+          <div class="flex items-center justify-between p-2 rounded-xl bg-canvas border border-deepInk/10">
+            <span class="text-slateText font-medium">Deliverables:</span>
+            <span class="font-mono font-bold text-deepInk">Master SRT + WebVTT</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ACTION FOOTER -->
+  <div class="p-6 rounded-[24px] bg-softMeadow border-[1.5px] border-deepInk/15 flex items-center justify-between">
+    <div>
+      <div class="text-xs font-black uppercase text-deepInk">Ready to Dispatch Autonomous Crew</div>
+      <div class="text-xs text-slateText">Selected: Project A (Cinema Master Dub) • Spanish → English • Whisper Large v3 • Demucs BGM Separation</div>
+    </div>
+    <button class="px-8 py-3.5 rounded-full bg-hiYellow hover:bg-[#ebd020] text-deepInk font-black text-xs border-[1.5px] border-deepInk shadow-sm transition active:scale-[0.97] cursor-pointer">
+      DISPATCH AUTONOMOUS CREW ➔
+    </button>
+  </div>
+
+</body>
+</html>

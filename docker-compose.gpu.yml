@@ -1,0 +1,16 @@
+# NVIDIA GPU Acceleration Override for LOCALIZE Backend
+# Usage: docker compose -f docker-compose.yml -f docker-compose.gpu.yml up --build -d
+
+version: '3.8'
+
+services:
+  backend:
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    environment:
+      - GPU_VRAM_MB=${GPU_VRAM_MB:-8192}

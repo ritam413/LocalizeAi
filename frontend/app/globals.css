@@ -5,13 +5,44 @@
 :root {
   --background: 11 15 25;
   --foreground: 243 244 246;
+
+  /* Ditto Color System */
+  --color-deep-ink: #130e30;
+  --color-hi-yellow: #ffe228;
+  --color-moss-green: #59e25d;
+  --color-fuchsia: #e261e5;
+  --color-slate: #5f5c6e;
+  --color-canvas: #f9fbf2;
+  --color-soft-meadow: #eff2e5;
+  --color-charcoal: #222222;
+  --color-onyx: #000000;
+
+  /* Emil Kowalski Motion Curves */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
 }
 
 body {
-  background-color: #0b0f19;
-  color: #f3f4f6;
-  font-family: 'Inter', sans-serif;
+  background-color: #f9fbf2;
+  color: #130e30;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   overflow-x: hidden;
+}
+
+/* Custom Drawer Animations */
+.drawer-backdrop {
+  transition: opacity 180ms var(--ease-out);
+}
+
+.drawer-panel {
+  transition: transform 220ms var(--ease-drawer);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .drawer-panel {
+    transition: opacity 180ms ease;
+  }
 }
 
 /* Glassmorphism panel */
@@ -34,6 +65,36 @@ body {
   box-shadow: 0 0 25px -5px rgba(99, 102, 241, 0.25);
 }
 
+/* Animations */
+@keyframes dash-flow {
+  from { stroke-dashoffset: 24; }
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes pulse-yellow-pill {
+  0% { transform: scale(1); }
+  100% { transform: scale(1.04); }
+}
+
+@keyframes pulse-arrow {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(4px); }
+}
+
+@keyframes pulse-arrow-left {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-4px); }
+}
+
+.animate-dash-flow {
+  stroke-dasharray: 8 4;
+  animation: dash-flow 0.8s linear infinite;
+}
+
+.animate-pulse-yellow {
+  animation: pulse-yellow-pill 1.2s infinite alternate;
+}
+
 /* Custom scrollbars */
 ::-webkit-scrollbar {
   width: 6px;
@@ -49,3 +110,4 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: #4f46e5;
 }
+

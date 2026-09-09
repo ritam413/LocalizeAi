@@ -1,44 +1,66 @@
-# ==========================================
-# DubForge Studio - Git Ignore Configuration
-# ==========================================
+# ==============================================================================
+# DubForge Studio - Production Git Ignore Configuration
+# ==============================================================================
 
-# ------------------------------------------
-# User Uploads, Media Files & Binary Outputs
-# ------------------------------------------
+# ------------------------------------------------------------------------------
+# 1. Documents, PDFs, Resumes & Internship / Career-Related Files (STRICTLY IGNORED)
+# ------------------------------------------------------------------------------
 *.pdf
+*.PDF
+*.doc
+*.docx
+*.ppt
+*.pptx
+*.xls
+*.xlsx
+*.csv
+*.lnk
+*.shortcut
+
+# Internship, resume, cover letters, and application materials
+*internship*
+*Internship*
+*INTERNSHIP*
+*resume*
+*Resume*
+*RESUME*
+*cv*
+*CV*
+*cover_letter*
+*Cover_Letter*
+*CoverLetter*
+*cover-letter*
+generate_cover_letter.py
+generate_pdf.py
+
+# ------------------------------------------------------------------------------
+# 2. User Media Uploads, Video/Audio Binaries & Generated Run Assets
+# ------------------------------------------------------------------------------
 *.mp4
 *.mkv
 *.avi
 *.mov
 *.webm
 *.flv
+*.wmv
+*.m4v
 *.wav
 *.mp3
 *.aac
 *.m4a
 *.flac
 *.ogg
+*.wma
+*.opus
 
 # Subtitle outputs & generated datasets
 *.srt
 *.vtt
 *.ass
 *_detailed.json
-*Cover_Letter*
+latest_10_videos_detailed.json
 
-# ------------------------------------------
-# Databases & SQLite Storage
-# ------------------------------------------
-*.db
-*.sqlite
-*.sqlite3
-*.db-journal
-*.db-wal
-*.db-shm
-
-# ------------------------------------------
-# Storage Directories (Ignore contents, preserve folder structure via .gitkeep)
-# ------------------------------------------
+# Storage Directories (Preserve directory structure via .gitkeep)
 storage/*
 !storage/.gitkeep
 !storage/*/
@@ -51,55 +73,88 @@ storage/runs/*
 
 backend/storage/*
 !backend/storage/.gitkeep
+!backend/storage/*/
 
-# ------------------------------------------
-# Python Caches & Virtual Environments
-# ------------------------------------------
+# ------------------------------------------------------------------------------
+# 3. Databases & SQLite Cache
+# ------------------------------------------------------------------------------
+*.db
+*.sqlite
+*.sqlite3
+*.db-journal
+*.db-wal
+*.db-shm
+dubforge.db
+
+# ------------------------------------------------------------------------------
+# 4. Python Virtual Environments, Bytecode & Testing Caches
+# ------------------------------------------------------------------------------
 __pycache__/
 *.py[cod]
 *$py.class
+*.so
+.Python
 .venv/
 venv/
 env/
 ENV/
+.venv*/
+*/.venv*/
 .pytest_cache/
-.cache/
+*/.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
 *.egg-info/
 dist/
 build/
+eggs/
+*.egg
 
-# ------------------------------------------
-# Node.js & Next.js Frontend
-# ------------------------------------------
+# ------------------------------------------------------------------------------
+# 5. Node.js, Frontend Build Artifacts & Package Caches
+# ------------------------------------------------------------------------------
 node_modules/
-frontend/node_modules/
+*/node_modules/
 .next/
-frontend/.next/
+*/.next/
 .turbo/
 .vercel
 out/
+build/
+*.tsbuildinfo
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
 
-# ------------------------------------------
-# Environment Files & Secrets
-# ------------------------------------------
+# ------------------------------------------------------------------------------
+# 6. Environment Files & Secrets (Never commit credentials)
+# ------------------------------------------------------------------------------
 .env
 .env.local
 .env.*.local
 .env.development
 .env.test
 .env.production
+backend/.env
+backend/.env.local
+frontend/.env
+frontend/.env.local
+!*.env.example
 !.env.example
 
-# ------------------------------------------
-# Operating System & IDE Files
-# ------------------------------------------
+# ------------------------------------------------------------------------------
+# 7. Operating System & IDE Caches / Artifacts
+# ------------------------------------------------------------------------------
 .DS_Store
 Thumbs.db
+Desktop.ini
 .vscode/
 .idea/
 *.swp
 *.swo
 .antigravity/
+.system_generated/
+*.log

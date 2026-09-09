@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LOCALIZE — Studio Console Viewport Rehaul Mockup</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            canvas: '#f9fbf2',
+            meadow: '#eff2e5',
+            ink: '#130e30',
+            yellow: '#ffe228',
+            green: '#59e25d',
+            fuchsia: '#e261e5',
+            muted: '#5f5c6e',
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    :root {
+      --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+      --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+    }
+    body {
+      background-color: #f9fbf2;
+      color: #130e30;
+      font-family: 'Inter', sans-serif;
+      overflow-x: hidden;
+    }
+    .tabular-nums {
+      font-variant-numeric: tabular-nums;
+    }
+    .btn-tactile {
+      transition: transform 160ms var(--ease-out), background-color 160ms var(--ease-out), border-color 160ms var(--ease-out), box-shadow 160ms var(--ease-out);
+    }
+    .btn-tactile:active {
+      transform: scale(0.97);
+    }
+    @keyframes pulse-yellow-pill {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(255, 226, 40, 0.6); }
+      50% { box-shadow: 0 0 0 6px rgba(255, 226, 40, 0); }
+    }
+    .pulse-yellow {
+      animation: pulse-yellow-pill 2s infinite;
+    }
+    /* Custom sleek scrollbar for feeds */
+    .custom-scroll::-webkit-scrollbar {
+      width: 5px;
+    }
+    .custom-scroll::-webkit-scrollbar-track {
+      background: rgba(19, 14, 48, 0.04);
+      border-radius: 8px;
+    }
+    .custom-scroll::-webkit-scrollbar-thumb {
+      background: rgba(19, 14, 48, 0.2);
+      border-radius: 8px;
+    }
+    .custom-scroll::-webkit-scrollbar-thumb:hover {
+      background: rgba(19, 14, 48, 0.4);
+    }
+  </style>
+</head>
+<body class="p-3 md:p-5 flex flex-col justify-start min-h-screen">
+
+  <div class="max-w-[1600px] w-full mx-auto space-y-3.5">
+    
+    <!-- TOP NOTIFICATION BANNER / RUN HEADER (Ultra Compact) -->
+    <header class="bg-[#eff2e5] border-[1.5px] border-[#130e30]/15 px-4 py-3 rounded-[20px] flex flex-wrap items-center justify-between gap-3 shadow-sm">
+      <div class="flex items-center gap-3 flex-wrap">
+        <div class="flex items-center gap-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-[#59e25d] border border-[#130e30]"></span>
+          <h1 class="text-lg font-black text-[#130e30] uppercase tracking-tight">RUN #TRIAL1_1</h1>
+          <span class="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-black uppercase tracking-wider bg-[#59e25d] text-[#130e30] border border-[#130e30]">
+            ✓ Master Ready
+          </span>
+        </div>
+        <span class="text-[#130e30]/20 hidden sm:inline">•</span>
+        <div class="text-xs text-[#5f5c6e] flex items-center gap-2.5 font-mono font-medium flex-wrap">
+          <span>Clip: <strong class="text-[#130e30]">trial1.mp4</strong></span>
+          <span>•</span>
+          <span>Mode: <strong class="text-[#130e30]">Project A (Cinema)</strong></span>
+          <span>•</span>
+          <span>Pair: <strong class="text-[#130e30]">ES ➔ EN</strong></span>
+          <span>•</span>
+          <span>ASR: <strong class="text-[#130e30]">whisper-large-v3</strong></span>
+        </div>
+      </div>
+
+      <!-- Header Action Controls & Tabs -->
+      <div class="flex items-center gap-2 flex-wrap">
+        <button class="btn-tactile flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-black bg-[#ffe228] hover:bg-[#ebd020] text-[#130e30] border border-[#130e30] shadow-sm cursor-pointer">
+          <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+          <span>Resume Pipeline</span>
+        </button>
+
+        <div class="flex items-center p-1 rounded-full bg-[#f9fbf2] border border-[#130e30]/15">
+          <button class="btn-tactile px-3 py-1 rounded-full text-xs font-bold bg-[#130e30] text-white shadow-sm flex items-center gap-1.5 cursor-pointer">
+            <svg class="w-3 h-3 text-[#ffe228] fill-current" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            <span>Studio Console</span>
+          </button>
+          <button class="btn-tactile px-3 py-1 rounded-full text-xs font-bold text-[#5f5c6e] hover:text-[#130e30] transition cursor-pointer">
+            Progress &amp; Logs
+          </button>
+          <button class="btn-tactile px-3 py-1 rounded-full text-xs font-bold text-[#5f5c6e] hover:text-[#130e30] transition cursor-pointer">
+            Subtitles
+          </button>
+          <button class="btn-tactile px-3 py-1 rounded-full text-xs font-bold text-[#5f5c6e] hover:text-[#130e30] transition cursor-pointer">
+            Outputs
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- COMPACT 6-AGENT WORKFLOW PIPELINE RIBBON (~105px Total Height) -->
+    <section class="bg-[#eff2e5] border-[1.5px] border-[#130e30]/15 rounded-[20px] p-3 text-[#130e30] shadow-sm relative">
+      <div class="flex items-center justify-between pb-1.5 border-b border-[#130e30]/10 mb-2">
+        <div class="flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-[#ffe228] border border-[#130e30] animate-pulse"></span>
+          <h2 class="text-xs font-extrabold uppercase tracking-tight text-[#130e30]">
+            Autonomous 6-Agent Swarm Route
+          </h2>
+          <span class="text-[9.5px] font-mono px-2 py-0.2 rounded-full bg-[#f9fbf2] border border-[#130e30]/20 font-bold">
+            Serpentine Flow
+          </span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-[10.5px] font-mono font-bold text-[#e261e5] bg-[#fdf3fe] px-2 py-0.5 rounded-full border border-[#e261e5] flex items-center gap-1">
+            <svg class="w-3 h-3 fill-current" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+            Auto-Repair Resolved (Row 2 ➔ Step 04 atempo 1.25x)
+          </span>
+        </div>
+      </div>
+
+      <!-- Compact 2-Row Serpentine Ribbon (Sleek cards ~38px height each row) -->
+      <div class="space-y-1.5 relative">
+        
+        <!-- ROW 1 (L ➔ R): Step 01 -> Step 02 -> Step 03 -->
+        <div class="grid grid-cols-[1fr_20px_1fr_20px_1fr] items-center gap-1.5">
+          
+          <!-- Step 01: Story Analyst -->
+          <div onclick="showDrilldown('story_analyst')" class="btn-tactile bg-[#f9fbf2] border-[1.5px] border-[#130e30]/20 hover:border-[#130e30] rounded-[12px] px-3 py-1.5 flex items-center justify-between cursor-pointer group shadow-2xs">
+            <div class="flex items-center gap-2 min-w-0">
+              <span class="font-mono text-[9px] font-black text-[#5f5c6e] bg-[#eff2e5] px-1 py-0.5 rounded border border-[#130e30]/10">01</span>
+              <div class="truncate">
+                <div class="text-xs font-extrabold text-[#130e30] truncate group-hover:text-black">Story Analyst</div>
+                <div class="text-[9.5px] text-[#5f5c6e] truncate">Diarization & Tone Extraction</div>
+              </div>
+            </div>
+            <div class="flex items-center gap-2 pl-2">
+              <span class="font-mono text-xs font-black tabular-nums text-[#130e30]">1.85s</span>
+              <span class="px-1.5 py-0.5 rounded text-[8.5px] font-mono font-bold bg-[#59e25d] text-[#130e30]">✓ Ready</span>
+            </div>
+          </div>
+
+          <div class="flex justify-center text-[#130e30]/40 font-bold text-xs">➔</div>
+
+          <!-- Step 02: Localization Director -->
+          <div onclick="showDrilldown('localization_director')" class="btn-tactile bg-[#f9fbf2] border-[1.5px] border-[#130e30]/20 hover:border-[#130e30] rounded-[12px] px-3 py-1.5 flex items-center justify-between cursor-pointer group shadow-2xs">
+            <div class="flex items-center gap-2 min-w-0">
+              <span class="font-mono text-[9px] font-black text-[#5f5c6e] bg-[#eff2e5] px-1 py-0.5 rounded border border-[#130e30]/10">02</span>
+              <div class="truncate">
+                <div class="text-xs font-extrabold text-[#130e30] truncate group-hover:text-black">Localization Director</div>
+                <div class="text-[9.5px] text-[#5f5c6e] truncate">Cultural Adaptation & Nuance</div>
+              </div>
+            </div>
+            <div class="flex items-center gap-2 pl-2">
+              <span class="font-mono text-xs font-black tabular-nums text-[#130e30]">2.42s</span>
+              <span class="px-1.5 py-0.5 rounded text-[8.5px] font-mono font-bold bg-[#59e25d] text-[#130e30]">✓ Ready</span>
+            </div>
+          </div>
+
+          <div class="flex justify-center text-[#130e30]/40 font-bold text-xs">➔</div>
+
+          <!-- Step 03: Voice Director -->
+          <div onclick="showDrilldown('voice_director')" class="btn-tactile bg-[#f9fbf2] border-[1.5px] border-[#130e30]/20 hover:border-[#130e30] rounded-[12px] px-3 py-1.5 flex items-center justify-between cursor-pointer group shadow-2xs">
+            <div class="flex items-center gap-2 min-w-0">
+              <span class="font-mono text-[9px] font-black text-[#5f5c6e] bg-[#eff2e5] px-1 py-0.5 rounded border border-[#130e30]/10">03</span>
+              <div class="truncate">
+                <div class="text-xs font-extrabold text-[#130e30] truncate group-hover:text-black">Voice Director</div>
+                <div class="text-[9.5px] text-[#5f5c6e] truncate">Neural Voice Casting & TTS</div>
+              </div>
+            </div>
+            <div class="flex items-center gap-2 pl-2">
+              <span class="font-mono text-xs font-black tabular-nums text-[#130e30]">3.10s</span>
+              <span class="px-1.5 py-0.5 rounded text-[8.5px] font-mono font-bold bg-[#59e25d] text-[#130e30]">✓ Ready</span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- ROW 2 (R ➔ L): Step 04 <- Step 05 <- Step 06 -->
+        <div class="grid grid-cols-[1fr_20px_1fr_20px_1fr] items-center gap-1.5">
+          
+          <!-- Step 06: QA Continuity Agent (Left) -->
+          <div onclick="showDrilldown('qa_agent')" class="btn-tactile bg-[#f9fbf2] border-[1.5px] border-[#130e30] rounded-[12px] px-3 py-1.5 flex items-center justify-between cursor-pointer group shadow-[0_0_0_2px_#ffe228]">
+            <div class="flex items-center gap-2 min-w-0">
+              <span class="font-mono text-[9px] font-black text-[#130e30] bg-[#ffe228] px-1 py-0.5 rounded border border-[#130e30]">06</span>
+              <div class="truncate">
+                <div class="text-xs font-extrabold text-[#130e30] truncate">QA Continuity Agent</div>
+                <div class="text-[9.5px] text-[#5f5c6e] truncate">Defect Scanner & Auto Repair</div>
+              </div>
+            </div>
+            <div class="flex items-center gap-2 pl-2">
+              <span class="font-mono text-xs font-black tabular-nums text-[#130e30]">1.98s</span>
+              <span class="px-1.5 py-0.5 rounded text-[8.5px] font-mono font-black bg-[#59e25d] text-[#130e30]">PASS 98%</span>
+            </div>
+          </div>
+
+          <div class="flex justify-center text-[#130e30]/40 font-bold text-xs"></div>
+
+          <!-- Step 05: Subtitle Director (Middle) -->
+          <div onclick="showDrilldown('subtitle_director')" class="btn-tactile bg-[#f9fbf2] border-[1.5px] border-[#130e30]/20 hover:border-[#130e30] rounded-[12px] px-3 py-1.5 flex items-center justify-between cursor-pointer group shadow-2xs">
+            <div class="flex items-center gap-2 min-w-0">
+              <span class="font-mono text-[9px] font-black text-[#5f5c6e] bg-[#eff2e5] px-1 py-0.5 rounded border border-[#130e30]/10">05</span>
+              <div class="truncate">
+                <div class="text-xs font-extrabold text-[#130e30] truncate">Subtitle Director</div>
+                <div class="text-[9.5px] text-[#5f5c6e] truncate">SRT/VTT Sync & CPS Guardrails</div>
+              </div>
+            </div>
+            <div class="flex items-center gap-2 pl-2">
+              <span class="font-mono text-xs font-black tabular-nums text-[#130e30]">1.42s</span>
+              <span class="px-1.5 py-0.5 rounded text-[8.5px] font-mono font-bold bg-[#59e25d] text-[#130e30]">✓ Synced</span>
+            </div>
+          </div>
+
+          <div class="flex justify-center text-[#130e30]/40 font-bold text-xs"></div>
+
+          <!-- Step 04: Sync Engineer (Right - with self-repair badge) -->
+          <div onclick="showDrilldown('sync_engineer')" class="btn-tactile bg-[#fdf3fe] border-[1.5px] border-[#e261e5] rounded-[12px] px-3 py-1.5 flex items-center justify-between cursor-pointer group shadow-[0_0_0_2px_rgba(226,97,229,0.2)]">
+            <div class="flex items-center gap-2 min-w-0">
+              <span class="font-mono text-[9px] font-black text-white bg-[#e261e5] px-1 py-0.5 rounded">04</span>
+              <div class="truncate">
+                <div class="text-xs font-extrabold text-[#130e30] truncate">Sync Engineer</div>
+                <div class="text-[9.5px] text-[#e261e5] font-semibold truncate">Phonetic Alignment & atempo 1.25x</div>
+              </div>
+            </div>
+            <div class="flex items-center gap-2 pl-2">
+              <span class="font-mono text-xs font-black tabular-nums text-[#130e30]">2.15s</span>
+              <span class="px-1.5 py-0.5 rounded text-[8.5px] font-mono font-bold bg-[#e261e5] text-white">Loop #1 Fixed</span>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 3-COLUMN EXECUTIVE STUDIO WORKSTATION (Zero-Scroll 100vh) -->
+    <main class="grid grid-cols-1 lg:grid-cols-12 gap-3.5 items-stretch">
+      
+      <!-- COLUMN 1: THE PRODUCER BOARD (Left 4 Cols) -->
+      <section class="lg:col-span-4 bg-[#eff2e5] border-[1.5px] border-[#130e30]/15 rounded-[20px] p-3.5 flex flex-col justify-between gap-2.5 shadow-sm">
+        <div>
+          <!-- Producer Board Header with Integrated Readiness Badge -->
+          <div class="flex items-center justify-between pb-2 border-b border-[#130e30]/10">
+            <div class="flex items-center gap-2">
+              <svg class="w-4 h-4 text-[#130e30]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              <h3 class="text-xs font-black uppercase tracking-tight text-[#130e30]">The Producer Board</h3>
+            </div>
+            <span class="font-mono text-[9px] font-black px-2 py-0.5 rounded-full bg-[#59e25d] text-[#130e30] border border-[#130e30]">
+              RELEASE READY
+            </span>
+          </div>
+
+          <!-- Hero Score Card -->
+          <div class="my-2 p-2.5 rounded-xl bg-[#f9fbf2] border border-[#130e30]/10 flex items-center justify-between">
+            <div>
+              <div class="text-[9px] font-extrabold uppercase tracking-wider text-[#5f5c6e]">QA Continuity Score</div>
+              <div class="flex items-baseline gap-1.5 mt-0.5">
+                <span class="text-2xl font-mono font-black tabular-nums text-[#130e30]">98.0%</span>
+                <span class="text-[10px] text-[#59e25d] font-mono font-bold">/ threshold 85.0% (PASS)</span>
+              </div>
+            </div>
+            <div class="w-7 h-7 rounded-full bg-[#59e25d] border border-[#130e30] flex items-center justify-center font-bold text-xs">
+              ✓
+            </div>
+          </div>
+
+          <!-- Broadcast Delivery Metric Checklist -->
+          <div class="space-y-1.5 text-xs font-sans">
+            <div class="flex items-center justify-between p-2 bg-[#f9fbf2] rounded-lg border border-[#130e30]/10">
+              <span class="text-[#5f5c6e] font-semibold text-[11px]">Phonetic Lip Drift</span>
+              <span class="font-mono font-bold text-[11px] text-[#130e30] flex items-center gap-1.5">
+                <span class="w-1.5 h-1.5 rounded-full bg-[#59e25d]"></span>
+                &lt; 18ms Max (EBU R128)
+              </span>
+            </div>
+
+            <div class="flex items-center justify-between p-2 bg-[#f9fbf2] rounded-lg border border-[#130e30]/10">
+              <span class="text-[#5f5c6e] font-semibold text-[11px]">Subtitle CPS Compliance</span>
+              <span class="font-mono font-bold text-[11px] text-[#130e30] flex items-center gap-1.5">
+                <span class="w-1.5 h-1.5 rounded-full bg-[#59e25d]"></span>
+                16.2 CPS (42 CPL Max)
+              </span>
+            </div>
+
+            <div class="flex items-center justify-between p-2 bg-[#f9fbf2] rounded-lg border border-[#130e30]/10">
+              <span class="text-[#5f5c6e] font-semibold text-[11px]">Reasoning Compute</span>
+              <span class="font-mono font-bold text-[11px] text-[#130e30]">
+                2,410 tok (Gemini 2.5)
+              </span>
+            </div>
+
+            <div class="flex items-center justify-between p-2 bg-[#f9fbf2] rounded-lg border border-[#130e30]/10">
+              <span class="text-[#5f5c6e] font-semibold text-[11px]">Self-Repair Loops</span>
+              <span class="font-mono font-bold text-[11px] text-[#e261e5] bg-[#fdf3fe] px-1.5 py-0.5 rounded border border-[#e261e5]/40">
+                1 Loop (Auto-Resolved)
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Producer Approval Actions -->
+        <div class="space-y-1.5 pt-1 border-t border-[#130e30]/10">
+          <button id="btn-approve" onclick="toggleApprove()" class="btn-tactile w-full py-2.5 px-4 rounded-full bg-[#ffe228] hover:bg-[#ebd020] text-[#130e30] font-black text-xs border-[1.5px] border-[#130e30] shadow-sm flex items-center justify-center gap-2 cursor-pointer">
+            <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            <span id="btn-approve-label">APPROVE FOR DISTRIBUTION</span>
+          </button>
+          <button class="btn-tactile w-full py-1.5 px-3 rounded-full bg-transparent hover:bg-[#f9fbf2] text-[#5f5c6e] hover:text-[#130e30] font-bold text-[10.5px] border border-[#130e30]/20 flex items-center justify-center gap-1.5 cursor-pointer">
+            <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+            <span>Export Compliance Audit Report (.pdf)</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- COLUMN 2: QA SELF-REPAIR CARD & A/B AUDIO MONITOR (Middle 4.5 Cols) -->
+      <section class="lg:col-span-4 flex flex-col justify-between gap-3">
+        
+        <!-- QA Defect & Self-Repair Card -->
+        <div class="bg-[#eff2e5] border-[1.5px] border-[#e261e5] rounded-[20px] p-3.5 shadow-sm flex-1 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between pb-1.5 border-b border-[#130e30]/10">
+              <div class="flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-[#e261e5] animate-pulse"></span>
+                <span class="text-[9.5px] font-mono font-black text-[#e261e5] uppercase bg-[#fdf3fe] px-2 py-0.5 rounded-full border border-[#e261e5]">
+                  TIMING OVERFLOW (+1.40s)
+                </span>
+              </div>
+              <span class="text-[10px] font-mono font-bold text-[#5f5c6e]">Scene 07 @ 3.20s</span>
+            </div>
+
+            <div class="mt-2 space-y-1.5">
+              <div>
+                <span class="text-[9px] font-extrabold uppercase tracking-wider text-[#5f5c6e]">Defect Detected by QA Continuity Agent:</span>
+                <p class="text-xs font-bold text-[#130e30] mt-0.5 leading-snug">Synthesized dialogue exceeded speech window by 1.40s during initial pass.</p>
+              </div>
+
+              <div class="p-2 rounded-lg bg-[#f9fbf2] border border-[#130e30]/10">
+                <span class="text-[9px] font-extrabold uppercase tracking-wider text-[#130e30]">Remediation Strategy:</span>
+                <p class="text-[10.5px] text-[#5f5c6e] mt-0.5 leading-snug font-medium">Dispatched targeted retry to Sync Engineer: applied atempo 1.25x speed adjust.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="pt-2 border-t border-[#130e30]/10 flex items-center justify-between">
+            <span class="text-[10.5px] font-mono text-[#5f5c6e]">
+              Target: <strong class="text-[#130e30] bg-[#f9fbf2] px-1.5 py-0.5 rounded border border-[#130e30]/10">sync_engineer</strong>
+            </span>
+            <span class="text-[9px] font-mono px-2 py-0.5 rounded-full bg-[#59e25d] border border-[#130e30] text-[#130e30] font-black flex items-center gap-1">
+              ✓ AUTO-REPAIR VERIFIED
+            </span>
+          </div>
+        </div>
+
+        <!-- A/B Studio Audio Comparison Monitor -->
+        <div class="bg-[#eff2e5] border-[1.5px] border-[#130e30]/15 rounded-[20px] p-3.5 shadow-sm space-y-2">
+          <div class="flex items-center justify-between pb-1.5 border-b border-[#130e30]/10">
+            <div>
+              <h4 class="text-xs font-black tracking-tight text-[#130e30] uppercase flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5 text-[#130e30]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="2"></circle><path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48-.01a6 6 0 0 1 0-8.49m11.31-2.82a10 10 0 0 1 0 14.14m-14.14 0a10 10 0 0 1 0-14.14"></path></svg>
+                <span>A/B Studio Monitor</span>
+              </h4>
+            </div>
+            <div class="flex items-center gap-1 p-0.5 rounded-full bg-[#f9fbf2] border border-[#130e30]/15">
+              <button id="btn-raw" onclick="setTrack('raw')" class="btn-tactile px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold text-[#5f5c6e] hover:text-[#130e30] cursor-pointer">
+                Raw Dialogue
+              </button>
+              <button id="btn-dub" onclick="setTrack('dub')" class="btn-tactile px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-[#ffe228] text-[#130e30] border border-[#130e30] shadow-sm cursor-pointer">
+                Localized EN
+              </button>
+            </div>
+          </div>
+
+          <div class="p-2 rounded-xl bg-[#f9fbf2] border border-[#130e30]/10 flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+              <button onclick="toggleAudioPlay()" id="btn-play" class="btn-tactile w-8 h-8 rounded-full bg-[#130e30] text-[#ffe228] flex items-center justify-center border border-[#130e30] shadow-sm cursor-pointer">
+                <svg id="icon-play" class="w-3.5 h-3.5 fill-current ml-0.5" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+              </button>
+              <div>
+                <div class="text-xs font-extrabold text-[#130e30] flex items-center gap-1.5">
+                  <span id="track-name">Localized Dub Stem (EN)</span>
+                  <span class="text-[8px] font-mono font-bold px-1.5 py-0.2 rounded bg-[#eff2e5] text-[#130e30] border border-[#130e30]/15">48kHz Master</span>
+                </div>
+                <div class="text-[9.5px] text-[#5f5c6e] font-mono" id="audio-status">Status: Paused • Track: LOCALIZED_EN</div>
+              </div>
+            </div>
+            <div class="flex items-center gap-1 text-[#5f5c6e] text-xs font-mono font-bold">
+              <span>🔊 100%</span>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- COLUMN 3: LIVE AGENT DECISION & TELEMETRY STREAM (Right 3.5 Cols) -->
+      <section class="lg:col-span-4 bg-[#eff2e5] border-[1.5px] border-[#130e30]/15 rounded-[20px] p-3.5 shadow-sm flex flex-col justify-between h-[360px] lg:h-auto">
+        <div class="flex items-center justify-between pb-1.5 border-b border-[#130e30]/10 mb-2">
+          <div class="flex items-center gap-1.5">
+            <svg class="w-3.5 h-3.5 text-[#130e30]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>
+            <h4 class="text-xs font-extrabold tracking-tight text-[#130e30] uppercase">
+              Live Decision Stream
+            </h4>
+          </div>
+          <span class="text-[9px] font-mono font-bold text-[#5f5c6e] bg-[#f9fbf2] px-1.5 py-0.5 rounded border border-[#130e30]/10">
+            6 Events Logged
+          </span>
+        </div>
+
+        <!-- Scrollable Feed -->
+        <div class="flex-1 overflow-y-auto space-y-1.5 pr-1 font-mono text-xs custom-scroll max-h-[250px] lg:max-h-[280px]">
+          
+          <!-- Event 1 -->
+          <div class="p-2 rounded-lg bg-[#f9fbf2] border border-[#130e30]/10 hover:border-[#130e30]/30 transition space-y-1">
+            <div class="flex items-center justify-between">
+              <span class="px-1.5 py-0.2 rounded bg-[#eff2e5] text-[#130e30] border border-[#130e30]/20 font-black text-[8.5px] uppercase">
+                Story Analyst
+              </span>
+              <span class="text-[8.5px] font-mono text-[#5f5c6e]">1,850ms • <strong class="text-[#59e25d]">OK</strong></span>
+            </div>
+            <p class="text-[#130e30] font-sans text-[10.5px] leading-snug font-medium">Extracted 14 dialogue turns across 2 speakers with urgent tonal map.</p>
+          </div>
+
+          <!-- Event 2 -->
+          <div class="p-2 rounded-lg bg-[#f9fbf2] border border-[#130e30]/10 hover:border-[#130e30]/30 transition space-y-1">
+            <div class="flex items-center justify-between">
+              <span class="px-1.5 py-0.2 rounded bg-[#eff2e5] text-[#130e30] border border-[#130e30]/20 font-black text-[8.5px] uppercase">
+                Localization Director
+              </span>
+              <span class="text-[8.5px] font-mono text-[#5f5c6e]">2,420ms • <strong class="text-[#59e25d]">OK</strong></span>
+            </div>
+            <p class="text-[#130e30] font-sans text-[10.5px] leading-snug font-medium">Adapted cultural idioms for North American broadcast delivery.</p>
+          </div>
+
+          <!-- Event 3: Defect & Fix Event -->
+          <div class="p-2 rounded-lg bg-[#fdf3fe] border border-[#e261e5] space-y-1">
+            <div class="flex items-center justify-between">
+              <span class="px-1.5 py-0.2 rounded bg-[#e261e5] text-white font-black text-[8.5px] uppercase">
+                QA Continuity
+              </span>
+              <span class="text-[8.5px] font-mono text-[#e261e5] font-bold">1,980ms • DEFECT SCAN</span>
+            </div>
+            <p class="text-[#130e30] font-sans text-[10.5px] leading-snug font-medium">Detected +1.40s timing overflow in Scene 07. Dispatched targeted atempo retry.</p>
+          </div>
+
+          <!-- Event 4: Resolved -->
+          <div class="p-2 rounded-lg bg-[#f9fbf2] border border-[#130e30]/10 hover:border-[#130e30]/30 transition space-y-1">
+            <div class="flex items-center justify-between">
+              <span class="px-1.5 py-0.2 rounded bg-[#eff2e5] text-[#130e30] border border-[#130e30]/20 font-black text-[8.5px] uppercase">
+                Sync Engineer
+              </span>
+              <span class="text-[8.5px] font-mono text-[#59e25d] font-bold">2,150ms • FIXED</span>
+            </div>
+            <p class="text-[#130e30] font-sans text-[10.5px] leading-snug font-medium">Reconciled Scene 07 speech window with 1.25x speed adjust. Drift &lt;18ms.</p>
+          </div>
+
+          <!-- Event 5: QA Pass -->
+          <div class="p-2 rounded-lg bg-[#f9fbf2] border border-[#59e25d] space-y-1">
+            <div class="flex items-center justify-between">
+              <span class="px-1.5 py-0.2 rounded bg-[#59e25d] text-[#130e30] font-black text-[8.5px] uppercase">
+                QA Continuity
+              </span>
+              <span class="text-[8.5px] font-mono text-[#130e30] font-bold">98.0% Q-Score</span>
+            </div>
+            <p class="text-[#130e30] font-sans text-[10.5px] leading-snug font-medium">All 6 autonomous agents signed off. Master release ready for delivery.</p>
+          </div>
+
+        </div>
+
+        <div class="pt-2 border-t border-[#130e30]/10 flex items-center justify-between text-[9.5px] text-[#5f5c6e] font-mono">
+          <span>● Section 6 Telemetry Schema</span>
+          <span class="text-[#130e30] font-bold">All 6 Agents Verified</span>
+        </div>
+      </section>
+
+    </main>
+
+  </div>
+
+  <!-- INTERACTIVE MODAL / POPOVER FOR AGENT DRILLDOWN -->
+  <div id="drilldown-modal" class="fixed inset-0 bg-black/40 backdrop-blur-xs hidden items-center justify-center z-50 p-4 animate-in fade-in duration-150">
+    <div class="bg-[#f9fbf2] border-[2px] border-[#130e30] rounded-[24px] p-5 max-w-lg w-full shadow-[0_12px_40px_rgba(19,14,48,0.2)] space-y-3">
+      <div class="flex items-center justify-between border-b border-[#130e30]/10 pb-2.5">
+        <div class="flex items-center gap-2">
+          <span id="drilldown-step" class="font-mono text-xs font-black text-[#130e30] bg-[#eff2e5] px-2 py-0.5 rounded border border-[#130e30]/20">STEP 01</span>
+          <h3 id="drilldown-title" class="text-sm font-black text-[#130e30]">Story Analyst</h3>
+        </div>
+        <button onclick="closeDrilldown()" class="btn-tactile w-6 h-6 rounded-full bg-[#eff2e5] text-[#130e30] font-black flex items-center justify-center border border-[#130e30]/20 cursor-pointer text-xs">✕</button>
+      </div>
+
+      <div class="space-y-2 text-xs">
+        <div class="p-2.5 bg-[#eff2e5] rounded-xl border border-[#130e30]/10">
+          <div class="text-[9.5px] font-extrabold uppercase text-[#5f5c6e]">Technology &amp; Architecture</div>
+          <div id="drilldown-tech" class="font-bold text-[#130e30] mt-0.5 text-xs">Demucs v4 + Faster-Whisper Large-v3 + Diarization</div>
+        </div>
+        <div class="p-2.5 bg-[#eff2e5] rounded-xl border border-[#130e30]/10">
+          <div class="text-[9.5px] font-extrabold uppercase text-[#5f5c6e]">Input Artifact</div>
+          <div id="drilldown-input" class="font-mono text-[#130e30] mt-0.5 text-[11px]">Raw 4K Cinema MP4 Audio Track (5.1 Stem)</div>
+        </div>
+        <div class="p-2.5 bg-[#eff2e5] rounded-xl border border-[#130e30]/10">
+          <div class="text-[9.5px] font-extrabold uppercase text-[#5f5c6e]">Synthesized Output</div>
+          <div id="drilldown-output" class="font-mono text-[#130e30] mt-0.5 text-[11px]">Diarized Speakers + Character Sentiment + Formality Map</div>
+        </div>
+      </div>
+
+      <div class="pt-1 flex justify-end">
+        <button onclick="closeDrilldown()" class="btn-tactile px-4 py-1.5 rounded-full bg-[#130e30] text-white text-xs font-bold border border-[#130e30] cursor-pointer">
+          Close Inspector
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const agentData = {
+      story_analyst: {
+        step: 'STEP 01',
+        title: 'Story Analyst Agent',
+        tech: 'Demucs v4 + Whisper Large-v3 + Diarization',
+        input: 'Raw 4K Cinema MP4 Audio Track (5.1 Stem)',
+        output: 'Diarized Speakers + Character Sentiment + Formality Map'
+      },
+      localization_director: {
+        step: 'STEP 02',
+        title: 'Localization Director Agent',
+        tech: 'Gemini 2.5 Pro + Idiom Adaptation Guardrails',
+        input: 'Source Transcript + Tone & Emotional Arc Map',
+        output: 'Culturally Adapted English Dub Script with Rationale'
+      },
+      voice_director: {
+        step: 'STEP 03',
+        title: 'Voice Director Agent',
+        tech: 'Neural Voice Casting & Edge TTS Synthesis',
+        input: 'Adapted Dialogue Script + Speaker Timestamps',
+        output: 'Raw Synthesized English Speech Stems (.wav 48kHz)'
+      },
+      sync_engineer: {
+        step: 'STEP 04',
+        title: 'Sync Engineer Agent (Auto-Repair Hero)',
+        tech: 'RubberBand atempo 1.25x + Silence Compaction',
+        input: 'Raw Voice Stems + Original Cinema Audio Waveform',
+        output: 'Time-Stretched Audio Stems (<18ms lip-sync deviation)'
+      },
+      subtitle_director: {
+        step: 'STEP 05',
+        title: 'Subtitle Director Agent',
+        tech: 'Netflix Subtitle Standard (Max 20 CPS / 42 CPL)',
+        input: 'Phonetically Aligned Speech Stems + Translated Script',
+        output: 'Master SRT/VTT Subtitles + Multi-Language Tracks'
+      },
+      qa_agent: {
+        step: 'STEP 06',
+        title: 'QA Continuity Agent',
+        tech: 'Continuous Metric Verifier + Auto-Repair Dispatcher',
+        input: 'Final Subtitled Master Video + Multi-track Stems',
+        output: 'Readiness Audit (PASS 98.0%) + Distribution Certification'
+      }
+    };
+
+    function showDrilldown(agentKey) {
+      const data = agentData[agentKey];
+      if (!data) return;
+      document.getElementById('drilldown-step').innerText = data.step;
+      document.getElementById('drilldown-title').innerText = data.title;
+      document.getElementById('drilldown-tech').innerText = data.tech;
+      document.getElementById('drilldown-input').innerText = data.input;
+      document.getElementById('drilldown-output').innerText = data.output;
+      const modal = document.getElementById('drilldown-modal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeDrilldown() {
+      const modal = document.getElementById('drilldown-modal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    let isApproved = false;
+    function toggleApprove() {
+      isApproved = !isApproved;
+      const btn = document.getElementById('btn-approve');
+      const label = document.getElementById('btn-approve-label');
+      if (isApproved) {
+        btn.classList.remove('bg-[#ffe228]', 'hover:bg-[#ebd020]');
+        btn.classList.add('bg-[#59e25d]', 'text-[#130e30]');
+        label.innerText = '✓ DISTRIBUTION CERTIFIED';
+      } else {
+        btn.classList.add('bg-[#ffe228]', 'hover:bg-[#ebd020]');
+        btn.classList.remove('bg-[#59e25d]');
+        label.innerText = 'APPROVE FOR DISTRIBUTION';
+      }
+    }
+
+    let activeTrack = 'dub';
+    function setTrack(track) {
+      activeTrack = track;
+      const btnRaw = document.getElementById('btn-raw');
+      const btnDub = document.getElementById('btn-dub');
+      const trackName = document.getElementById('track-name');
+      const audioStatus = document.getElementById('audio-status');
+
+      if (track === 'raw') {
+        btnRaw.className = 'btn-tactile px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-[#130e30] text-white border border-[#130e30] shadow-sm cursor-pointer';
+        btnDub.className = 'btn-tactile px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold text-[#5f5c6e] hover:text-[#130e30] cursor-pointer';
+        trackName.innerText = 'Original Dialogue Audio Stem';
+        audioStatus.innerText = 'Status: Paused • Track: RAW_DIALOGUE';
+      } else {
+        btnDub.className = 'btn-tactile px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-[#ffe228] text-[#130e30] border border-[#130e30] shadow-sm cursor-pointer';
+        btnRaw.className = 'btn-tactile px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold text-[#5f5c6e] hover:text-[#130e30] cursor-pointer';
+        trackName.innerText = 'Localized Dub Stem (EN)';
+        audioStatus.innerText = 'Status: Paused • Track: LOCALIZED_EN';
+      }
+    }
+
+    let isPlaying = false;
+    function toggleAudioPlay() {
+      isPlaying = !isPlaying;
+      const iconPlay = document.getElementById('icon-play');
+      const audioStatus = document.getElementById('audio-status');
+      if (isPlaying) {
+        iconPlay.innerHTML = '<rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect>';
+        audioStatus.innerText = `Status: Playing Waveform (48kHz) • Track: ${activeTrack.toUpperCase()}`;
+      } else {
+        iconPlay.innerHTML = '<polygon points="5 3 19 12 5 21 5 3"></polygon>';
+        audioStatus.innerText = `Status: Paused • Track: ${activeTrack.toUpperCase()}`;
+      }
+    }
+  </script>
+</body>
+</html>

@@ -25,7 +25,9 @@ class ExtractionStage(BaseStage):
         await progress_cb(10.0, "Initializing ffmpeg extraction")
 
         if source_path and os.path.exists(source_path):
-            cmd = ["ffmpeg", "-y", "-i", str(source_path), "-vn", "-acodec", "pcm_s16le", "-ar", "16000", "-ac", "1", str(output_wav)]
+            import shutil
+            ffmpeg_bin = shutil.which("ffmpeg") or "ffmpeg"
+            cmd = [ffmpeg_bin, "-y", "-i", str(source_path), "-vn", "-acodec", "pcm_s16le", "-ar", "16000", "-ac", "1", str(output_wav)]
             try:
                 proc = await asyncio.create_subprocess_exec(
                     *cmd,

@@ -3,8 +3,8 @@ import './globals.css';
 import AppShell from '@/components/AppShell';
 
 export const metadata: Metadata = {
-  title: 'DubForge Studio — AI Video Dubbing & Subtitle Orchestrator',
-  description: 'Local-first AI movie dubbing, translation, and subtitle pipeline orchestrator',
+  title: 'LOCALIZE Studio — Autonomous AI Post-Production Crew (Ditto × Netflix Sans)',
+  description: 'Autonomous AI post-production crew for film and video localization powered by Google Cloud Gemini and Grafana observability.',
 };
 
 export default function RootLayout({

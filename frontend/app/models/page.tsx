@@ -31,43 +31,43 @@ export default function ModelRegistryPage() {
   }, []);
 
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-2xl font-bold text-white flex items-center space-x-3">
-          <Cpu className="w-6 h-6 text-indigo-400" />
-          <span>Pluggable Model Registry (S-15)</span>
+    <div className="space-y-8 max-w-5xl font-sans text-[#130e30]">
+      <div className="border-b border-[#130e30]/10 pb-6">
+        <h1 className="text-3xl font-black text-[#130e30] tracking-tight uppercase flex items-center space-x-3">
+          <Cpu className="w-7 h-7 text-[#130e30]" />
+          <span>Pluggable Agent &amp; Model Registry</span>
         </h1>
-        <p className="text-sm text-gray-400 mt-1">
-          Registered ML adapters with licensing details and VRAM footprints for GpuLock serialization.
+        <p className="text-xs text-[#5f5c6e] mt-1.5 font-medium">
+          Registered machine learning adapters, neural voice synthesizers, and ASR engines with VRAM footprints for GpuLock serialization.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         {models.map((model) => (
-          <div key={model.id} className="glass-panel p-6 rounded-2xl space-y-4">
+          <div key={model.id} className="bg-[#eff2e5] border-[1.5px] border-[#130e30]/15 p-6 rounded-[24px] space-y-4 shadow-sm hover:border-[#130e30] transition">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-mono uppercase px-2.5 py-1 rounded bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+              <span className="text-[10px] font-mono font-extrabold uppercase px-2.5 py-0.5 rounded-full bg-[#f9fbf2] text-[#130e30] border border-[#130e30]/20">
                 {model.stage_type}
               </span>
-              <div className="flex items-center space-x-1.5 text-xs text-emerald-400 font-medium">
-                <CheckCircle2 className="w-4 h-4" />
+              <div className="flex items-center space-x-1.5 text-xs text-[#130e30] font-bold">
+                <span className="w-2 h-2 rounded-full bg-[#59e25d] border border-[#130e30]" />
                 <span>Installed</span>
               </div>
             </div>
 
             <div>
-              <h3 className="font-bold text-white text-lg">{model.display_name}</h3>
-              <p className="text-xs text-gray-500 font-mono mt-0.5">ID: {model.id}</p>
+              <h3 className="font-extrabold text-[#130e30] text-base">{model.display_name}</h3>
+              <p className="text-[11px] text-[#5f5c6e] font-mono mt-0.5">Model ID: {model.id}</p>
             </div>
 
-            <div className="grid grid-cols-2 gap-4 pt-2 border-t border-gray-800 text-xs">
-              <div className="flex items-center space-x-2 text-gray-400">
-                <Shield className="w-4 h-4 text-violet-400" />
-                <span>License: <strong className="text-gray-200">{model.license}</strong></span>
+            <div className="grid grid-cols-2 gap-3 pt-3 border-t border-[#130e30]/10 text-xs bg-[#f9fbf2] p-3 rounded-xl border border-[#130e30]/10">
+              <div className="flex items-center space-x-2 text-[#5f5c6e]">
+                <Shield className="w-3.5 h-3.5 text-[#130e30]" />
+                <span>License: <strong className="text-[#130e30]">{model.license}</strong></span>
               </div>
-              <div className="flex items-center space-x-2 text-gray-400">
-                <HardDrive className="w-4 h-4 text-amber-400" />
-                <span>VRAM: <strong className="text-gray-200">{model.vram_footprint_mb} MB</strong></span>
+              <div className="flex items-center space-x-2 text-[#5f5c6e]">
+                <HardDrive className="w-3.5 h-3.5 text-[#130e30]" />
+                <span>VRAM: <strong className="text-[#130e30]">{model.vram_footprint_mb} MB</strong></span>
               </div>
             </div>
           </div>

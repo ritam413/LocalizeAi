@@ -1,5 +1,8 @@
+'use client';
+
 import React from 'react';
 import { QAFinding } from '../../lib/agents/qa_agent';
+import { Zap, AlertTriangle, CheckCircle2 } from 'lucide-react';
 
 interface QARepairCardProps {
   finding: QAFinding;
@@ -7,43 +10,41 @@ interface QARepairCardProps {
 
 export const QARepairCard: React.FC<QARepairCardProps> = ({ finding }) => {
   return (
-    <div className="bg-zinc-950 border border-red-900/40 rounded-xl p-5 shadow-2xl relative overflow-hidden">
-      <div className="absolute top-0 right-0 w-32 h-32 bg-red-600/10 blur-3xl -z-0 pointer-events-none" />
-
-      <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
+    <div className="bg-[#eff2e5] border-[1.5px] border-[#e261e5] rounded-[24px] p-5 shadow-sm relative overflow-hidden font-sans text-[#130e30]">
+      <div className="flex items-center justify-between pb-3 border-b border-[#130e30]/10">
         <div className="flex items-center gap-2">
-          <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse" />
-          <span className="text-xs font-mono font-bold tracking-wider text-red-400 uppercase">
+          <span className="w-2.5 h-2.5 rounded-full bg-[#e261e5] border border-[#130e30] animate-pulse" />
+          <span className="text-[10.5px] font-mono font-black tracking-wider text-[#e261e5] uppercase bg-[#fdf3fe] px-2.5 py-0.5 rounded-full border border-[#e261e5]">
             {finding.defect_type.replace('_', ' ')}
           </span>
         </div>
-        <span className="text-xs font-mono text-zinc-400">
+        <span className="text-xs font-mono font-bold text-[#5f5c6e]">
           Scene: {finding.scene_id} • @{finding.timestamp_s.toFixed(2)}s
         </span>
       </div>
 
       <div className="mt-3 space-y-3">
         <div>
-          <span className="text-xs font-medium text-zinc-400">Defect Detected by QA Agent:</span>
-          <p className="text-sm text-zinc-200 mt-0.5">{finding.description}</p>
+          <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#5f5c6e]">Defect Detected by QA Continuity Agent:</span>
+          <p className="text-xs font-bold text-[#130e30] mt-0.5">{finding.description}</p>
         </div>
 
-        <div className="p-3 rounded-lg bg-zinc-900/80 border border-zinc-800">
-          <span className="text-xs font-medium text-amber-400">Remediation Strategy:</span>
-          <p className="text-xs text-zinc-300 mt-0.5">{finding.recommended_fix}</p>
+        <div className="p-3 rounded-xl bg-[#f9fbf2] border border-[#130e30]/10">
+          <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#130e30]">Remediation Strategy:</span>
+          <p className="text-xs text-[#5f5c6e] mt-0.5 font-medium leading-relaxed">{finding.recommended_fix}</p>
         </div>
 
-        <div className="pt-2 border-t border-zinc-800/80 flex items-center justify-between">
-          <span className="text-xs font-mono text-zinc-400">
-            Target Agent: <strong className="text-zinc-200">{finding.target_agent}</strong>
+        <div className="pt-2 border-t border-[#130e30]/10 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <span className="text-xs font-mono text-[#5f5c6e]">
+            Target Agent: <strong className="text-[#130e30] bg-[#f9fbf2] px-2 py-0.5 rounded border border-[#130e30]/10">{finding.target_agent}</strong>
           </span>
           {finding.fix_applied ? (
-            <span className="text-xs font-mono px-2 py-1 rounded bg-emerald-950 border border-emerald-500 text-emerald-300 font-bold flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-              AUTOMATED SELF-REPAIR VERIFIED
+            <span className="text-[10.5px] font-mono px-3 py-1 rounded-full bg-[#59e25d] border border-[#130e30] text-[#130e30] font-black flex items-center gap-1.5 shadow-sm">
+              <CheckCircle2 className="w-3.5 h-3.5 stroke-[2.5]" />
+              <span>AUTOMATED SELF-REPAIR VERIFIED</span>
             </span>
           ) : (
-            <span className="text-xs font-mono px-2 py-1 rounded bg-amber-950 border border-amber-600 text-amber-300 animate-pulse">
+            <span className="text-[10.5px] font-mono px-3 py-1 rounded-full bg-[#ffe228] border border-[#130e30] text-[#130e30] font-black animate-pulse">
               TARGETED RETRY IN FLIGHT
             </span>
           )}

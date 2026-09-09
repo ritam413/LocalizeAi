@@ -224,15 +224,31 @@ class RunExecutor:
 
                     # Save DB artifacts & segments if present
                     if "artifacts" in output_res:
-                        for art_info in output_res["artifacts"]:
-                            art_obj = Artifact(
-                                stage_run_id=stage_run.id,
-                                run_id=run_id,
-                                type=art_info.get("type", "json"),
-                                label=art_info.get("label", stage_name),
-                                path=art_info.get("path", "")
-                            )
-                            session.add(art_obj)
+                        raw_artifacts = output_res["artifacts"]
+                        if isinstance(raw_artifacts, dict):
+                            art_list = [
+                                {
+                                    "type": k,
+                                    "label": f"{stage_name}_{k}",
+                                    "path": str(v)
+                                }
+                                for k, v in raw_artifacts.items()
+                            ]
+                        elif isinstance(raw_artifacts, list):
+                            art_list = raw_artifacts
+                        else:
+                            art_list = []
+
+                        for art_info in art_list:
+                            if isinstance(art_info, dict):
+                                art_obj = Artifact(
+                                    stage_run_id=stage_run.id,
+                                    run_id=run_id,
+                                    type=art_info.get("type", "json"),
+                                    label=art_info.get("label", stage_name),
+                                    path=str(art_info.get("path", ""))
+                                )
+                                session.add(art_obj)
 
                     if "segments" in output_res:
                         # Clear old segments for run & insert new

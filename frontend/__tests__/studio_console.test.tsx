@@ -5,6 +5,7 @@ import '@testing-library/jest-dom';
 import { CrewStatus } from '../components/studio/CrewStatus';
 import { QARepairCard } from '../components/studio/QARepairCard';
 import { ReadinessGauge } from '../components/studio/ReadinessGauge';
+import { AgentSequenceTrack, getOrganicProgress } from '../components/studio/AgentSequenceTrack';
 
 describe('TICKET-10: Post-Production Studio Console UI', () => {
   it('renders all 7 crew members with live status badges', () => {
@@ -65,5 +66,56 @@ describe('TICKET-10: Post-Production Studio Console UI', () => {
     render(<ReadinessGauge score={94.5} threshold={85.0} />);
     expect(screen.getByText('94.5%')).toBeInTheDocument();
     expect(screen.getByText('RELEASE READY')).toBeInTheDocument();
+  });
+
+  it('calculates strictly monotonic organic progress with natural bumps and speedups', () => {
+    expect(getOrganicProgress(0)).toBe(0);
+    expect(getOrganicProgress(1)).toBe(1);
+
+    // Verify monotonicity across 100 sample points
+    let prev = 0;
+    for (let i = 0; i <= 100; i++) {
+      const u = i / 100;
+      const prog = getOrganicProgress(u);
+      expect(prog).toBeGreaterThanOrEqual(prev);
+      expect(prog).toBeLessThanOrEqual(1.0);
+      prev = prog;
+    }
+
+    // Verify speedup bursts (e.g. initial surge and neural synthesis phase)
+    expect(getOrganicProgress(0.08)).toBeGreaterThan(0.12);
+    expect(getOrganicProgress(0.50)).toBeGreaterThan(0.60);
+  });
+
+  it('renders AgentSequenceTrack with dynamic stage progress and linear counting timer', () => {
+    const crewStatuses = {
+      director: 'running' as const,
+      story_analyst: 'completed' as const,
+      localization_director: 'running' as const,
+      voice_director: 'pending' as const,
+      sync_engineer: 'pending' as const,
+      subtitle_director: 'pending' as const,
+      qa_agent: 'pending' as const,
+    };
+
+    const stageProgressMap = {
+      localization_director: {
+        elapsedSeconds: 2.955, // Halfway through 5.91s
+        targetDuration: 5.91,
+      },
+    };
+
+    render(
+      <AgentSequenceTrack
+        crewStatuses={crewStatuses}
+        retries={{ director: 0, story_analyst: 0, localization_director: 0, voice_director: 0, sync_engineer: 0, subtitle_director: 0, qa_agent: 0 }}
+        telemetryEvents={[]}
+        stageProgressMap={stageProgressMap}
+      />
+    );
+
+    // Localization Director card is present and displays dynamic linear elapsed time (2.96s)
+    expect(screen.getByText(/2\.9[56]s/)).toBeInTheDocument();
+    expect(screen.getByText('Serpentine Agent Workflow Route')).toBeInTheDocument();
   });
 });

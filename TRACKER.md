@@ -23,9 +23,325 @@ Last updated: 2026-09-06 by antigravity
 | **TICKET-09** | Grafana Telemetry & MCP Endpoint | Completed | Vitest + Pytest (All Passed) | No | Live runtime queries |
 | **TICKET-10** | Post-Production Studio Console UI | Completed | Vitest (All Passed) | No | Before/After toggle, QA cards |
 
+### 2026-09-10 — README.md Humanization & Tech Stack Badges (/humanizer)
+
+#### Objective
+Restructure and rewrite the project README.md into Devpost / Hackathon format (`## Inspiration`, `## What it does`, `## How we built it`, `## Challenges we ran into`, `## Accomplishments that we're proud of`, `## What we learned`, `## What's next for LOCALIZE`) with shields.io badges representing all used tech stack technologies, stripped of AI writing patterns.
+
+#### Changes Made
+- Added tech stack badges (Google Gemini, Python, FastAPI, FFmpeg, Next.js, TypeScript, Tailwind CSS, Grafana MCP, Pytest, Vitest) in `README.md`.
+- Rewrote the narrative sections applying humanizer guidelines (direct developer tone, no em dashes, no exaggerated adjectives or fake hooks, clean factual explanations).
+- Preserved environment configuration, video input criteria, installation and setup, and test runner instructions.
+
+#### Files Changed
+- `README.md` (Modified)
+- `tracker.md` (Updated)
+
 ---
 
-## Agent Handoff Log
+### 2026-09-10 — Agent Sequence Track Dynamic Timers & Organic Bumps/Speedups Motion System (/animate, /taste, /improve-ui)
+
+#### Objective
+Transform the agent card execution visualizers in `AgentSequenceTrack` from static hardcoded latency strings into dynamic counting timers (starting from `0.00s` and linearly counting up to the exact target duration, e.g. `5.91s` for Localization Director, `4.82s` for Story Analyst, etc.) paired with an organic AI pipeline progress bar with realistic neural model speedup surges and processing bumps.
+
+#### Changes Made
+1. **Monotonic Hermite Cubic Spline Organic Motion Curve (`frontend/components/studio/AgentSequenceTrack.tsx`)**:
+   - Designed and implemented `getOrganicProgress(u)` using a $C^1$-smooth monotonic cubic spline across 9 calibrated keyframe milestones (`[0.00, 0.00]`, `[0.08, 0.16]`, `[0.18, 0.28]`, `[0.32, 0.38]`, `[0.48, 0.65]`, `[0.65, 0.77]`, `[0.80, 0.89]`, `[0.92, 0.96]`, `[1.00, 1.00]`).
+   - Simulates realistic neural processing: rapid initial dispatch surge, deliberate acoustic/idiom analysis bumps, explosive speech/token synthesis speedups, and smooth convergence to 100%.
+   - Strictly non-decreasing ($P'(u) \ge 0$) to eliminate visual jitter and backward stutter.
+2. **Dynamic Agent Card Timers & Micro-Indicators**:
+   - Rebuilt `AgentCard` subcomponent in `AgentSequenceTrack.tsx` to handle `pending` (`0.00s`), `running` / `retrying` (linear count-up $0.00\text{s} \rightarrow \text{targetSeconds}$ + organic progress + glowing head tip), and `completed` (`targetSeconds` lock + 100% Moss Green `#59e25d`).
+   - Added self-driving `requestAnimationFrame` fallback timer when external clock is not supplied, plus support for `stageProgressMap` props.
+3. **Demo Run Page Master Clock Synchronization (`frontend/app/runs/demo/page.tsx`)**:
+   - Upgraded demo clock ticker to 50ms intervals (+0.05s increments) for 20 FPS high-precision interpolation.
+   - Computes synchronized `stageProgressMap` mapping global demo progress to individual agent stage durations (e.g. Localization Director 6.0s–12.0s maps smoothly from `0.00s` to `5.91s`).
+4. **Standalone Mockup Sync (`mock_agent_sequence_visualizer.html`)**:
+   - Updated standalone HTML simulation loop to use `getOrganicProgressPct(u)`.
+5. **Vitest Unit & Component Tests (`frontend/__tests__/studio_console.test.tsx`)**:
+   - Added unit test verifying strict monotonicity and speedup milestones of `getOrganicProgress`.
+   - Added component test verifying `AgentSequenceTrack` dynamic linear elapsed timer rendering.
+
+#### Files Changed
+- `frontend/components/studio/AgentSequenceTrack.tsx` (Modified)
+- `frontend/app/runs/demo/page.tsx` (Modified)
+- `mock_agent_sequence_visualizer.html` (Modified)
+- `frontend/__tests__/studio_console.test.tsx` (Modified)
+- `features_implemented.md` (Updated)
+- `tracker.md` (Updated)
+
+#### Verification
+- **Vitest**: 14 / 14 test suites passed, 57 / 57 tests passed (100%).
+- All dynamic timer assertions and organic progress curve boundary conditions verified.
+
+#### Current State
+- Agent cards count up dynamically from `0.00s` to `5.91s` (and respective stage durations) during execution, with organic progress bars featuring natural bumps and speedup bursts.
+- When all 6 stages finish (or upon clicking "⏩ Skip to Dubbed Video"), the system automatically transitions into the **YouTube-Style Multi-Audio Player** tab (`player` on `/runs/demo`, `preview` on `/runs/[id]`).
+
+---
+
+### 2026-09-09 — 35-Second Autonomous Crew Judge Demo & YouTube-Style Multi-Audio Track Player (/wayfinder & /ask-matt)
+
+#### Objective
+Create a dedicated 35-second Hackathon Judge Demo mode that simulates the 6-agent autonomous post-production pipeline (Story Analyst -> Localization Director -> Voice Director -> Sync Engineer -> Subtitle Director -> QA Continuity Agent + Targeted Self-Repair) with live telemetry counters and progressive reveals, concluding in a YouTube-style Multi-Audio Track cinema player.
+
+#### Changes Made
+1. **Backend Demo Endpoints & Range Streaming (`backend/app/api/demo.py`, `backend/app/api/clips.py`, `backend/app/api/router.py`)**:
+   - Implemented `GET /api/v1/demo/tracks` returning available multilingual stems (English Master, Spanish Castilian Alvaro Dub, Hindi Bollywood Madhur Dub, French Parisian Henri Dub) with 48kHz audio and WebVTT/SRT subtitles.
+   - Implemented `GET /api/v1/demo/sequence-timeline` with calibrated 35s stage budget.
+   - Added `.vtt` and `.srt` mime-type support to `GET /api/v1/clips/preview-stream`.
+   - Added Pytest suite in `backend/tests/test_demo_api.py`.
+2. **YouTube-Style Cinema MultiAudioPlayer (`frontend/components/studio/MultiAudioPlayer.tsx`)**:
+   - Built a video player with an interactive YouTube-style **Audio Track** menu and **Subtitles/CC** menu in the control HUD.
+   - Switches audio tracks with seamless playback timestamp preservation (`currentTime`) and instant toast feedback.
+   - Added Vitest test suite in `frontend/__tests__/MultiAudioPlayer.test.tsx`.
+3. **Interactive 35s Live Judge Demo Page (`frontend/app/runs/demo/page.tsx`)**:
+   - 35s automated simulation engine with live latency tickers, 2-row serpentine conduit routing, active self-repair banner, Section 6 decision feed, and Producer Board compliance sign-off.
+   - Added `Pause / Resume`, `⏩ Skip to Dubbed Video`, and `Restart Demo` controls for presentations.
+4. **App Integration & Navigation (`frontend/app/runs/new/page.tsx`, `frontend/app/runs/[id]/page.tsx`, `frontend/components/AppShell.tsx`)**:
+   - Added prominent **"🎬 Launch 35s Live Judge Demo"** hero banner on `/runs/new` and in the navigation drawer.
+   - Integrated `MultiAudioPlayer` into `/runs/[id]` Video Preview tab.
+
+#### Files Changed
+- `backend/app/api/demo.py` (New)
+- `backend/app/api/clips.py` (Modified)
+- `backend/app/api/router.py` (Modified)
+- `backend/tests/test_demo_api.py` (New)
+- `frontend/components/studio/MultiAudioPlayer.tsx` (New)
+- `frontend/app/runs/demo/page.tsx` (New)
+- `frontend/app/runs/new/page.tsx` (Modified)
+- `frontend/app/runs/[id]/page.tsx` (Modified)
+- `frontend/components/AppShell.tsx` (Modified)
+- `frontend/__tests__/MultiAudioPlayer.test.tsx` (New)
+- `features_implemented.md` (Updated)
+- `tracker.md` (Updated)
+
+#### Verification
+- **Pytest**: 35 / 35 tests passed (100%).
+- **Vitest**: 14 / 14 test suites passed, 55 / 55 tests passed (100%).
+- **Next.js Production Build**: `npm run build` compiled all routes (`/runs/demo`, `/runs/new`, `/runs/[id]`, `/runs`, `/models`, `/settings`) with exit code 0.
+
+#### Current State
+- The 35s Live Judge Demo is accessible at `http://localhost:3000/runs/demo` or via the hero launcher on `http://localhost:3000/runs/new`.
+- The YouTube-style Multi-Audio player seamlessly plays and switches between English, Spanish, Hindi, and French dubbed audio tracks.
+
+#### Next Agent Instructions
+1. To test in browser, ensure backend is running (`uvicorn app.main:app --port 8000`) and frontend is running (`npm --prefix frontend run dev` on port 3000).
+2. Visit `http://localhost:3000/runs/demo` to run the 35s showcase or click **"Skip to Dubbed Video"** to inspect the YouTube multi-track audio switcher directly.
+
+---
+
+### 2026-09-09 — Fix Run Dashboard Page JSX Ternary Compilation Error (/diagnosing-bugs)
+
+#### Objective
+Diagnose and resolve the Next.js compilation error in `frontend/app/runs/[id]/page.tsx` (`Unexpected token div. Expected jsx identifier`) that was blocking `npm run build` and dev compilation.
+
+#### Root Cause
+In `frontend/app/runs/[id]/page.tsx`, the tab conditional rendering was structured as `activeTab === 'studio' ? (...) : (...) : activeTab === 'preview' ? (...) : null`. The second condition branch omitted the ternary condition `activeTab === 'progress' ?`, creating a duplicate colon syntax error in the chained JSX ternary expression.
+
+#### Changes Made
+- Corrected line 443 in [page.tsx](file:///c:/CCodes_WebDevelopment/hckthon/localize_movie_dub/frontend/app/runs/[id]/page.tsx) to explicitly branch with `) : activeTab === 'progress' ? (`.
+
+#### Files Changed
+- `frontend/app/runs/[id]/page.tsx` (Modified)
+- `TRACKER.md` (Updated)
+
+#### Verification
+- `npx tsc --noEmit` in `frontend/` — passed with 0 errors.
+- `npm test` (Vitest) in `frontend/` — 11 / 11 test suites passed, 34 / 34 tests passed.
+- `npm run build` in `frontend/` — Next.js 14.2.35 production build compiled all routes (`/runs/[id]`, `/runs/new`, `/runs`, `/models`, `/settings`, etc.) successfully with exit code 0.
+
+#### Current State
+- The Next.js frontend compiles cleanly with zero syntax or type errors.
+
+---
+
+### 2026-09-09 — LOCALIZE Cinematic Post-Production Studio UI Architecture Specification
+
+#### Objective
+Design a premium, broadcast-grade cinematic web application UI specification for LOCALIZE (Autonomous AI Film Localization & Dubbing Platform) framed as an AI post-production crew operating in a film studio control room.
+
+#### Changes Made
+1. **Design System & Technical Specification (`Docs/14-design.md`)**:
+   - Replaced temporary styles with full **Obsidian & Anodized Charcoal** cinematic post-production studio design system.
+   - Defined complete color tokens (`--studio-void`, `--studio-surface`, `--studio-card`, `--studio-blue`, `--studio-violet`, `--studio-emerald`, `--studio-amber`, `--studio-rose`).
+   - Detailed component blueprints for **Top Navigation**, **Left Module Sidebar**, **Master Video Monitor & A/B Wipe Theater**, **Multi-Track Waveform Timeline**, **Right AI Crew Telemetry Panel**, **Autonomous QA Closed-Loop Engine**, **AI Decision Rationale Inspector**, **Production Overview Screen**, **Ingest & Director Setup Flow**, and **Master Release Packaging Exporter**.
+   - Added missing high-end post-production features: EBU R128 loudness metering, multi-stem routing (vocal, music, M&E), lip-sync phoneme/viseme tracks, and ProRes/Dolby Atmos delivery specs.
+
+#### Files Changed
+- `Docs/14-design.md` (Updated with complete authoritative studio UI specification)
+- `TRACKER.md` (Updated handoff log)
+
+#### Current State
+- Authoritative architectural and UI/UX design specifications in Markdown format are documented in `Docs/14-design.md`.
+
+#### Next Agent Instructions
+1. Inspect `Docs/14-design.md` for complete screen layouts, ASCII mockups, color tokens, and state machine definitions.
+2. Build or refine frontend components in `frontend/components/studio/` when translating this specification to code.
+
+
+#### Objective
+Add a dedicated Master Video Preview tab and direct local disk playback engine to the Ingestion interface (`/runs/new`) and run workspace (`/runs/[id]`), allowing users to play video directly from disk to webpage with zero latency when selecting local files, as well as HTTP Range-request streaming for filesystem storage paths.
+
+#### Changes Made
+1. **Direct Disk & Clip Streaming Endpoints (`backend/app/api/clips.py`)**:
+   - Implemented `GET /api/v1/clips/{clip_id}/stream` returning `FileResponse` with media type detection and HTTP 206 range-request support for seeking/scrubbing.
+   - Implemented `GET /api/v1/clips/preview-stream?path=...` allowing safe preview streaming directly from host disk paths (e.g. `storage/sample_movie.mp4` or user specified local path).
+   - Added Pytest suite in `backend/tests/test_clip_streaming.py`.
+2. **Master Cinema Preview Monitor Component (`frontend/components/studio/MasterVideoPreview.tsx`)**:
+   - Built an interactive cinema HUD component with Play/Pause, restart, volume/mute, interactive scrub bar, millisecond timecode (`00:00:00.00`), DCI container resolution badge, transport pills (`⚡ 0-Latency Blob` vs `📡 Range Stream`), and automated `URL.revokeObjectURL()` cleanup.
+   - Handles zero-latency client-side `URL.createObjectURL(file)` when a `File` object is provided, as well as HTTP streaming URLs for registered clip IDs or storage paths.
+3. **Tabbed Ingestion & Preview UI (`frontend/app/runs/new/page.tsx`)**:
+   - Added dual-tab switcher: `[ 1. Ingestion Setup ]` and `[ 2. Master Video Preview ]` with dynamic status indicators.
+   - Added `[ 🎬 Preview Video Tab ]` in the "Loaded & Ready" card and `[ 🎬 Preview Footage ]` in the Direct Studio Disk Path view.
+4. **Workspace Preview Integration (`frontend/app/runs/[id]/page.tsx`)**:
+   - Added `[ 🎬 Video Preview ]` tab button in the run workspace header, rendering `MasterVideoPreview` connected to the run's registered clip stream.
+5. **Frontend Automated Test Suite (`frontend/__tests__/MasterVideoPreview.test.tsx`)**:
+   - 5 Vitest tests covering empty state, blob playback, range streaming, sample reel badges, and callback handling.
+
+#### Files Changed
+- `backend/app/api/clips.py` (Modified)
+- `backend/tests/test_clip_streaming.py` (New)
+- `frontend/components/studio/MasterVideoPreview.tsx` (New)
+- `frontend/app/runs/new/page.tsx` (Modified)
+- `frontend/app/runs/[id]/page.tsx` (Modified)
+- `frontend/__tests__/MasterVideoPreview.test.tsx` (New)
+- `features_implemented.md` (Modified)
+- `TRACKER.md` (Modified)
+
+#### Verification
+- Pytest: `backend/tests/test_clip_streaming.py` passed (1/1); full suite passed (33/33).
+- Vitest: `frontend/__tests__/MasterVideoPreview.test.tsx` passed (5/5); full suite passed (34/34).
+
+#### Current State
+Users can upload, drag-and-drop, or type a local disk path, and immediately inspect and play the video in full resolution directly on the webpage with interactive controls before and during pipeline runs.
+
+#### Remaining Work
+None for this task.
+
+#### Next Agent Instructions
+1. To test local playback, launch frontend with `npm --prefix frontend run dev` and backend with `backend/.venv/Scripts/uvicorn app.main:app --port 8000`.
+2. Visit `http://localhost:3000/runs/new`, drop a video file or click "Load Studio 4K Sample Reel", and click "2. Master Video Preview" to verify the cinema HUD playback.
+
+
+### 2026-09-08 — Production Deployment & Containerization Preparation
+
+#### Objective
+Prepare the complete LOCALIZE full-stack platform (FastAPI backend + Next.js frontend + FFmpeg/Demucs/Whisper audio engine) for production deployment across Docker, Cloud VMs, and bare-metal environments with CPU and GPU acceleration support.
+
+#### Changes Made
+1. **Backend Containerization & Config**:
+   - Created `backend/Dockerfile` using Python 3.11 slim base with `ffmpeg`, `libsndfile1`, and production health checks.
+   - Created `backend/.dockerignore` and root `.dockerignore` to filter out local DBs, `.venv`, `.next`, caches, and build artifacts.
+   - Updated `backend/app/config.py` with Pydantic v2 `ConfigDict` and added production configuration fields (`HOST`, `PORT`, `ENVIRONMENT`, `CORS_ORIGINS`, `GEMINI_API_KEY`).
+   - Updated `backend/app/main.py` with configurable CORS middleware (`settings.cors_origins_list`) and enriched `/health` endpoint metadata.
+   - Synchronized `backend/requirements.txt` with `aiosqlite` and `httpx`.
+2. **Frontend Containerization & Standalone Output**:
+   - Updated `frontend/next.config.mjs` with `output: 'standalone'` and dynamic `BACKEND_URL` rewrite proxy support (`process.env.BACKEND_URL || 'http://localhost:8000'`).
+   - Updated `frontend/app/runs/[id]/page.tsx` to support `process.env.NEXT_PUBLIC_WS_URL` for flexible WebSocket reverse proxying (`wss://`).
+   - Created `frontend/Dockerfile` featuring 4-stage build (`base` -> `deps` -> `builder` -> `runner`) on Alpine Node.js 20 with non-root user `nextjs`.
+   - Created `frontend/.dockerignore`.
+3. **Orchestration & Runbook**:
+   - Created `docker-compose.yml` for unified multi-service orchestration (`backend` + `frontend`) with health checks, bridge network, and persistent storage volume mounts.
+   - Created `docker-compose.gpu.yml` for NVIDIA CUDA GPU hardware acceleration passthrough.
+   - Updated `.env.example` and `backend/.env.example` with full deployment documentation.
+   - Created `DEPLOYMENT.md` providing step-by-step production runbooks for Docker Compose, systemd unit files, Nginx reverse proxy configuration with SSL/TLS, and verification commands.
+
+#### Files Changed
+- `backend/Dockerfile` (New)
+- `backend/.dockerignore` (New)
+- `backend/app/config.py` (Modified)
+- `backend/app/main.py` (Modified)
+- `backend/requirements.txt` (Modified)
+- `backend/.env.example` (Modified)
+- `frontend/Dockerfile` (New)
+- `frontend/.dockerignore` (New)
+- `frontend/next.config.mjs` (Modified)
+- `frontend/app/runs/[id]/page.tsx` (Modified)
+- `docker-compose.yml` (New)
+- `docker-compose.gpu.yml` (New)
+- `.dockerignore` (New)
+- `.env.example` (Modified)
+- `DEPLOYMENT.md` (New)
+- `CONTEXT.md` (Modified)
+- `features_implemented.md` (Modified)
+- `TRACKER.md` (Modified)
+
+#### Verification
+- Pytest test suite: `pytest backend/tests` — **32/32 tests passed** (0 failures, Pydantic v2 warning resolved).
+- Vitest test suite: `npm --prefix frontend test` — **10/10 test suites passed, 29/29 tests passed**.
+- Next.js production build: `npm --prefix frontend run build` — **Compiled standalone bundle successfully with 0 errors**.
+
+#### Current State
+The application is fully configured, tested, and container-ready for local Docker Compose execution, cloud VM deployment (GCP, AWS, Azure, DigitalOcean), or bare-metal setup.
+
+#### Next Agent Instructions
+1. For 1-click Docker deployment, run `docker compose up --build -d` (or `docker compose -f docker-compose.yml -f docker-compose.gpu.yml up --build -d` for NVIDIA GPU acceleration).
+2. For local dev mode, run backend with `backend/.venv/Scripts/uvicorn app.main:app --reload --port 8000` and frontend with `npm --prefix frontend run dev`.
+3. Inspect [DEPLOYMENT.md](file:///c:/CCodes_WebDevelopment/hckthon/localize_movie_dub/DEPLOYMENT.md) for full deployment instructions and systemd / Nginx configurations.
+
+---
+
+### 2026-09-07 — Fix Pipeline Stage AttributeError & FFmpeg Path Resolution (/diagnosing-bugs)
+
+
+#### Objective
+Diagnose and resolve the pipeline crash where run `#trial1_1` transitioned to `FAILED` with error `'str' object has no attribute 'get'` in the separation/stub stages, and ensure cross-platform ffmpeg resolution.
+
+#### Root Causes
+1. **`StubStage` Artifact Format Mismatch**: `backend/app/engine/stages/stub.py` returned `"artifacts": {"json": "/storage/stub_....json"}` as a dict instead of a list of dicts `[{"type": "...", "label": "...", "path": "..."}]`. In `backend/app/engine/executor.py`, iterating over `output_res["artifacts"]` produced dict keys (strings), and `art_info.get(...)` threw `AttributeError: 'str' object has no attribute 'get'`.
+2. **Missing `shutil.which` on FFmpeg Call**: `asyncio.create_subprocess_exec("ffmpeg", ...)` on Windows requires `.exe` or absolute executable resolution, causing extraction warnings when called directly.
+
+#### Changes Made
+- Updated [stub.py](file:///c:/CCodes_WebDevelopment/hckthon/localize_movie_dub/backend/app/engine/stages/stub.py) to return `artifacts` as a standard list of artifact objects.
+- Made [executor.py](file:///c:/CCodes_WebDevelopment/hckthon/localize_movie_dub/backend/app/engine/executor.py) defensively normalize `output_res["artifacts"]` whether given as a dict or list before storing `Artifact` rows in SQLite.
+- Updated [extraction.py](file:///c:/CCodes_WebDevelopment/hckthon/localize_movie_dub/backend/app/engine/stages/extraction.py) to resolve the binary via `shutil.which("ffmpeg") or "ffmpeg"`.
+
+#### Files Changed
+- `backend/app/engine/stages/stub.py`
+- `backend/app/engine/executor.py`
+- `backend/app/engine/stages/extraction.py`
+- `TRACKER.md`
+
+#### Verification
+- Ran deterministic reproduction script: Verified `StubStage` outputs correctly parse through executor without `AttributeError`.
+- Executed full test suite: `pytest tests/` — **32/32 tests passed**.
+
+#### Next Agent Instructions
+1. Run backend server using `.venv\Scripts\python.exe -m uvicorn app.main:app --reload --port 8000` (or `& .venv\Scripts\activate; uvicorn app.main:app --reload --port 8000`).
+2. Dispatch a run from `/runs/new` and click **"Resume Pipeline"** on `/runs/[id]` if resuming an existing interrupted run.
+
+---
+
+### 2026-09-07 — Fix Pipeline Dispatch & Robust Error Handling
+
+#### Objective
+Resolve the `Unexpected token 'I', "Internal S"... is not valid JSON` error when clicking "Dispatch Pipeline" on `/runs/new`, and ensure robust sample movie resolution and clear backend error feedback.
+
+#### Root Causes
+1. **Unsafe JSON Parsing**: In `frontend/app/runs/new/page.tsx`, `res.json()` was called before checking `res.ok`. When the backend was unreachable or returned a 500 error page from Next.js rewrite proxy, `res.json()` failed with a syntax error on `"Internal Server Error"`.
+2. **Missing Sample Media & Narrow Path Resolution**: `backend/app/api/clips.py` was looking only at strict paths for sample movie import without fallback to existing files in `storage/` or `storage/uploads/`.
+
+#### Changes Made
+- Created `storage/sample_movie.mp4` by copying `storage/uploads/trial1.mp4`.
+- Enhanced `backend/app/api/clips.py` `import_clip` with multi-candidate search across `BASE_DIR`, `STORAGE_DIR`, and `uploads/`, returning a structured clip payload.
+- Added `parseApiResponse` in `frontend/app/runs/new/page.tsx` that safely inspects headers/content types, detects server/proxy 500 errors, and provides clear user-friendly error messages if the backend is down or returns non-JSON.
+
+#### Files Changed
+- `backend/app/api/clips.py` (Enhanced path candidate discovery & structured response)
+- `frontend/app/runs/new/page.tsx` (Added `parseApiResponse` for resilient error handling)
+- `storage/sample_movie.mp4` (Created sample reel file)
+- `TRACKER.md` (Updated handoff log)
+
+#### Verification
+- Tested ASGI import endpoint and run execution using `httpx.AsyncClient` with backend virtual environment (`backend/.venv/Scripts/python.exe`).
+- Verified 200 OK responses and proper stage execution.
+
+#### Next Agent Instructions
+1. Run backend using `backend/.venv/Scripts/uvicorn app.main:app --reload --port 8000` (or activate `.venv` first).
+2. Frontend `npm run dev` forwards requests smoothly to port 8000.
+3. Verify dispatching from `/runs/new` navigates directly to `/runs/[id]`.
+
+---
 
 ### 2026-09-06 — Project Direction Pivot & Bootstrap Protocol
 
@@ -192,6 +508,278 @@ Design a studio visualizer and Producer Board showcasing how each autonomous age
 
 #### Current State
 - Planning phase complete with authoritative [Docs/14-design.md](file:///c:/CCodes_WebDevelopment/hckthon/localize_movie_dub/Docs/14-design.md). Ready for user review and approval before implementing React components in `frontend/components/studio/`.
+
+---
+
+### 2026-09-06 — Open Source Component Libraries Research
+
+#### Objective
+Scan across the entire project to inventory every component being built (studio console, multi-agent sequence track, A/B audio player, producer board, QA self-repair cards, readiness gauges, subtitle editor, and run wizard) and research open-source component libraries and UI toolkits that provide a customizable base for each.
+
+#### Changes Made
+- Performed comprehensive codebase scan across `frontend/components/studio/`, `frontend/app/`, `Docs/08-components.md`, and `features_implemented.md`.
+- Conducted primary-source research into open-source repositories and component libraries:
+  - **`@xyflow/react` (React Flow)** for multi-agent sequence DAGs and dynamic loop-back retry routing.
+  - **`wavesurfer.js` + `wavesurfer-multitrack` / `Peaks.js`** for synchronized multitrack A/B stem audio playback and waveform comparison.
+  - **`@ant-design/x`** and **`shadcn/ui`** for AI agent live state hubs, thought streams, and tool calls.
+  - **`@tremor/react`** for executive metric cards, broadcast compliance trackers, and delivery checklists.
+  - **`recharts` / `react-circular-progressbar`** for 0–100% circular release readiness gauges.
+  - **`@lilsnake/subtitle-editor` + `@tanstack/react-table` + `subtitle`** for high-performance virtualized subtitle timing editing and CPS validation.
+  - **`react-dropzone` + `shadcn/ui` Form** for video ingestion and mode selection wizard.
+- Generated full research report at [Docs/OPEN_SOURCE_COMPONENT_LIBRARIES_RESEARCH.md](file:///c:/CCodes_WebDevelopment/hckthon/localize_movie_dub/Docs/OPEN_SOURCE_COMPONENT_LIBRARIES_RESEARCH.md).
+
+#### Files Changed
+- `Docs/OPEN_SOURCE_COMPONENT_LIBRARIES_RESEARCH.md` (Created)
+- `TRACKER.md` (Updated)
+
+#### Next Agent Instructions
+1. Refer to [Docs/OPEN_SOURCE_COMPONENT_LIBRARIES_RESEARCH.md](file:///c:/CCodes_WebDevelopment/hckthon/localize_movie_dub/Docs/OPEN_SOURCE_COMPONENT_LIBRARIES_RESEARCH.md) when refining or upgrading frontend studio components.
+2. Proceed with user-guided execution or component enhancements.
+
+---
+
+### 2026-09-06 — Autonomous Multi-Agent Sequence Visualizer & Producer Board Implementation
+
+#### Objective
+Implement the Ditto × Netflix Sans 2-row serpentine visualizer and Producer Board into the active Next.js frontend, following [Docs/14-design.md](file:///c:/CCodes_WebDevelopment/hckthon/localize_movie_dub/Docs/14-design.md) and [implementation_plan.md](file:///c:/CCodes_WebDevelopment/hckthon/localize_movie_dub/implementation_plan.md).
+
+#### Changes Made
+- Added Ditto color tokens (`#130e30`, `#ffe228`, `#59e25d`, `#e261e5`, `#5f5c6e`, `#f9fbf2`, `#eff2e5`, `#222222`, `#000000`) and typography extensions to `frontend/tailwind.config.ts`.
+- Configured CSS animations (`dash-flow`, `pulse-yellow-pill`, `pulse-arrow`, `pulse-arrow-left`) in `frontend/app/globals.css`.
+- Created [AgentSequenceTrack.tsx](file:///c:/CCodes_WebDevelopment/hckthon/localize_movie_dub/frontend/components/studio/AgentSequenceTrack.tsx):
+  - 2-row serpentine boustrophedon sequence graph.
+  - Row 1 (L->R): Step 01 (Story Analyst) -> Step 02 (Localization Director) -> Step 03 (Voice Director).
+  - Downward corner conduit with animated SVG flow line (*"Handoff Down to Audio Stems ⤵"*).
+  - Row 2 (R->L): Step 04 (Sync Engineer) <- Step 05 (Subtitle Director) <- Step 06 (QA Continuity Agent).
+  - Targeted self-repair loop banner across Row 2.
+  - Interactive drilldown drawer for agent technology stack, inputs, and outputs.
+- Created [ProducerBoard.tsx](file:///c:/CCodes_WebDevelopment/hckthon/localize_movie_dub/frontend/components/studio/ProducerBoard.tsx):
+  - Soft Meadow / Deep Ink executive board with compliance checklist (Continuity Score, Lip Drift <18ms, CPS Target, Compute Tokens, Self-Repair Loops).
+  - Primary Hi-Yellow `#ffe228` filled `APPROVE FOR DISTRIBUTION` button with responsive press states.
+- Updated [CrewStatus.tsx](file:///c:/CCodes_WebDevelopment/hckthon/localize_movie_dub/frontend/components/studio/CrewStatus.tsx) to match the Ditto aesthetic.
+- Integrated `AgentSequenceTrack` and `ProducerBoard` into [page.tsx](file:///c:/CCodes_WebDevelopment/hckthon/localize_movie_dub/frontend/app/runs/[id]/page.tsx) under the Studio Console tab.
+
+#### Files Changed
+- `frontend/tailwind.config.ts` (Modified)
+- `frontend/app/globals.css` (Modified)
+- `frontend/components/studio/AgentSequenceTrack.tsx` (Created)
+- `frontend/components/studio/ProducerBoard.tsx` (Created)
+- `frontend/components/studio/CrewStatus.tsx` (Modified)
+- `frontend/app/runs/[id]/page.tsx` (Modified)
+- `features_implemented.md` (Updated)
+- `TRACKER.md` (Updated)
+
+#### Verification
+- `npx tsc --noEmit` in `frontend/` — passed with 0 errors.
+- `npm test` (Vitest) in `frontend/` — 10 / 10 suites passed, 29 / 29 tests passed.
+
+#### Current State
+- The Studio Run Dashboard now presents the 2-row serpentine sequence track and Producer Board with Ditto color tokens, Netflix Sans typography, and live execution telemetry.
+
+#### Next Agent Instructions
+1. Inspect [page.tsx](file:///c:/CCodes_WebDevelopment/hckthon/localize_movie_dub/frontend/app/runs/[id]/page.tsx) and verify live WebSocket feed integration with active pipeline runs.
+2. Launch a real pipeline run or explore the interactive Studio Console at `http://localhost:3000/runs/<id>`.
+
+---
+
+### 2026-09-06 — Full Codebase Overhaul with Ditto × Netflix Sans Design System & Emil Kowalski Design Engineering
+
+#### Objective
+Apply the **Ditto × Netflix Sans Design System** (`Docs/14-design.md`) and **Emil Kowalski's Design Engineering philosophy** (`/emil-design-eng`) across the entire frontend application (AppShell, Ingestion wizard `/runs/new`, Run History `/runs`, Model Registry `/models`, Settings `/settings`, Subtitle Review `/runs/[id]/subtitles`, Outputs `/runs/[id]/output`, and Studio Dashboard).
+
+#### Changes Made
+- Transformed entire app color hierarchy to Ditto palette:
+  - Base Canvas: Warm Cream (`#f9fbf2`)
+  - Elevated Cards / Navigation: Soft Meadow (`#eff2e5`) with Deep Ink borders (`#130e30`)
+  - Primary Action / Active Signals: Hi-Yellow (`#ffe228`) with 16.2:1 contrast against `#130e30`
+  - Success / Compliant Badges: Moss Green (`#59e25d`)
+  - Self-Repair / Alerts: Fuchsia (`#e261e5`)
+  - Muted Text / Hairlines: Slate (`#5f5c6e`)
+- Applied Emil Kowalski's design engineering micro-interactions:
+  - Responsive tactile button press: `transform: scale(0.97)` on `:active` with 150–160ms ease-out transitions across all interactive buttons, cards, and toggles.
+  - Tabular numeric figures (`font-variant-numeric: tabular-nums`) on all duration timers, timestamps, and latency tickers to prevent layout reflows.
+  - Consistent typography hierarchy with bold geometric sans headers (`font-black tracking-tight`).
+  - Staggered entrances and smooth focus states with Hi-Yellow rings.
+- Rebranded application from legacy DubForge to **LOCALIZE** (Autonomous AI Post-Production Crew).
+
+#### Files Changed
+- `frontend/components/AppShell.tsx` (Rewritten)
+- `frontend/app/runs/new/page.tsx` (Rewritten)
+- `frontend/app/runs/page.tsx` (Rewritten)
+- `frontend/app/models/page.tsx` (Rewritten)
+- `frontend/app/settings/page.tsx` (Rewritten)
+- `frontend/app/runs/[id]/page.tsx` (Rewritten)
+- `frontend/app/runs/[id]/subtitles/page.tsx` (Rewritten)
+- `frontend/app/runs/[id]/output/page.tsx` (Rewritten)
+- `frontend/components/studio/ReadinessGauge.tsx` (Rewritten)
+- `frontend/components/studio/QARepairCard.tsx` (Rewritten)
+- `frontend/components/studio/DecisionFeed.tsx` (Rewritten)
+- `frontend/components/studio/BeforeAfterPlayer.tsx` (Rewritten)
+- `frontend/app/layout.tsx` (Updated metadata)
+- `TRACKER.md` (Updated)
+
+#### Verification
+- `npx tsc --noEmit` — 0 errors.
+- `npm test` (Vitest) — 10 / 10 suites passed, 29 / 29 tests passed.
+
+#### Current State
+- The entire frontend codebase is unified under the Ditto × Netflix Sans design language with Emil Kowalski design engineering polish.
+
+---
+
+### 2026-09-07 — New Run Configuration & Preset Information Architecture Overhaul
+
+#### Objective
+Redesign Sections 2 ("Languages & Acoustic Engineering Strategy") and 3 ("Select Autonomous Crew Project Preset") in `frontend/app/runs/new/page.tsx` to provide comprehensive operational clarity, prevent dropdown truncation, and show active agent crew breakdowns, turnaround estimates, and audio mixing details following `/improve-ui` and `/emil-design-eng`.
+
+#### Changes Made
+- Created interactive standalone mockup [mock_new_run_options.html](file:///c:/CCodes_WebDevelopment/hckthon/localize_movie_dub/mock_new_run_options.html).
+- Replaced cramped 5-column single-row Section 2 with a 2-column (7:5) layout:
+  - **Left Card**: Full-width Source and Target Language selectors, Whisper ASR model selector with parameter sizes, VRAM footprint indicators, and word boundary precision tags.
+  - **Right Card**: Interactive toggle cards for **Demucs Vocal & BGM Split** (explaining soundtrack and sound effects preservation) and **Execution Pipeline Depth** (Full 6-Agent Dub vs Subtitle-Only Fast Track).
+- Enriched Section 3 Preset Cards with structured operational metrics: Active Crew Count, Est. Turnaround, and Output Deliverables.
+- Added live Configuration Summary Bar next to the `DISPATCH LOCALIZE PIPELINE ➔` CTA button.
+
+#### Files Changed
+- `frontend/app/runs/new/page.tsx` (Modified)
+- `mock_new_run_options.html` (Created)
+- `TRACKER.md` (Updated)
+
+#### Verification
+- `npx tsc --noEmit` — 0 errors.
+- `npm test` (Vitest) — 10 / 10 suites passed, 29 / 29 tests passed.
+
+#### Current State
+- All UI controls in `http://localhost:3000/runs/new` are fully readable with zero text truncation and rich operational telemetry metrics for all presets.
+
+---
+
+### 2026-09-07 — Hamburger Style Navbar & Typographic Layout Hierarchy Overhaul
+
+#### Objective
+Transform the fixed sidebar into a modern **Hamburger Navigation Bar & Drawer** and overhaul the flat typographic hierarchy in `frontend/app/runs/new/page.tsx` using `/emil-design-eng`, `/animate`, and `/improve-ui` so that headlines, section titles, card titles, form labels, and descriptions have clear, distinct visual hierarchy and contrast.
+
+#### Changes Made
+- **Animated Hamburger Navigation Topbar & Drawer (`frontend/components/AppShell.tsx`)**:
+  - Replaced permanent 64px left sidebar with a sticky topbar featuring an animated Hamburger button (`Menu` $\leftrightarrow$ `X` transition with `active:scale-[0.97]` press physics and 90° rotation on open).
+  - Implemented slide-out drawer navigation with `--ease-drawer: cubic-bezier(0.32, 0.72, 0, 1)`, semi-transparent backdrop blur, route change auto-close, and keyboard `Escape` dismissal.
+  - Placed active route indicator, breadcrumb trail, and system readiness chip in the sticky topbar.
+  - Docked crew telemetry status and reasoning engine status in the drawer footer.
+- **7-Tier Typographic Hierarchy Overhaul (`frontend/app/runs/new/page.tsx`)**:
+  - **Level 1 (Page Title)**: `text-2xl sm:text-3xl font-black text-[#130e30]` with glowing icon.
+  - **Level 1 Subtitle**: `text-xs sm:text-sm text-[#5f5c6e] font-normal leading-relaxed max-w-2xl` (soft sentence case, comfortable line-height).
+  - **Level 2 (Section Numbers & Headers)**: `text-sm sm:text-base font-extrabold uppercase tracking-tight text-[#130e30]`.
+  - **Level 3 (Group / Card Titles)**: `text-xs sm:text-sm font-bold text-[#130e30]` (e.g. `Language Pair & Speech Recognition`, `Audio Processing & Mix Output`).
+  - **Level 4 (Field Labels)**: `text-[11px] font-bold uppercase tracking-wider text-[#5f5c6e]` (clear distinction from input text).
+  - **Level 5 (Inputs & Selects)**: `text-xs sm:text-sm font-semibold text-[#130e30]`.
+  - **Level 6 (Explanatory Subtexts)**: `text-[11px] text-[#5f5c6e] font-normal leading-relaxed` (eliminated uppercase screaming).
+  - **Level 7 (Micro Badges & Specs)**: `text-[9.5px] sm:text-[10px] font-mono font-extrabold`.
+- **Motion Tokens & Performance (`frontend/app/globals.css`)**:
+  - Added `--ease-drawer: cubic-bezier(0.32, 0.72, 0, 1)`.
+  - Added `@media (prefers-reduced-motion: reduce)` rules.
+
+#### Files Changed
+- `frontend/components/AppShell.tsx` (Modified)
+- `frontend/app/runs/new/page.tsx` (Modified)
+- `frontend/app/globals.css` (Modified)
+- `features_implemented.md` (Updated)
+- `TRACKER.md` (Updated)
+
+#### Verification
+- `npm test` in `frontend/` — 10 / 10 suites passed, 29 / 29 tests passed.
+- Both Next.js frontend (`http://localhost:3000`) and FastAPI backend (`http://localhost:8000`) remain live and healthy.
+
+#### Current State
+- The interface now has a responsive hamburger navbar and a clear visual hierarchy where titles are prominent, card structures are distinct, and explanatory descriptions are soft and readable.
+
+---
+
+### 2026-09-07 — Studio Console Viewport Rehaul & Zero-Scroll Layout Mockup
+
+#### Objective
+Rehaul the Studio Console layout on `/runs/[id]` to eliminate 100vh viewport crowding, remove redundant duplicate lists (CrewStatus), compact the 6-agent workflow ribbon, and bring the Producer Board, QA Timing Overflow defect card, A/B Comparison monitor, and Live Telemetry stream into a zero-scroll 3-column executive workstation.
+
+#### Changes Made
+- Created interactive standalone HTML mockup [mock_studio_console_rehaul.html](file:///c:/CCodes_WebDevelopment/hckthon/localize_movie_dub/mock_studio_console_rehaul.html):
+  - Ultra-compact header bar (`RUN #TRIAL1_1`, Clip metadata, action controls, tab switchers).
+  - Compact 2-row serpentine agent pipeline ribbon (~105px height) with live latency tickers and auto-repair badges.
+  - Interactive drilldown modal inspector for individual agent tech stack without breaking layout height.
+  - 3-Column Executive Workstation fitting inside 100vh:
+    - **Col 1 (Left 4 cols)**: Producer Board with integrated QA Continuity Gauge (98.0%), metric checks (Lip drift <18ms, CPS compliance, compute tokens, repair loops), and high-contrast "APPROVE FOR DISTRIBUTION" action.
+    - **Col 2 (Middle 4 cols)**: QA Continuity Self-Repair Card (`TIMING_OVERFLOW` auto-repair) + A/B Studio Comparison Monitor with instant audio stem toggles.
+    - **Col 3 (Right 4 cols)**: Live Telemetry & Decision Stream (Section 6 JSON schema feed).
+- Created detailed technical plan in `implementation_plan.md`.
+
+#### Files Changed
+- `mock_studio_console_rehaul.html` (Created)
+- `implementation_plan.md` (Updated)
+- `TRACKER.md` (Updated)
+
+#### Next Agent Instructions
+1. Inspect [mock_studio_console_rehaul.html](file:///c:/CCodes_WebDevelopment/hckthon/localize_movie_dub/mock_studio_console_rehaul.html) in the browser.
+2. Proceed with updating the React components in `frontend/components/studio/` and `frontend/app/runs/[id]/page.tsx` upon user review.
+
+---
+
+### 2026-09-09 — Global Taste & Awesome-Design Motion System Implementation
+
+#### Objective
+1. Install `/taste` and `/awesome_design` (with `/awesome-design` alias) globally into `~/.gemini/config/skills/` accessible via slash commands.
+2. Implement production-grade Motion design system components (`SpringButton`, `MagneticCard`, `FeatureStaggerGrid`, `MotionReveal`) following `/taste` anti-slop rules and `/awesome-design` brand specifications.
+
+#### Changes Made
+- Installed global skills:
+  - `~/.gemini/config/skills/taste/SKILL.md` (Anti-slop frontend design framework, design dials, pre-flight audit).
+  - `~/.gemini/config/skills/awesome_design/SKILL.md` (Brand design systems catalog & DESIGN.md generator).
+  - `~/.gemini/config/skills/awesome-design/SKILL.md` (Slash command alias).
+- Added `framer-motion` dependency to [frontend/package.json](file:///c:/CCodes_WebDevelopment/hckthon/localize_movie_dub/frontend/package.json).
+- Implemented modular Motion components in [frontend/components/ui/motion/](file:///c:/CCodes_WebDevelopment/hckthon/localize_movie_dub/frontend/components/ui/motion/):
+  - [SpringButton.tsx](file:///c:/CCodes_WebDevelopment/hckthon/localize_movie_dub/frontend/components/ui/motion/SpringButton.tsx): Tactile spring buttons with calibrated physics (`stiffness: 400, damping: 25`) and accessible reduced-motion fallback.
+  - [MagneticCard.tsx](file:///c:/CCodes_WebDevelopment/hckthon/localize_movie_dub/frontend/components/ui/motion/MagneticCard.tsx): 3D tilt & magnetic pointer tracking using GPU Motion Values (`useMotionValue`, `useSpring`, `useTransform`) outside React render loops.
+  - [FeatureStaggerGrid.tsx](file:///c:/CCodes_WebDevelopment/hckthon/localize_movie_dub/frontend/components/ui/motion/FeatureStaggerGrid.tsx): Viewport entry stagger animations with cubic-bezier smoothing (`[0.16, 1, 0.3, 1]`).
+  - [MotionReveal.tsx](file:///c:/CCodes_WebDevelopment/hckthon/localize_movie_dub/frontend/components/ui/motion/MotionReveal.tsx): Directional entry reveal wrapper.
+  - [index.ts](file:///c:/CCodes_WebDevelopment/hckthon/localize_movie_dub/frontend/components/ui/motion/index.ts): Barrel export.
+- Created test suite [frontend/__tests__/motion_components.test.tsx](file:///c:/CCodes_WebDevelopment/hckthon/localize_movie_dub/frontend/__tests__/motion_components.test.tsx).
+
+#### Verification
+- `tsc --noEmit` — passed with 0 errors.
+- `vitest run` — 13 / 13 test suites passed (52 / 52 tests).
+
+#### Next Agent Instructions
+1. Import and utilize `@/components/ui/motion` across the Studio Console and Landing views.
+2. Respect `prefers-reduced-motion` compliance on all newly animated surfaces.
+
+## 2026-09-10 — Gitignore Hardening & Personal / Document File Exclusion
+
+### Objective
+Configure `.gitignore` to strictly exclude all PDFs, personal resumes, internship calendars, cover letters, and non-project generation scripts while preserving only the code, configs, and assets required for the application to function.
+
+### Changes Made
+- Updated root [.gitignore](file:///c:/CCodes_WebDevelopment/hckthon/localize_movie_dub/.gitignore) with strict rules:
+  - Excluded all document files (`*.pdf`, `*.PDF`, `*.doc`, `*.docx`, `*.ppt`, `*.pptx`, `*.xls`, `*.xlsx`, `*.csv`, `*.lnk`, `*.shortcut`).
+  - Excluded all career/internship materials and scripts (`*internship*`, `*resume*`, `*cv*`, `*cover_letter*`, `generate_cover_letter.py`, `generate_pdf.py`).
+  - Excluded raw media binaries, sqlite databases, and storage outputs while retaining folder structures via `.gitkeep`.
+  - Excluded python venvs/caches and frontend build/node_modules caches.
+
+### Verification
+- `git check-ignore -v` — confirmed that `Internship_and_Certification_Calendar_2026.pdf`, `Resume (1).pdf`, `Ritam_Mondal_Honeywell_Cover_Letter.*`, `generate_cover_letter.py`, `generate_pdf.py`, and `.lnk` shortcuts are properly matched and ignored.
+- `git status` — verified clean status without untracked personal/PDF artifacts.
+
+### Current State
+Repository is protected from accidental commits of personal, PDF, and internship documents. Only required source files and configs are tracked.
+
+### Next Agent Instructions
+Continue regular project development. When creating new media sample assets or document generators, ensure they are placed appropriately or marked in `.gitignore` if they contain sensitive or non-essential data.
+
+
+
+
+
+
+
+
+
+
 
 
 

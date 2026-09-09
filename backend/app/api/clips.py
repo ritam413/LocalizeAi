@@ -3,7 +3,8 @@ import shutil
 import subprocess
 from pathlib import Path
 from typing import List, Optional
-from fastapi import APIRouter, Depends, UploadFile, File, HTTPException
+from fastapi import APIRouter, Depends, UploadFile, File, HTTPException, Query
+from fastapi.responses import FileResponse
 from sqlalchemy.future import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -96,15 +97,22 @@ async def import_clip(payload: dict, db: AsyncSession = Depends(get_db)):
 
     path_obj = Path(path_str)
     if not path_obj.is_absolute():
-        # Try resolving relative to BASE_DIR or STORAGE_DIR
-        candidate1 = settings.BASE_DIR / path_str
-        candidate2 = settings.STORAGE_DIR / path_str
-        if candidate1.exists():
-            path_obj = candidate1
-        elif candidate2.exists():
-            path_obj = candidate2
-
-    if not path_obj.exists():
+        candidates = [
+            settings.BASE_DIR / path_str,
+            settings.STORAGE_DIR / path_str,
+            settings.STORAGE_DIR / "uploads" / path_str,
+            settings.STORAGE_DIR / "uploads" / Path(path_str).name,
+        ]
+        found = False
+        for candidate in candidates:
+            if candidate.exists() and candidate.is_file():
+                path_obj = candidate
+                found = True
+                break
+        
+        if not found and not path_obj.exists():
+            raise HTTPException(status_code=400, detail=f"Invalid path or file does not exist: {path_str}")
+    elif not path_obj.exists():
         raise HTTPException(status_code=400, detail=f"Invalid path or file does not exist: {path_str}")
 
     info = probe_media_info(path_obj)
@@ -120,12 +128,69 @@ async def import_clip(payload: dict, db: AsyncSession = Depends(get_db)):
     db.add(clip)
     await db.commit()
     await db.refresh(clip)
-    return clip
+    return {
+        "id": clip.id,
+        "filename": clip.filename,
+        "source_path": clip.source_path,
+        "duration_s": clip.duration_s,
+        "codec": clip.codec,
+        "resolution": clip.resolution,
+        "audio_channels": clip.audio_channels
+    }
 
 @clips_router.get("")
 async def list_clips(db: AsyncSession = Depends(get_db)):
     res = await db.execute(select(Clip).order_by(Clip.created_at.desc()))
     return res.scalars().all()
+
+@clips_router.get("/preview-stream")
+async def preview_stream(path: str = Query(..., description="File path to preview")):
+    path_str = path.strip()
+    if not path_str:
+        raise HTTPException(status_code=400, detail="Path string cannot be empty")
+
+    path_obj = Path(path_str)
+    if not path_obj.is_absolute():
+        candidates = [
+            settings.BASE_DIR / path_str,
+            settings.STORAGE_DIR / path_str,
+            settings.STORAGE_DIR / "uploads" / path_str,
+            settings.STORAGE_DIR / "uploads" / Path(path_str).name,
+        ]
+        found = False
+        for candidate in candidates:
+            if candidate.exists() and candidate.is_file():
+                path_obj = candidate
+                found = True
+                break
+        
+        if not found and not path_obj.exists():
+            raise HTTPException(status_code=404, detail=f"File does not exist: {path_str}")
+    elif not path_obj.exists():
+        raise HTTPException(status_code=404, detail=f"File does not exist: {path_str}")
+
+    media_type = "video/mp4"
+    ext = path_obj.suffix.lower()
+    if ext in [".mov", ".quicktime"]:
+        media_type = "video/quicktime"
+    elif ext in [".webm"]:
+        media_type = "video/webm"
+    elif ext in [".mkv"]:
+        media_type = "video/x-matroska"
+    elif ext in [".mp3"]:
+        media_type = "audio/mpeg"
+    elif ext in [".wav"]:
+        media_type = "audio/wav"
+    elif ext in [".vtt"]:
+        media_type = "text/vtt"
+    elif ext in [".srt"]:
+        media_type = "text/plain"
+
+    return FileResponse(
+        path=str(path_obj),
+        media_type=media_type,
+        filename=path_obj.name
+    )
 
 @clips_router.get("/{clip_id}")
 async def get_clip(clip_id: str, db: AsyncSession = Depends(get_db)):
@@ -133,4 +198,30 @@ async def get_clip(clip_id: str, db: AsyncSession = Depends(get_db)):
     if not clip:
         raise HTTPException(status_code=404, detail="Clip not found")
     return clip
+
+@clips_router.get("/{clip_id}/stream")
+async def stream_clip(clip_id: str, db: AsyncSession = Depends(get_db)):
+    clip = await db.get(Clip, clip_id)
+    if not clip:
+        raise HTTPException(status_code=404, detail="Clip not found")
+
+    file_path = Path(clip.source_path)
+    if not file_path.exists():
+        raise HTTPException(status_code=404, detail=f"Clip file not found on disk: {clip.source_path}")
+
+    media_type = "video/mp4"
+    ext = file_path.suffix.lower()
+    if ext in [".mov", ".quicktime"]:
+        media_type = "video/quicktime"
+    elif ext in [".webm"]:
+        media_type = "video/webm"
+    elif ext in [".mkv"]:
+        media_type = "video/x-matroska"
+
+    return FileResponse(
+        path=str(file_path),
+        media_type=media_type,
+        filename=file_path.name
+    )
+
 

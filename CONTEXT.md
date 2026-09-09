@@ -46,10 +46,14 @@ The complete LOCALIZE autonomous post-production crew architecture is fully impl
 - **Backend API & Docs**: `http://localhost:8000` (Swagger docs at `/docs`, health check at `/health`, telemetry at `/api/v1/telemetry/events`).
 - **Frontend Studio Console**: `http://localhost:3000` (Next.js dashboard at `/`, run monitor at `/runs/[id]`).
 - **MCP Observability**: Configured with Grafana MCP (`uvx mcp-grafana`) via `~/.gemini/config/mcp_config.json`.
-- **Environment**: `.env` and `backend/.env` configured with `GEMINI_API_KEY` for Google Cloud AI reasoning and optional Grafana service credentials.
+- **Environment**: `.env` and `backend/.env` configured with `GEMINI_API_KEY` for Google Cloud AI reasoning, `CORS_ORIGINS`, `BACKEND_URL`, and optional Grafana service credentials.
+- **Docker Compose**: Production orchestration via `docker-compose.yml` (CPU) and `docker-compose.gpu.yml` (NVIDIA CUDA passthrough).
+- **Production Runbook**: Documented in `DEPLOYMENT.md`.
 
 ## 6. Key Decisions Already Made
 - **ADR-001**: Use Gemini structured outputs (Pydantic schema) for all agent reasoning to guarantee deterministic routing.
 - **ADR-002**: Use Section 6 JSON event schema as the single source of truth for disk logs, WebSocket broadcasts, and Grafana telemetry.
 - **ADR-003**: Deep module design (`/codebase-design`) with small interfaces (`execute(context) -> result`) across all agent seams.
 - **ADR-004**: Vitest for frontend & contract tests, Pytest for backend unit/integration tests (`/tdd`).
+- **ADR-005**: Multi-stage standalone Next.js container build and Python 3.11 slim backend container with FFmpeg & PyTorch for production reproducibility.
+

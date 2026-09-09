@@ -26,7 +26,11 @@ class StubStage(BaseStage):
         return {
             "status": "success",
             "stage": self.stage_name,
-            "artifacts": {
-                "json": f"/storage/stub_{self.stage_name}.json"
-            }
+            "artifacts": [
+                {
+                    "type": "json",
+                    "label": f"Stub {self.stage_name.capitalize()} Data",
+                    "path": f"/storage/stub_{self.stage_name}.json"
+                }
+            ]
         }

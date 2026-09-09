@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { Download, FileText, ArrowLeft, RefreshCw, Film, CheckCircle } from 'lucide-react';
+import { Download, FileText, ArrowLeft, RefreshCw, Film, CheckCircle2 } from 'lucide-react';
 
 interface Artifact {
   id: string;
@@ -36,58 +36,58 @@ export default function OutputPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64 text-gray-400 space-x-3">
-        <RefreshCw className="w-5 h-5 animate-spin text-indigo-400" />
-        <span>Fetching Output Artifacts...</span>
+      <div className="flex items-center justify-center h-64 text-[#5f5c6e] space-x-3 font-mono text-xs">
+        <RefreshCw className="w-5 h-5 animate-spin text-[#130e30]" />
+        <span>Fetching Output Deliverables…</span>
       </div>
     );
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 max-w-5xl font-sans text-[#130e30]">
       {/* Header */}
-      <div>
+      <div className="border-b border-[#130e30]/10 pb-6">
         <Link
           href={`/runs/${runId}`}
-          className="text-xs text-indigo-400 hover:underline flex items-center space-x-1 mb-2"
+          className="text-xs font-mono font-bold text-[#130e30] hover:underline flex items-center space-x-1 mb-2"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
-          <span>Back to Run Dashboard</span>
+          <span>Back to Run Studio Dashboard</span>
         </Link>
-        <h1 className="text-2xl font-bold text-white flex items-center space-x-3">
-          <Download className="w-6 h-6 text-indigo-400" />
-          <span>Output & Deliverables Package (S-12)</span>
+        <h1 className="text-3xl font-black text-[#130e30] tracking-tight uppercase flex items-center space-x-3">
+          <Download className="w-7 h-7 text-[#130e30]" />
+          <span>Output Deliverables &amp; Master Stems</span>
         </h1>
-        <p className="text-sm text-gray-400 mt-1">
-          QA-validated subtitle tracks and intermediate artifacts ready for download.
+        <p className="text-xs text-[#5f5c6e] mt-1.5 font-medium">
+          Broadcast-ready neural dub tracks, synchronized subtitle masters, and QA-certified packages.
         </p>
       </div>
 
       {/* Artifact Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         {artifacts.length === 0 ? (
-          <div className="glass-panel p-8 rounded-2xl text-center text-gray-500 col-span-2">
-            No artifacts generated yet. Wait for pipeline stages to complete.
+          <div className="bg-[#eff2e5] border-[1.5px] border-[#130e30]/15 p-10 rounded-[24px] text-center text-[#5f5c6e] col-span-2 text-xs font-medium">
+            No artifacts generated yet. Wait for pipeline stages to complete in the Studio Console.
           </div>
         ) : (
           artifacts.map((art) => (
-            <div key={art.id} className="glass-panel p-6 rounded-2xl flex items-center justify-between">
+            <div key={art.id} className="bg-[#eff2e5] border-[1.5px] border-[#130e30]/15 p-6 rounded-[24px] flex items-center justify-between shadow-sm hover:border-[#130e30] transition">
               <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 rounded-xl bg-indigo-600/10 border border-indigo-500/30 flex items-center justify-center text-indigo-400">
+                <div className="w-12 h-12 rounded-2xl bg-[#f9fbf2] border border-[#130e30]/20 flex items-center justify-center text-[#130e30]">
                   <FileText className="w-6 h-6" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-white text-base">{art.label}</h3>
-                  <p className="text-xs text-gray-500 font-mono mt-0.5">{art.path}</p>
+                  <h3 className="font-extrabold text-[#130e30] text-sm">{art.label}</h3>
+                  <p className="text-[10.5px] text-[#5f5c6e] font-mono mt-0.5 truncate max-w-xs">{art.path}</p>
                 </div>
               </div>
 
               <a
                 href={`/api/v1/runs/${runId}/artifacts/${art.id}/download`}
                 download
-                className="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2.5 rounded-xl font-medium text-xs shadow-glow flex items-center space-x-2 transition-all"
+                className="bg-[#ffe228] hover:bg-[#ebd020] text-[#130e30] border border-[#130e30] px-4 py-2 rounded-full font-black text-xs shadow-sm flex items-center space-x-1.5 transition-all active:scale-[0.97]"
               >
-                <Download className="w-4 h-4" />
+                <Download className="w-3.5 h-3.5" />
                 <span>Download</span>
               </a>
             </div>
