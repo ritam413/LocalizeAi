@@ -815,6 +815,26 @@ Every page, studio surface, card, and player in DubForge Studio has an accessibl
 ### Next Agent Instructions
 When building future pages or views, import and reuse the primitives from `@/components/ui/skeleton` to maintain visual consistency.
 
+## 2026-09-10 — Git Remote Migration to LocalizeAi
+
+### Objective
+Migrate git `origin` remote from `https://github.com/ritammondal-arch/localize_dub` to `https://github.com/ritam413/LocalizeAi.git` and push the `main` branch.
+
+### Changes Made
+- Updated local git `origin` URL via `git remote set-url origin https://github.com/ritam413/LocalizeAi.git`.
+- Pushed branch `main` with upstream tracking configured.
+
+### Verification
+- `git push -u origin main` — successfully pushed all objects to `https://github.com/ritam413/LocalizeAi.git`.
+- `git remote -v` — verified `origin` pointing to `https://github.com/ritam413/LocalizeAi.git`.
+
+### Current State
+Repository remote is linked to `ritam413/LocalizeAi.git` on branch `main`.
+
+### Next Agent Instructions
+Continue regular development against `origin/main`.
+
+
 
 
 
