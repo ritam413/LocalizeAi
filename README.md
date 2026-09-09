@@ -1,26 +1,82 @@
-# LOCALIZE — Autonomous AI Post-Production Crew for Film & Video Localization
+# LOCALIZE: Autonomous AI Post-Production Crew for Film & Video Localization
 
-> **Turn a finished video and a target audience prompt into a release-ready, localized dub with synchronized speech windows, character-consistent voices, and automated QA self-repair.**
+> Turn a finished video and a target audience prompt into a release-ready, localized dub with synchronized speech windows, character-consistent voices, and automated QA self-repair.
+
+<div align="center">
+
+![Google Gemini](https://img.shields.io/badge/Google%20Gemini-8E75B2?style=for-the-badge&logo=google&logoColor=white)
+![Python](https://img.shields.io/badge/Python%203.10+-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white)
+![FFmpeg](https://img.shields.io/badge/FFmpeg-007808?style=for-the-badge&logo=ffmpeg&logoColor=white)
+![Next.js](https://img.shields.io/badge/Next.js%2014-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
+![Grafana](https://img.shields.io/badge/Grafana%20MCP-F46800?style=for-the-badge&logo=grafana&logoColor=white)
+![Pytest](https://img.shields.io/badge/Pytest-0A9EDC?style=for-the-badge&logo=pytest&logoColor=white)
+![Vitest](https://img.shields.io/badge/Vitest-6E9F18?style=for-the-badge&logo=vitest&logoColor=white)
+
+</div>
 
 ---
 
-## 🎬 Overview
+## Inspiration
 
-Traditional video dubbing pipelines execute rigid, sequential steps (transcribe → translate → TTS → mux) with no awareness of quality or context. If speech overflows the dialogue window or subtitles drift, traditional tools ship broken results.
+Most automated dubbing tools treat localization like an assembly line: audio gets transcribed to text, translated by a generic LLM, pushed through text-to-speech, and slapped back onto video. If a translated phrase takes two seconds longer to speak than the original actor's mouth movement, or if an idiom translates literally into nonsense, the pipeline still outputs the file without checking the result.
 
-**LOCALIZE** operates as an autonomous multi-agent post-production crew:
-- **Director Agent**: Orchestrates tasks, holds job state, and initiates targeted retries.
-- **Story Analyst**: Extracts character speaker maps, scene boundaries, emotional tone tags, and cultural idiom flags.
-- **Localization Director**: Produces culturally adapted scripts preserving character voice and humor with translation rationale per line.
-- **Voice Director**: Assigns character-matched neural voices and synthesizes audio stems.
-- **Sync Engineer**: Resolves duration expansion/compression via `atempo` speed factors and timing shifts.
-- **Subtitle Director**: Generates drift-free SRT and WebVTT subtitles aligned with final audio timings.
-- **QA / Continuity Agent (Hero Feature)**: Reviews the cut, flags defects (`TIMING_OVERFLOW`, `SUBTITLE_DRIFT`, `AUDIO_CLIPPING`), and triggers **targeted repair loops** back to upstream agents without restarting the full pipeline.
-- **Control Tower (Grafana)**: Live telemetry observability tracking agent latencies, quality scores, and defect resolution.
+Human dubbing studios do not work this way. Directors, script translators, voice actors, sound engineers, and QA reviewers work together. When a translated sentence runs too long, the team rewrites the line or adjusts speech cadence to fit the dialogue window before publishing. We wanted to build an autonomous crew that behaves like a real post-production room, complete with automated quality control and targeted repair loops.
+
+## What it does
+
+LOCALIZE takes an input video (MP4 or MKV) and a target language or cultural tone prompt, then turns it into a synchronized, localized dub.
+
+Instead of running a one-way script, it coordinates seven specialized agents:
+
+1. **Director Agent**: Manages state, coordinates handoffs between agents, and handles targeted retries when defects are caught.
+2. **Story Analyst**: Maps out characters, extracts scene boundaries, tags emotional tone, and spots cultural idioms.
+3. **Localization Director**: Translates dialogue while preserving character personality and jokes, writing down the translation rationale for every line.
+4. **Voice Director**: Matches distinct character profiles to neural TTS voices and generates clean speech stems.
+5. **Sync Engineer**: Aligns audio timing to the original dialogue windows using dynamic FFmpeg `atempo` speed adjustments and millisecond offset shifts.
+6. **Subtitle Director**: Generates timestamped SRT and WebVTT subtitles that match the newly synchronized audio.
+7. **QA Continuity Agent**: Audits the resulting cut for timing overflows, subtitle drift, and clipping. If it finds an issue, it sends instructions back to the specific upstream agent to fix that segment without restarting the entire run.
+
+Users can watch the pipeline execute in real time on a dual-monitor studio interface, compare before and after cuts, and inspect agent telemetry.
+
+## How we built it
+
+- **Multi-Agent Reasoning**: Built using Google Gemini structured JSON outputs. Structured schema enforcement ensures reliable data contracts between the Story Analyst, Localization Director, Sync Engineer, and QA Agent.
+- **Audio and Video Engine**: Python, FFmpeg, and FFprobe handle stream demuxing, precise millisecond audio slicing, `atempo` filter chaining, and vocal track replacement.
+- **Backend Service**: FastAPI with async background job execution, SSE (Server-Sent Events) for live pipeline progress, and Pytest suites for unit and integration testing.
+- **Frontend Studio**: Next.js (App Router), TypeScript, and Tailwind CSS. The interface includes an agent sequence track, an interactive timeline player, a before/after split viewer, and a live QA defect log.
+- **Observability**: Grafana MCP endpoints and telemetry trackers capture agent latencies, retries, and quality scores across each run.
+
+## Challenges we ran into
+
+- **Syllabic Expansion and Timing Windows**: Some languages naturally use 20% to 35% more syllables to express the same thought. Making the audio fit required a combination of upstream script rewriting and downstream `atempo` time-stretching, without making character voices sound artificially rushed.
+- **Targeted Self-Repair**: Building a feedback loop that only reruns the affected dialogue segment instead of recomputing the entire video pipeline required isolating intermediate agent artifacts (scripts, voice stems, sync maps) by dialogue ID.
+- **Real-Time Studio Telemetry**: Streaming intermediate agent thoughts, audio generation states, and video render events to the browser without UI lag meant fine-tuning our SSE event dispatchers and state reducers.
+
+## Accomplishments that we're proud of
+
+- **Autonomous QA Feedback Loop**: When the QA agent flags a timing overflow defect, it automatically loops back to the Localization Director or Sync Engineer to re-adjust and re-render only the offending line.
+- **Character Voice Consistency**: Distinct speakers in a scene receive consistent neural voice assignments across every cut.
+- **Sub-Millisecond Sync Precision**: Clean alignment between vocal delivery, background audio mixing, and subtitle generation.
+- **Complete Test Coverage**: Built with test-driven workflows across both backend engines and frontend components.
+
+## What we learned
+
+- Structured JSON constraints on LLMs are essential when chaining multiple reasoning steps. Loose text prompts break pipelines; strict schemas keep agents dependable.
+- High-quality dubbing is as much an audio engineering challenge as a translation challenge. Timing, pauses, and background sound preservation matter just as much as word choice.
+- Real-time observability makes debugging agent decisions significantly faster during active development.
+
+## What's next for LOCALIZE
+
+- **Lip-Sync Motion Synthesis**: Integrating neural video face-warping models to align visual mouth movements with adjusted speech tracks.
+- **Multi-Track Background Isolation**: Direct integration of Demucs separation to preserve complex background ambient audio and musical scores automatically.
+- **Team Collaboration Mode**: Letting human dubbing directors approve, override, or tweak individual agent suggestions before the final master render.
 
 ---
 
-## 🔑 Required API Keys & Environment Variables
+## Required API Keys & Environment Variables
 
 Create a `.env` file in the root directory (or in `backend/`):
 
@@ -34,7 +90,7 @@ cp .env.example .env
 |----------------------|-----------|---------|
 | `GEMINI_API_KEY` | **Required** | Powers all agent reasoning across the crew (Story Analyst, Localization Director, Sync Engineer, QA Agent) via Google Cloud AI / Gemini structured JSON outputs. |
 
-### Observability & Partner Integrations (Optional / Stretch)
+### Observability & Partner Integrations (Optional)
 
 | Environment Variable | Required? | Purpose |
 |----------------------|-----------|---------|
@@ -45,24 +101,22 @@ cp .env.example .env
 
 ---
 
-## 📹 Video Input Guidelines: Best Results
+## Video Input Guidelines
 
-For the highest quality localization, speech recognition, and automated QA demonstration:
+For optimal localization quality and automated QA demonstrations:
 
 | Criteria | Recommended Specification | Why It Matters |
 |----------|---------------------------|----------------|
 | **Container & Codec** | `.mp4` or `.mkv` (Video: H.264 / H.265, Audio: AAC / PCM) | Native browser `<video>` playback and direct `ffmpeg` stream copying without re-encoding. |
-| **Clip Duration** | **15 seconds to 90 seconds** (Up to 3–5 minutes for full scenes) | Ideal for quick turnaround, interactive review, and crisp live demos of the QA self-repair loop. |
-| **Dialogue & Audio Mix** | Clear dialogue with good signal-to-noise ratio | While Demucs separates vocals from background music/effects, clean audio ensures 100% accurate ASR timestamps and pitch tracking. |
+| **Clip Duration** | **15 seconds to 90 seconds** (Up to 3 to 5 minutes for full scenes) | Ideal for quick turnaround, interactive review, and crisp live demos of the QA self-repair loop. |
+| **Dialogue & Audio Mix** | Clear dialogue with good signal-to-noise ratio | Ensures 100% accurate ASR timestamps and pitch tracking. |
 | **Speaker Count** | **1 to 3 distinct speakers** | Allows the Story Analyst and Voice Director to cleanly attribute dialogue and cast distinct neural voices. |
-| **Dialogue Content** | Conversational scenes with natural idioms or humor | Showcases the Localization Director's cultural adaptation and translation rationale (e.g., *"don't count your chickens before they hatch"*). |
+| **Dialogue Content** | Conversational scenes with natural idioms or humor | Showcases the Localization Director's cultural adaptation and translation rationale. |
 | **Resolution** | 720p or 1080p | Fast upload, responsive browser rendering, and smooth timeline scrubbing. |
-
-> 💡 **Tip for Demos:** Clips with high speaking speed or idioms are great test cases—they showcase the Sync Engineer adjusting tempo and the QA Agent catching and fixing timing overflows!
 
 ---
 
-## 🚀 How to Start the Project
+## How to Start the Project
 
 ### Prerequisites
 
@@ -141,9 +195,9 @@ Ensure you have the following installed on your machine:
 
 ---
 
-## 🧪 Running Verification & Tests
+## Running Verification & Tests
 
-LOCALIZE uses **Test-Driven Development (TDD)** across both backend and frontend layers:
+LOCALIZE uses test-driven development across both backend and frontend layers:
 
 - **Backend Pytest Suite** (Engine, Agent Crew, Telemetry, Grafana MCP):
   ```bash
@@ -159,10 +213,10 @@ LOCALIZE uses **Test-Driven Development (TDD)** across both backend and frontend
 
 ---
 
-## 🎛️ Post-Production Studio Console Usage
+## Studio Console Workflow
 
 1. **Upload or Select a Video**: Drop an MP4/MKV video into the console or select a pre-loaded scene.
-2. **Configure Target Audience**: Select target language (e.g. Hindi, Spanish, French, German) and tone profile.
+2. **Configure Target Audience**: Select target language (e.g., Hindi, Spanish, French, German) and tone profile.
 3. **Execute Crew Pipeline**: Click **Direct Job** to watch the multi-agent crew:
    - Story Analyst identifies characters and emotional tone.
    - Localization Director translates dialogue with explicit rationale.
