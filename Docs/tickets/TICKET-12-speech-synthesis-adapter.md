@@ -1,9 +1,9 @@
 # TICKET-12: Pluggable Speech Synthesis Adapter Seam
 
 ## Status
-- **State**: Planned
+- **State**: Completed
 - **Primary Seam**: `backend/app/agents/voice_director.py` (`VoiceDirectorAgent`, `SpeechSynthesisAdapter`)
-- **Verification**: Pytest (`backend/tests/test_voice_director.py`)
+- **Verification**: Pytest (`backend/tests/test_voice_director.py`) + Vitest (`frontend/__tests__/voice_director.test.ts`)
 - **Blocking Dependencies**: TICKET-04, TICKET-11
 
 ## Objective

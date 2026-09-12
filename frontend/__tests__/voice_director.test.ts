@@ -53,7 +53,7 @@ describe('TICKET-04: Voice Director Agent Contract & Voice Mapping', () => {
     expect(maleSpeaker?.voice_id).not.toBe(femaleSpeaker?.voice_id);
   });
 
-  it('validates a complete Voice Director output payload', () => {
+  it('validates a complete Voice Director output payload with pluggable adapter metadata', () => {
     const validOutput: VoiceDirectorOutput = {
       target_language: 'hi',
       voice_cast: [
@@ -74,6 +74,9 @@ describe('TICKET-04: Voice Director Agent Contract & Voice Mapping', () => {
           target_duration_s: 3.0,
         },
       ],
+      adapter_used: 'edge_tts',
+      decision: 'Voice Director cast 1 character voice using [edge_tts] adapter.',
+      quality_score: 92.0,
     };
 
     expect(validateVoiceDirectorOutput(validOutput)).toBe(true);
@@ -88,3 +91,4 @@ describe('TICKET-04: Voice Director Agent Contract & Voice Mapping', () => {
     expect(validateVoiceDirectorOutput(invalidOutput)).toBe(false);
   });
 });
+

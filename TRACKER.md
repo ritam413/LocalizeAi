@@ -23,12 +23,59 @@ Last updated: 2026-09-06 by antigravity
 | **TICKET-09** | Grafana Telemetry & MCP Endpoint | Completed | Vitest + Pytest (All Passed) | No | Live runtime queries |
 | **TICKET-10** | Post-Production Studio Console UI | Completed | Vitest (All Passed) | No | Before/After toggle, QA cards |
 | **TICKET-11** | Isometric Dialogue Engine & Syllable Quotas | Completed | Pytest + Vitest (All Passed) | Yes | Upfront syllable quota in translation |
-| **TICKET-12** | Pluggable Speech Synthesis Adapter (Edge-TTS) | Planned | Pytest | Yes | 300+ Microsoft neural voices |
+| **TICKET-12** | Pluggable Speech Synthesis Adapter (Edge-TTS) | Completed | Pytest + Vitest (All Passed) | Yes | 300+ Microsoft neural voices |
 | **TICKET-13** | Deep Acoustic Mastering Engine (Sidechain Ducking) | Planned | Pytest | Yes | -6dB ducking & EBU R128 mastering |
 | **TICKET-14** | Perceptual Acoustic QA & Quantitative Retries | Planned | Pytest | No | Clipping check & quantitative retry |
 | **TICKET-15** | English Proper Noun Preservation & Colloquial Numeral Localization | Planned | Pytest + Vitest | Yes | Proper nouns stay intact, 2.4k -> 2.4 hazar |
 
 ---
+
+### 2026-09-12 — Implement TICKET-12: Pluggable Speech Synthesis Adapter Seam (/implement, /tdd, /codebase-design)
+
+#### Objective
+Introduce a clean, swappable `SpeechSynthesisAdapter` interface behind `VoiceDirectorAgent` to support real studio-grade neural voice synthesis via Microsoft `edge-tts` (300+ multilingual neural voices) with zero cloud costs and zero GPU overhead, while maintaining `MockAudioAdapter` for instant offline unit testing and predictable durations.
+
+#### Changes Made
+1. **Abstract Adapter Interface & Implementations (`backend/app/agents/voice_director.py`)**:
+   - `SpeechSynthesisAdapter(ABC)`: Standardized abstract contract `synthesize(text, voice_id, output_path, target_duration_s, retry_count) -> float`.
+   - `MockAudioAdapter`: Deterministic synthetic PCM sine waveform generator for tests and offline environments.
+   - `EdgeTTSAdapter`: Live asynchronous neural voice synthesis streaming from Microsoft Edge-TTS, with FFmpeg PCM 16kHz WAV transcoding and graceful offline fallback.
+   - `VoiceDirectorAgent`: Supports pluggable adapter injection (`adapter=...` or `adapter_type="edge_tts"|"mock"`), speaker-to-voice casting lookup, and emits `adapter_used` in the return payload and Section 6 telemetry decision.
+2. **Frontend Agent Contract (`frontend/lib/agents/voice_director.ts`)**:
+   - Updated `VoiceDirectorOutput` interface with optional `adapter_used`, `decision`, and `quality_score`.
+   - Updated frontend contract tests in `frontend/__tests__/voice_director.test.ts`.
+3. **Automated Testing Suites**:
+   - Added 4 Pytest unit & integration tests in `backend/tests/test_voice_director.py` verifying mock adapter synthesis, voice casting, custom adapter injection, and multilingual voice mapping (ES, FR, DE, JA, EN, HI).
+   - Added Vitest contract test in `frontend/__tests__/voice_director.test.ts`.
+4. **Documentation & Tickets**:
+   - Marked `Docs/tickets/TICKET-12-speech-synthesis-adapter.md` as Completed.
+   - Updated `features_implemented.md` and `TRACKER.md`.
+
+#### Files Changed
+- `backend/app/agents/voice_director.py` (Modified)
+- `frontend/lib/agents/voice_director.ts` (Modified)
+- `backend/tests/test_voice_director.py` (Modified)
+- `frontend/__tests__/voice_director.test.ts` (Modified)
+- `Docs/tickets/TICKET-12-speech-synthesis-adapter.md` (Modified)
+- `features_implemented.md` (Modified)
+- `TRACKER.md` (Modified)
+
+#### Verification
+- **Pytest**: `backend/.venv/Scripts/pytest backend/tests` — **41 / 41 passed** (100%).
+- **Vitest**: `npm --prefix frontend test` — **15 / 15 test files passed, 76 / 76 tests passed** (100%).
+- **TypeScript**: `npx tsc --noEmit` in `frontend/` — **0 errors**.
+
+#### Current State
+- `VoiceDirectorAgent` decouples speech synthesis through `SpeechSynthesisAdapter`, enabling instant testing via `MockAudioAdapter` and live production synthesis via `EdgeTTSAdapter`.
+
+#### Remaining Work
+- TICKET-13: Deep Acoustic Mastering Engine (Sidechain Ducking).
+- TICKET-14: Perceptual Acoustic QA & Quantitative Retries.
+- TICKET-15: English Proper Noun Preservation & Colloquial Numeral Localization.
+
+#### Next Agent Instructions
+1. Proceed with [TICKET-13](file:///c:/CCodes_WebDevelopment/hckthon/localize_movie_dub/Docs/tickets/TICKET-13-acoustic-mastering-engine.md) (Deep Acoustic Mastering Engine with sidechain ducking & EBU R128) or [TICKET-15](file:///c:/CCodes_WebDevelopment/hckthon/localize_movie_dub/Docs/tickets/TICKET-15-proper-noun-and-numeral-localization.md).
+2. Follow `/tdd` with Pytest and Vitest suites.
 
 ### 2026-09-12 — Implement TICKET-11: Isometric Dialogue Engine & Syllable Quotas (/implement, /tdd, /codebase-design)
 

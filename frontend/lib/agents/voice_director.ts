@@ -28,6 +28,9 @@ export interface VoiceDirectorOutput {
   target_language: string;
   voice_cast: VoiceAssignment[];
   synthesized_stems: SynthesizedStem[];
+  adapter_used?: string;
+  decision?: string;
+  quality_score?: number;
 }
 
 const DEFAULT_VOICES: Record<string, { male: string; female: string }> = {

@@ -52,11 +52,11 @@ This document tracks the current functionality and implementation status of LOCA
 - **Modules**: `backend/app/agents/localization_director.py`, `frontend/lib/agents/localization_director.ts`
 - **Verification**: Vitest (`frontend/__tests__/localization_director.test.ts`: 5 tests passed), Pytest (`backend/tests/test_localization_director.py`: 4 tests passed).
 
-### Voice Director Agent (TICKET-04)
+### Voice Director Agent & Pluggable Speech Synthesis Adapter (TICKET-04 & TICKET-12)
 - **Status**: Implemented
-- **Details**: Assigns language and gender-appropriate neural voices per character, synthesizes per-segment speech audio stems with exact durations, and logs telemetry decisions.
+- **Details**: Assigns language and gender-appropriate neural voices per character, synthesizes per-segment speech audio stems with exact durations, and logs telemetry decisions. Employs a pluggable `SpeechSynthesisAdapter` architecture featuring `EdgeTTSAdapter` for live 300+ Microsoft neural voices with FFmpeg PCM 16kHz transcoding and `MockAudioAdapter` for instant deterministic test isolation.
 - **Modules**: `backend/app/agents/voice_director.py`, `frontend/lib/agents/voice_director.ts`
-- **Verification**: Vitest (`frontend/__tests__/voice_director.test.ts`: 3 tests passed), Pytest (`backend/tests/test_voice_director.py`: 1 test passed).
+- **Verification**: Vitest (`frontend/__tests__/voice_director.test.ts`: 3 tests passed), Pytest (`backend/tests/test_voice_director.py`: 4 tests passed).
 
 ### Sync Engineer Agent (TICKET-05)
 - **Status**: Implemented
