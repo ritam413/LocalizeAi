@@ -16,3 +16,10 @@ This directory contains individual specification and execution tickets for the L
 | [TICKET-08](./TICKET-08-director-orchestrator-targeted-retry.md) | Director Orchestrator & Targeted Retry Loop | Completed | `backend/app/agents/director.py` | Vitest + Pytest | TICKET-07 |
 | [TICKET-09](./TICKET-09-grafana-telemetry-mcp.md) | Grafana Telemetry & MCP Runtime Queries | Completed | `backend/app/telemetry/grafana_mcp.py` | Vitest + Pytest | TICKET-01 |
 | [TICKET-10](./TICKET-10-studio-console-ui.md) | Post-Production Studio Console UI | Completed | `frontend/components/studio/` | Vitest | TICKET-08, TICKET-09 |
+| [TICKET-11](./TICKET-11-isometric-dialogue-engine.md) | Isometric Dialogue Engine & Syllable Quotas | Planned | `backend/app/agents/localization_director.py` | Pytest + Vitest | TICKET-03 |
+| [TICKET-12](./TICKET-12-speech-synthesis-adapter.md) | Pluggable Speech Synthesis Adapter (Edge-TTS) | Planned | `backend/app/agents/voice_director.py` | Pytest | TICKET-04, TICKET-11 |
+| [TICKET-13](./TICKET-13-acoustic-mastering-engine.md) | Deep Acoustic Mastering Engine (Sidechain Ducking) | Planned | `backend/app/engine/stages/mixer.py` | Pytest | TICKET-05, TICKET-12 |
+| [TICKET-14](./TICKET-14-perceptual-acoustic-qa-repair.md) | Perceptual Acoustic QA & Quantitative Retries | Planned | `backend/app/agents/qa_agent.py` | Pytest | TICKET-07, TICKET-08, TICKET-11, TICKET-13 |
+| [TICKET-15](./TICKET-15-proper-noun-and-numeral-localization.md) | English Proper Noun Preservation & Colloquial Numeral Localization | Planned | `backend/app/agents/localization_director.py` | Pytest + Vitest | TICKET-03 |
+
+

@@ -34,6 +34,9 @@ describe('TICKET-04: Voice Director Agent Contract & Voice Mapping', () => {
         translated_text: 'पहले से ही हवा में महल मत बनाओ, दोस्त।',
         rationale: 'Culturally adapted.',
         character_count: 36,
+        syllable_count: 12,
+        target_budget: 10,
+        isochrony_ratio: 1.2,
       },
     ],
   };

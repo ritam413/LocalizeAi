@@ -228,3 +228,10 @@ LOCALIZE uses test-driven development across both backend and frontend layers:
    - Subtitle Director syncs subtitles.
 4. **Inspect QA Self-Repair**: If QA catches a defect (e.g., speech window overflow), view the live targeted retry loop fix the issue automatically.
 5. **Compare & Review**: Use the **Before/After Dual Monitor** to toggle between raw audio and the localized cut.
+
+---
+
+## License
+
+This project is licensed under the OSI-approved **[MIT License](LICENSE)** - see the [LICENSE](LICENSE) file for details.
+

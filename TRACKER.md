@@ -22,6 +22,197 @@ Last updated: 2026-09-06 by antigravity
 | **TICKET-08** | Director Orchestrator & Targeted Retry Loop | Completed | Vitest + Pytest (All Passed) | Yes | Closed self-repair loop |
 | **TICKET-09** | Grafana Telemetry & MCP Endpoint | Completed | Vitest + Pytest (All Passed) | No | Live runtime queries |
 | **TICKET-10** | Post-Production Studio Console UI | Completed | Vitest (All Passed) | No | Before/After toggle, QA cards |
+| **TICKET-11** | Isometric Dialogue Engine & Syllable Quotas | Completed | Pytest + Vitest (All Passed) | Yes | Upfront syllable quota in translation |
+| **TICKET-12** | Pluggable Speech Synthesis Adapter (Edge-TTS) | Planned | Pytest | Yes | 300+ Microsoft neural voices |
+| **TICKET-13** | Deep Acoustic Mastering Engine (Sidechain Ducking) | Planned | Pytest | Yes | -6dB ducking & EBU R128 mastering |
+| **TICKET-14** | Perceptual Acoustic QA & Quantitative Retries | Planned | Pytest | No | Clipping check & quantitative retry |
+| **TICKET-15** | English Proper Noun Preservation & Colloquial Numeral Localization | Planned | Pytest + Vitest | Yes | Proper nouns stay intact, 2.4k -> 2.4 hazar |
+
+---
+
+### 2026-09-12 — Implement TICKET-11: Isometric Dialogue Engine & Syllable Quotas (/implement, /tdd, /codebase-design)
+
+#### Objective
+Deepen the `LocalizationDirectorAgent` into an **Isometric Dialogue Engine** that calculates syllable budgets from dialogue duration windows ($S_{target} \approx \Delta t \times 3.2$, $S_{max} \approx \Delta t \times 3.6$) and enforces rhythmic isometry directly during translation and targeted rework iterations, eliminating downstream timing overflows and reducing reliance on aggressive audio time-stretching.
+
+#### Changes Made
+1. **Multilingual Syllable Estimator & Budget Engine (`backend/app/agents/localization_director.py`)**:
+   - Implemented `estimate_syllables(text, lang)` supporting English, Spanish (vowel clusters/diphthongs), French (silent terminal 'e' handling), German (vowel clusters), and Hindi (Devanagari akshara count: vowels + consonants minus virama halants).
+   - Implemented `calculate_syllable_budget(start_s, end_s, rate=3.2)` calculating target budget ($S_{target} = \max(1, \text{round}(\Delta t \times 3.2))$) and strict upper ceiling ($S_{max} = \max(1, \text{round}(\Delta t \times 3.6))$).
+   - Implemented `parse_rework_reduction(rework_instructions, segment_id)` parsing quantitative syllable delta reductions from string or dict instructions during targeted retries.
+   - Updated `LocalizationDirectorAgent._execute` to calculate budgets per segment, adapt idioms with full and compact variants, compute per-line `syllable_count`, `target_budget`, `isochrony_ratio`, and overall `isochrony_score` (0–100).
+2. **Frontend Agent Contract & TypeScript Helpers (`frontend/lib/agents/localization_director.ts`)**:
+   - Added `estimateSyllables` and `calculateSyllableBudget` TypeScript exports.
+   - Updated `LocalizedLine` and `LocalizationOutput` interfaces with `syllable_count`, `target_budget`, `isochrony_ratio`, `isochrony_score`, `decision`, and `quality_score`.
+   - Updated `validateLocalizationOutput` and `parseLocalizationOutput` with automatic budget calculation and ratio populating.
+3. **Automated Testing Suites**:
+   - Added 4 Pytest unit & integration tests in `backend/tests/test_localization_director.py`.
+   - Added 5 Vitest tests in `frontend/__tests__/localization_director.test.ts`.
+   - Updated `frontend/__tests__/voice_director.test.ts` to adhere to the updated `LocalizedLine` contract.
+4. **Documentation & Tickets**:
+   - Marked `Docs/tickets/TICKET-11-isometric-dialogue-engine.md` as Completed.
+   - Updated `features_implemented.md` and `TRACKER.md`.
+
+#### Files Changed
+- `backend/app/agents/localization_director.py` (Modified)
+- `frontend/lib/agents/localization_director.ts` (Modified)
+- `backend/tests/test_localization_director.py` (Modified)
+- `frontend/__tests__/localization_director.test.ts` (Modified)
+- `frontend/__tests__/voice_director.test.ts` (Modified)
+- `Docs/tickets/TICKET-11-isometric-dialogue-engine.md` (Modified)
+- `features_implemented.md` (Modified)
+- `TRACKER.md` (Modified)
+
+#### Verification
+- **Pytest**: `backend/.venv/Scripts/pytest backend/tests` — **38 / 38 passed** (100%).
+- **Vitest**: `npm --prefix frontend test` — **15 / 15 test files passed, 76 / 76 tests passed** (100%).
+- **TypeScript**: `npx tsc --noEmit` in `frontend/` — **0 errors**.
+
+#### Current State
+- `LocalizationDirectorAgent` operates as an Isometric Dialogue Engine, calculating target and maximum syllable quotas per segment and producing localized lines with full rhythm telemetry and isochrony compliance scores.
+
+#### Remaining Work
+- TICKET-12: Pluggable Speech Synthesis Adapter (Edge-TTS).
+- TICKET-13: Deep Acoustic Mastering Engine (Sidechain Ducking).
+- TICKET-14: Perceptual Acoustic QA & Quantitative Retries.
+- TICKET-15: English Proper Noun Preservation & Colloquial Numeral Localization.
+
+#### Next Agent Instructions
+1. Proceed with [TICKET-12](file:///c:/CCodes_WebDevelopment/hckthon/localize_movie_dub/Docs/tickets/TICKET-12-speech-synthesis-adapter.md) (Speech Synthesis Adapter with Edge-TTS) or [TICKET-15](file:///c:/CCodes_WebDevelopment/hckthon/localize_movie_dub/Docs/tickets/TICKET-15-proper-noun-and-numeral-localization.md).
+2. Follow `/tdd` with Pytest and Vitest suites.
+
+### 2026-09-12 — Raise TICKET-15 for English Proper Noun Preservation & Colloquial Numeral Localization (/research, /codebase-design, /diagnosing-bugs)
+
+#### Objective
+Formalize and specify TICKET-15 for preserving English proper nouns (brands, frameworks, libraries, person names) without literal translation and adapting numerals/quantifiers (e.g., `2.4k` -> `2.4 hazar` in Hindi, `2.4 mil` in Spanish) for natural colloquial spoken dubbing and clean neural TTS pronunciation.
+
+#### Changes Made
+- Authored [TICKET-15-proper-noun-and-numeral-localization.md](file:///c:/CCodes_WebDevelopment/hckthon/localize_movie_dub/Docs/tickets/TICKET-15-proper-noun-and-numeral-localization.md).
+- Updated [Docs/tickets/README.md](file:///c:/CCodes_WebDevelopment/hckthon/localize_movie_dub/Docs/tickets/README.md) ticket index.
+- Updated [TRACKER.md](file:///c:/CCodes_WebDevelopment/hckthon/localize_movie_dub/TRACKER.md) ticket backlog.
+
+#### Files Changed
+- `Docs/tickets/TICKET-15-proper-noun-and-numeral-localization.md` (Created)
+- `Docs/tickets/README.md` (Modified)
+- `TRACKER.md` (Modified)
+
+#### Next Agent Instructions
+1. Inspect [TICKET-15](file:///c:/CCodes_WebDevelopment/hckthon/localize_movie_dub/Docs/tickets/TICKET-15-proper-noun-and-numeral-localization.md) and [implementation_plan.md](file:///C:/Users/LENOVO/.gemini/antigravity-ide/brain/212b5f04-98df-4eb3-836d-edc260ef33b5/implementation_plan.md).
+2. Create `backend/app/engine/localization/entity_preserver.py` and `backend/app/engine/localization/numeral_localizer.py`.
+3. Integrate into `backend/app/agents/localization_director.py` and verify via Pytest & Vitest.
+
+
+### 2026-09-12 — Create Execution Tickets TICKET-11 to TICKET-14 in Docs/tickets/ (/ask-matt)
+
+#### Objective
+Create structured execution tickets in `Docs/tickets/` with primary seams, input/output contracts, blocking dependencies, and acceptance criteria for the media translation pipeline deepening.
+
+#### Changes Made
+- Created `Docs/tickets/TICKET-11-isometric-dialogue-engine.md`.
+- Created `Docs/tickets/TICKET-12-speech-synthesis-adapter.md`.
+- Created `Docs/tickets/TICKET-13-acoustic-mastering-engine.md`.
+- Created `Docs/tickets/TICKET-14-perceptual-acoustic-qa-repair.md`.
+- Updated `Docs/tickets/README.md` and `TRACKER.md` backlog.
+
+#### Files Changed
+- `Docs/tickets/TICKET-11-isometric-dialogue-engine.md` (Created)
+- `Docs/tickets/TICKET-12-speech-synthesis-adapter.md` (Created)
+- `Docs/tickets/TICKET-13-acoustic-mastering-engine.md` (Created)
+- `Docs/tickets/TICKET-14-perceptual-acoustic-qa-repair.md` (Created)
+- `Docs/tickets/README.md` (Updated)
+- `TRACKER.md` (Updated)
+
+#### Next Agent Instructions
+1. Ready to implement ticket-by-ticket via `/tdd`.
+2. Pick [TICKET-11](file:///c:/CCodes_WebDevelopment/hckthon/localize_movie_dub/Docs/tickets/TICKET-11-isometric-dialogue-engine.md) first, write tests in `backend/tests/test_localization_director.py`, and implement.
+
+---
+
+### 2026-09-12 — Implementation Plan Formulation for Pipeline Deepening (/research, /ask-matt)
+
+#### Objective
+Formulate a comprehensive implementation plan and engineering specification to execute the deepening of the LOCALIZE post-production pipeline across 4 primary seams: (1) Isometric Dialogue Syllable Budgeting, (2) Pluggable Edge-TTS Speech Synthesis Adapter, (3) Deep Acoustic Mastering Engine with dynamic sidechain ducking & EBU R128 loudness, and (4) Acoustic QA with quantitative self-repair feedback.
+
+#### Changes Made
+- Authored detailed specification in `Docs/MEDIA_TRANSLATION_IMPLEMENTATION_PLAN.md`.
+- Created formal planning artifact at `implementation_plan.md`.
+- Structured test verification plan across all 4 seams with Vitest and Pytest.
+
+#### Files Changed
+- `Docs/MEDIA_TRANSLATION_IMPLEMENTATION_PLAN.md` (Created)
+- `implementation_plan.md` (Created)
+- `TRACKER.md` (Updated)
+
+#### Next Agent Instructions
+1. Await user feedback and approval on `implementation_plan.md`.
+2. Once approved, execute Phase 1 (Isometric Prompting in `LocalizationDirector`) followed by Phase 2, 3, and 4.
+
+---
+
+### 2026-09-12 — GitHub Open-Source Research & Codebase Deepening Architecture Review (/research, /improve-codebase-architecture)
+
+#### Objective
+Research top open-source media translation and dubbing repositories on GitHub (VideoLingo, Linly-Dubbing, SoniTranslate, pyVideoTrans, Demucs, PyAnnote, Edge-TTS, CosyVoice, Pedalboard) and conduct a codebase deepening architecture review on LOCALIZE using the `/codebase-design` vocabulary.
+
+#### Changes Made
+- Authored GitHub benchmark research in `Docs/OPEN_SOURCE_MEDIA_TRANSLATION_ALTERNATIVES.md`.
+- Identified 4 deepening candidate seams in the codebase:
+  1. `AcousticMasteringEngine` (collapsing audio extraction, Demucs separation, sidechain ducking, and EBU R128 mastering).
+  2. `IsometricDialogueEngine` (moving syllable budgeting & duration control into `LocalizationDirector`).
+  3. `SpeechSynthesisAdapter` (pluggable Edge-TTS / XTTS / Mock synthesis seam).
+  4. `PerceptualQAInspector` (objective acoustic clipping and back-ASR transcription scoring in `QAAgent`).
+- Generated and launched visual HTML architecture review report at `C:\Users\LENOVO\AppData\Local\Temp\architecture-review-20260912.html` using Tailwind & Mermaid CDN.
+
+#### Files Changed
+- `Docs/OPEN_SOURCE_MEDIA_TRANSLATION_ALTERNATIVES.md` (Created)
+- `C:\Users\LENOVO\AppData\Local\Temp\architecture-review-20260912.html` (Created & Launched)
+- `TRACKER.md` (Updated)
+
+#### Next Agent Instructions
+1. Await user decision on which deepening candidate to grill and implement (Candidate 2 Isometric Dialogue Engine + Candidate 1 Acoustic Mastering Engine recommended).
+
+---
+
+### 2026-09-12 — Media Translation Pipeline Industry Research & Skeptical Red-Team Critique (/research, /ask-matt, /wayfinder)
+
+#### Objective
+Perform deep research on existing industry & open-source media translation and AI dubbing pipelines (ElevenLabs, Deepdub, Papercup, HeyGen, WhisperX, Demucs, XTTS-v2, CosyVoice, RubberBand, PyAnnote). Compare them systematically against LOCALIZE's current architecture, interrogate hidden assumptions using the skeptical red-team framework ("What is wrong with my thinking here?"), and formulate a prioritized improvement roadmap.
+
+#### Changes Made
+- Conducted full comparative research across 7 dimensions (Acoustic de-layering, Diarization, Isometric translation, Expressive TTS, Temporal warping, Broadcast mastering/ducking, QA & HITL).
+- Conducted ruthless skeptical critique exposing 5 core flawed assumptions in naive AI dubbing (Post-hoc atempo vs. Upfront syllable budgeting, Text LLM as audio QA vs. Acoustic perceptual metrics, Isolated stems vs. M&E sidechain ducking, Unbounded retry loops, Full automation vs. Sound editor punch-in).
+- Formulated a 3-tier actionable engineering roadmap (Tier 1: Isometric prompting & pause-aware elastic sync; Tier 2: Neural TTS bridge & M&E sidechain ducking; Tier 3: PyAnnote diarization & Producer punch-in editor).
+- Authored comprehensive report in `Docs/MEDIA_TRANSLATION_PIPELINE_COMPARISON_AND_CRITIQUE.md`.
+
+#### Files Changed
+- `Docs/MEDIA_TRANSLATION_PIPELINE_COMPARISON_AND_CRITIQUE.md` (Created)
+- `TRACKER.md` (Updated)
+
+#### Verification
+- Cross-verified against existing pipeline modules (`backend/app/agents/`, `backend/app/engine/stages/`) and current test suites.
+
+#### Next Agent Instructions
+1. Review `Docs/MEDIA_TRANSLATION_PIPELINE_COMPARISON_AND_CRITIQUE.md` for the Tier 1 implementation targets.
+2. Implement Tier 1.1: Inject syllable budgeting into `backend/app/agents/localization_director.py`.
+3. Implement Tier 2.2: Add automated sidechain ducking in audio mixing stage.
+
+---
+
+### 2026-09-10 — Add OSI-Approved MIT License
+
+#### Objective
+Add an official OSI-approved open source license to the repository and document it in the README.
+
+#### Changes Made
+- Created root `LICENSE` file containing the standard OSI-approved MIT License (Copyright 2026 Ritam Mondal).
+- Updated `README.md` with a License section linking to `LICENSE`.
+
+#### Files Changed
+- `LICENSE` (Created)
+- `README.md` (Modified)
+- `TRACKER.md` (Updated)
+
+---
 
 ### 2026-09-10 — README.md Humanization & Tech Stack Badges (/humanizer)
 

@@ -46,11 +46,11 @@ This document tracks the current functionality and implementation status of LOCA
 - **Modules**: `backend/app/agents/story_analyst.py`, `frontend/lib/agents/story_analyst.ts`
 - **Verification**: Vitest (`frontend/__tests__/story_analyst.test.ts`: 3 tests passed), Pytest (`backend/tests/test_story_analyst.py`: 1 test passed).
 
-### Localization Director Agent (TICKET-03)
+### Localization Director Agent & Isometric Dialogue Engine (TICKET-03 & TICKET-11)
 - **Status**: Implemented
-- **Details**: Character-consistent and culturally adapted script localization with required translation rationale per line. Resolves cultural idioms (e.g. Hindi, Spanish, French, German) while preserving speaker persona and dialogue constraints.
+- **Details**: Character-consistent and culturally adapted script localization with required translation rationale per line. Features full **Isometric Dialogue Engine** enforcing rhythmic syllable budgets ($S_{target} \approx \Delta t \times 3.2$, $S_{max} \approx \Delta t \times 3.6$), language-aware heuristic syllable estimation across English, Spanish, French, German, and Hindi Devanagari aksharas, quantitative rework reduction delta handling during targeted retries, and overall isochrony compliance scoring (0–100).
 - **Modules**: `backend/app/agents/localization_director.py`, `frontend/lib/agents/localization_director.ts`
-- **Verification**: Vitest (`frontend/__tests__/localization_director.test.ts`: 3 tests passed), Pytest (`backend/tests/test_localization_director.py`: 1 test passed).
+- **Verification**: Vitest (`frontend/__tests__/localization_director.test.ts`: 5 tests passed), Pytest (`backend/tests/test_localization_director.py`: 4 tests passed).
 
 ### Voice Director Agent (TICKET-04)
 - **Status**: Implemented
@@ -152,3 +152,10 @@ This document tracks the current functionality and implementation status of LOCA
 - **Details**: Comprehensive suite of accessible, geometry-matched skeleton loaders with buttery smooth `--ease-out` shimmer wave gradients (`.animate-shimmer`) that mirror the exact physical layouts of every studio view and component. Features dedicated components: `Skeleton` (core primitive with variants for cards, circular avatars, pills, badges, buttons, text), `RunListSkeleton` (swarm table rows), `StudioConsoleSkeleton` (full workbench skeleton), `MasterVideoPreviewSkeleton` (16:9 viewport & transport controls), `MultiAudioPlayerSkeleton` (waveform & track switcher), `AgentSequenceTrackSkeleton` (7-node agent pipeline), `ProducerBoardSkeleton` (readiness gauge & metrics), `DecisionFeedSkeleton` (telemetry cards), `QARepairCardSkeleton` (self-healing comparison card), `ReadinessGaugeSkeleton` (circular score gauge), `BeforeAfterPlayerSkeleton` (dual audio comparison tracks), `SubtitleEditorSkeleton` (CPS dialogue review table), `OutputDeliverablesSkeleton` (downloadable deliverables grid), `ModelRegistrySkeleton` (AI model cards), and `SettingsSkeleton` (hardware & QA constraints). Fully integrated across all application pages (`/runs`, `/runs/[id]`, `/runs/[id]/output`, `/runs/[id]/subtitles`, `/models`, `/settings`). Accessible with `role="status"`, `aria-busy="true"`, `aria-live="polite"`, and screen-reader announcements, plus complete reduced-motion handling.
 - **Modules**: `frontend/components/ui/skeleton/*`, `frontend/components/studio/index.ts`, `frontend/app/globals.css`, `frontend/app/runs/page.tsx`, `frontend/app/runs/[id]/page.tsx`, `frontend/app/runs/[id]/output/page.tsx`, `frontend/app/runs/[id]/subtitles/page.tsx`, `frontend/app/models/page.tsx`, `frontend/app/settings/page.tsx`
 - **Verification**: Vitest (`frontend/__tests__/skeleton_components.test.tsx` 17/17 passed, full suite 74/74 passed across 15 test files), `tsc --noEmit` (passed with 0 errors).
+
+### English Proper Noun Preservation & Colloquial Numeral Localization (TICKET-15)
+- **Status**: Planned
+- **Details**: Deepening `LocalizationDirectorAgent` with dedicated `EntityPreserver` (locking tech brands, person names, frameworks like Claude Code, Anthropic, Supabase, Zenith Chat against literal translation) and `NumeralLocalizer` (adapting metric numbers e.g. `2.4k` -> `2.4 hazar` in Hindi, `2.4 mil` in Spanish for natural spoken dubbing and clean neural TTS pronunciation).
+- **Modules**: `backend/app/agents/localization_director.py`, `backend/app/engine/localization/entity_preserver.py`, `backend/app/engine/localization/numeral_localizer.py`, `frontend/lib/agents/localization_director.ts`
+- **Verification**: Planned tests in `backend/tests/test_localization_director.py` and `frontend/__tests__/localization_director.test.ts`.
+
