@@ -1,7 +1,7 @@
 # TICKET-14: Perceptual Acoustic QA & Quantitative Self-Repair Routing
 
 ## Status
-- **State**: Planned
+- **State**: Completed
 - **Primary Seam**: `backend/app/agents/qa_agent.py` (`QAContinuityAgent`) & `backend/app/agents/director.py` (`DirectorAgent`)
 - **Verification**: Pytest (`backend/tests/test_qa_agent.py`, `backend/tests/test_director.py`)
 - **Blocking Dependencies**: TICKET-07, TICKET-08, TICKET-11, TICKET-13

@@ -24,6 +24,7 @@ class DirectorAgent(BaseAgent):
         target_lang = context.get("target_language", "hi")
         audience_profile = context.get("audience_profile", "Colloquial Hindi urban youth")
         raw_segments = context.get("segments", [])
+        max_retries = int(context.get("max_retries", 2))
 
         # 1. Story Analyst
         story_res = await self.story_analyst.run(
@@ -83,7 +84,8 @@ class DirectorAgent(BaseAgent):
             {
                 "segment_id": adj["segment_id"],
                 "duration_s": adj["final_duration_s"],
-                "target_window_s": adj["original_window_s"]
+                "target_window_s": adj["original_window_s"],
+                "audio_path": adj.get("adjusted_path") or adj.get("stem_path")
             }
             for adj in sync_res["sync_adjustments"]
         ]
@@ -97,37 +99,65 @@ class DirectorAgent(BaseAgent):
         retries_executed = 0
         repaired_defects = []
 
-        # 7. Closed Self-Repair Loop (Targeted Retry)
-        if qa_res["verdict"] == "rework_required" and qa_res["findings"]:
+        # 7. Closed Self-Repair Loop (Quantitative Targeted Retry Routing)
+        while qa_res["verdict"] == "rework_required" and qa_res["findings"] and retries_executed < max_retries:
+            retries_executed += 1
             finding = qa_res["findings"][0]
-            target_agent = finding["target_agent"]
+            target_agent = finding.get("target_agent", "sync_engineer")
+            defect_type = finding.get("defect_type", "TIMING_OVERFLOW")
+            seg_id = finding.get("target_segment_id") or finding.get("segment_id", 1)
+            syllables_to_reduce = finding.get("syllables_to_reduce", 0)
 
-            if target_agent == "sync_engineer":
-                retries_executed += 1
-                # Dispatch targeted retry with instructions to enforce exact window match
-                forced_stems = [
-                    {
-                        "segment_id": stem["segment_id"],
-                        "synthesized_duration_s": stem["target_duration_s"], # Corrected via atempo
-                        "target_duration_s": stem["target_duration_s"]
-                    }
-                    for stem in voice_res["synthesized_stems"]
-                ]
-                sync_retry = await self.sync_engineer.run(
+            if target_agent == "localization_director" or (defect_type == "TIMING_OVERFLOW" and syllables_to_reduce > 0 and target_agent != "sync_engineer"):
+                # Quantitative Syllable Delta dispatch directly to Localization Director
+                rework_instructions = {
+                    "segment_id": seg_id,
+                    "delta_syllables": syllables_to_reduce,
+                    "instructions": f"Reduce segment {seg_id} by {syllables_to_reduce} syllables to satisfy duration window."
+                }
+                loc_res = await self.localization_director.run(
                     job_id=job_id,
                     scene_id=scene_id,
-                    context={"synthesized_stems": forced_stems, "tolerance_s": 0.05},
+                    context={
+                        "target_language": target_lang,
+                        "audience_profile": audience_profile,
+                        "annotated_segments": story_res["annotated_segments"],
+                        "rework_instructions": rework_instructions
+                    },
                     retry_count=retries_executed
                 )
 
-                # Re-align subtitles
+                # Re-synthesize with Voice Director
+                voice_res = await self.voice_director.run(
+                    job_id=job_id,
+                    scene_id=scene_id,
+                    context={
+                        "target_language": target_lang,
+                        "speakers": story_res["speakers"],
+                        "localized_lines": loc_res["localized_lines"]
+                    },
+                    retry_count=retries_executed
+                )
+
+                # Re-sync with Sync Engineer
+                sync_res = await self.sync_engineer.run(
+                    job_id=job_id,
+                    scene_id=scene_id,
+                    context={
+                        "synthesized_stems": voice_res["synthesized_stems"],
+                        "tolerance_s": 0.05
+                    },
+                    retry_count=retries_executed
+                )
+
+                # Re-align Subtitles
                 sub_res = await self.subtitle_director.run(
                     job_id=job_id,
                     scene_id=scene_id,
                     context={
                         "target_language": target_lang,
                         "localized_lines": loc_res["localized_lines"],
-                        "sync_adjustments": sync_retry["sync_adjustments"]
+                        "sync_adjustments": sync_res["sync_adjustments"]
                     },
                     retry_count=retries_executed
                 )
@@ -137,9 +167,10 @@ class DirectorAgent(BaseAgent):
                     {
                         "segment_id": adj["segment_id"],
                         "duration_s": adj["final_duration_s"],
-                        "target_window_s": adj["original_window_s"]
+                        "target_window_s": adj["original_window_s"],
+                        "audio_path": adj.get("adjusted_path") or adj.get("stem_path")
                     }
-                    for adj in sync_retry["sync_adjustments"]
+                    for adj in sync_res["sync_adjustments"]
                 ]
                 qa_res = await self.qa_agent.run(
                     job_id=job_id,
@@ -147,9 +178,105 @@ class DirectorAgent(BaseAgent):
                     context={"stems": qa_retry_stems},
                     retry_count=retries_executed
                 )
-
                 finding["fix_applied"] = True
                 repaired_defects.append(finding)
+
+            elif target_agent == "voice_director" or defect_type == "AUDIO_CLIPPING":
+                # Voice Director clipping / gain remediation
+                voice_res = await self.voice_director.run(
+                    job_id=job_id,
+                    scene_id=scene_id,
+                    context={
+                        "target_language": target_lang,
+                        "speakers": story_res["speakers"],
+                        "localized_lines": loc_res["localized_lines"],
+                        "gain_adjust_db": -2.0
+                    },
+                    retry_count=retries_executed
+                )
+                sync_res = await self.sync_engineer.run(
+                    job_id=job_id,
+                    scene_id=scene_id,
+                    context={
+                        "synthesized_stems": voice_res["synthesized_stems"],
+                        "tolerance_s": 0.05
+                    },
+                    retry_count=retries_executed
+                )
+                sub_res = await self.subtitle_director.run(
+                    job_id=job_id,
+                    scene_id=scene_id,
+                    context={
+                        "target_language": target_lang,
+                        "localized_lines": loc_res["localized_lines"],
+                        "sync_adjustments": sync_res["sync_adjustments"]
+                    },
+                    retry_count=retries_executed
+                )
+                qa_retry_stems = [
+                    {
+                        "segment_id": adj["segment_id"],
+                        "duration_s": adj["final_duration_s"],
+                        "target_window_s": adj["original_window_s"],
+                        "audio_path": adj.get("adjusted_path") or adj.get("stem_path")
+                    }
+                    for adj in sync_res["sync_adjustments"]
+                ]
+                qa_res = await self.qa_agent.run(
+                    job_id=job_id,
+                    scene_id=scene_id,
+                    context={"stems": qa_retry_stems},
+                    retry_count=retries_executed
+                )
+                finding["fix_applied"] = True
+                repaired_defects.append(finding)
+
+            elif target_agent == "sync_engineer":
+                # Sync Engineer atempo / timing enforcement
+                forced_stems = [
+                    {
+                        "segment_id": stem["segment_id"],
+                        "synthesized_duration_s": stem["target_duration_s"],
+                        "target_duration_s": stem["target_duration_s"],
+                        "audio_path": stem.get("audio_path")
+                    }
+                    for stem in voice_res["synthesized_stems"]
+                ]
+                sync_res = await self.sync_engineer.run(
+                    job_id=job_id,
+                    scene_id=scene_id,
+                    context={"synthesized_stems": forced_stems, "tolerance_s": 0.05},
+                    retry_count=retries_executed
+                )
+                sub_res = await self.subtitle_director.run(
+                    job_id=job_id,
+                    scene_id=scene_id,
+                    context={
+                        "target_language": target_lang,
+                        "localized_lines": loc_res["localized_lines"],
+                        "sync_adjustments": sync_res["sync_adjustments"]
+                    },
+                    retry_count=retries_executed
+                )
+                qa_retry_stems = [
+                    {
+                        "segment_id": adj["segment_id"],
+                        "duration_s": adj["final_duration_s"],
+                        "target_window_s": adj["original_window_s"],
+                        "audio_path": adj.get("adjusted_path") or adj.get("stem_path")
+                    }
+                    for adj in sync_res["sync_adjustments"]
+                ]
+                qa_res = await self.qa_agent.run(
+                    job_id=job_id,
+                    scene_id=scene_id,
+                    context={"stems": qa_retry_stems},
+                    retry_count=retries_executed
+                )
+                finding["fix_applied"] = True
+                repaired_defects.append(finding)
+            else:
+                break
 
         final_score = qa_res["release_readiness_score"]
         decision = (

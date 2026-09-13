@@ -1,6 +1,12 @@
 import re
 from typing import Dict, Any, List, Tuple, Optional
 from app.agents.base import BaseAgent
+from app.engine.localization.entity_preserver import (
+    extract_proper_nouns,
+    protect_entities,
+    restore_entities,
+)
+from app.engine.localization.numeral_localizer import adapt_spoken_numerals
 
 # Cultural adaptation lookup dictionary with full and compact variants for representative target languages
 IDIOM_TRANSLATIONS = {
@@ -171,6 +177,7 @@ class LocalizationDirectorAgent(BaseAgent):
         audience_profile = context.get("audience_profile", "Natural conversational tone")
         annotated_segments = context.get("annotated_segments", [])
         rework_instructions = context.get("rework_instructions")
+        glossary_locks = context.get("glossary_locks", [])
 
         if not annotated_segments:
             annotated_segments = [
@@ -187,6 +194,8 @@ class LocalizationDirectorAgent(BaseAgent):
 
         localized_lines = []
         idioms_adapted = 0
+        total_entities_preserved = 0
+        total_numerals_adapted = 0
 
         for seg in annotated_segments:
             seg_id = seg.get("segment_id", 1)
@@ -196,19 +205,23 @@ class LocalizationDirectorAgent(BaseAgent):
             src = seg.get("source_text", "")
             flags = seg.get("cultural_flags", [])
 
-            # 1. Calculate isometric syllable budget from duration window
+            # 1. Extract and protect proper nouns / brand entities
+            extracted_entities = extract_proper_nouns(src, custom_entities=glossary_locks)
+            masked_src, entity_map = protect_entities(src, extracted_entities)
+
+            # 2. Calculate isometric syllable budget from duration window
             target_budget, max_budget = calculate_syllable_budget(start_s, end_s, rate=3.2)
 
-            # 2. Check for targeted rework instructions reducing budget
+            # 3. Check for targeted rework instructions reducing budget
             reduction_delta = parse_rework_reduction(rework_instructions, seg_id)
             if reduction_delta > 0:
                 target_budget = max(1, target_budget - reduction_delta)
                 max_budget = max(target_budget, max_budget - reduction_delta)
 
-            translated = src
+            translated = masked_src
             rationale = "Contextual character translation preserving tone and rhythmic isometry."
 
-            # Check if an idiom flag matches our dictionary
+            # 4. Check if an idiom flag matches our dictionary
             matched_idiom = False
             for flag in flags:
                 clean_flag = flag.replace("idiom:", "").strip()
@@ -229,24 +242,44 @@ class LocalizationDirectorAgent(BaseAgent):
             if not matched_idiom:
                 if reduction_delta > 0:
                     if target_lang == "hi":
-                        translated = "संक्षिप्त अनुवाद"
+                        translated = f"{masked_src} (संक्षिप्त)"
                         rationale = f"Shortened colloquial Hindi adaptation meeting {target_budget} syllable quota after rework."
                     elif target_lang == "es":
-                        translated = "Adaptación breve"
+                        translated = f"{masked_src} (adaptación breve)"
                         rationale = f"Shortened Spanish adaptation meeting {target_budget} syllable quota after rework."
                     else:
-                        translated = f"[{target_lang.upper()} Short]: {src[:15]}"
+                        translated = f"[{target_lang.upper()} Short]: {masked_src[:15]}"
                         rationale = f"Reduced phrasing to satisfy {target_budget} syllable budget."
                 else:
                     if target_lang == "hi":
-                        translated = f"{src} (हिंदी अनुवाद)"
+                        translated = f"{masked_src} (हिंदी अनुवाद)"
                         rationale = "Colloquial Hindi translation matching speaker persona and duration window."
                     elif target_lang == "es":
-                        translated = f"{src} (traducción al español)"
+                        translated = f"{masked_src} (traducción al español)"
                         rationale = "Natural Spanish adaptation for dialogue pacing and duration window."
                     else:
-                        translated = f"[Localized - {target_lang.upper()}]: {src}"
+                        translated = f"[Localized - {target_lang.upper()}]: {masked_src}"
                         rationale = f"Natural in-character adaptation for {target_lang.upper()}."
+
+            # 5. Restore preserved proper nouns
+            if entity_map:
+                translated = restore_entities(translated, entity_map)
+                total_entities_preserved += len(entity_map)
+
+            # 6. Adapt spoken numerals for natural dubbing pronunciation
+            translated, numeral_adaptations = adapt_spoken_numerals(translated, target_lang)
+            if numeral_adaptations:
+                total_numerals_adapted += len(numeral_adaptations)
+
+            # 7. Document preserved entities & adapted numerals in rationale
+            rationale_notes = []
+            if extracted_entities:
+                rationale_notes.append(f"Preserved proper nouns: {', '.join(extracted_entities)}.")
+            if numeral_adaptations:
+                rationale_notes.append(f"Adapted spoken numerals: {', '.join(numeral_adaptations)}.")
+
+            if rationale_notes:
+                rationale = f"{rationale} {' '.join(rationale_notes)}"
 
             syllable_count = estimate_syllables(translated, target_lang)
             isochrony_ratio = round(syllable_count / target_budget, 2) if target_budget > 0 else 1.0
@@ -262,18 +295,26 @@ class LocalizationDirectorAgent(BaseAgent):
                 "character_count": len(translated),
                 "syllable_count": syllable_count,
                 "target_budget": target_budget,
-                "isochrony_ratio": isochrony_ratio
+                "isochrony_ratio": isochrony_ratio,
+                "preserved_entities": extracted_entities,
+                "numeral_adaptations": numeral_adaptations,
             })
 
         # Calculate overall Isochrony score (0-100) based on average ratio deviation from 1.0
         avg_deviation = sum(abs(line["isochrony_ratio"] - 1.0) for line in localized_lines) / len(localized_lines) if localized_lines else 0.0
         isochrony_score = round(max(0.0, min(100.0, 100.0 - (avg_deviation * 25.0))), 1)
 
-        decision = (
+        decision_parts = [
             f"Isometric Dialogue Engine adapted {len(localized_lines)} lines into {target_lang.upper()} "
             f"for audience '{audience_profile}', localizing {idioms_adapted} cultural reference(s) "
             f"with strict syllable quotas (Isochrony Score: {isochrony_score}/100)."
-        )
+        ]
+        if total_entities_preserved > 0:
+            decision_parts.append(f"Preserved {total_entities_preserved} proper noun entity(ies).")
+        if total_numerals_adapted > 0:
+            decision_parts.append(f"Adapted {total_numerals_adapted} colloquial spoken numeral(s).")
+
+        decision = " ".join(decision_parts)
 
         return {
             "target_language": target_lang,
@@ -283,4 +324,3 @@ class LocalizationDirectorAgent(BaseAgent):
             "decision": decision,
             "quality_score": 94.0
         }
-

@@ -1,7 +1,7 @@
 # TICKET-15: English Proper Noun Preservation & Colloquial Numeral Localization
 
 ## Status
-- **State**: Planned
+- **State**: Completed
 - **Primary Seam**: `backend/app/agents/localization_director.py`, `backend/app/engine/localization/`
 - **Verification**: Pytest (`backend/tests/test_localization_director.py`) + Vitest (`frontend/__tests__/localization_director.test.ts`)
 - **Blocking Dependencies**: TICKET-03

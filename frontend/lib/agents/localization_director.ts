@@ -12,6 +12,8 @@ export interface LocalizedLine {
   syllable_count?: number;
   target_budget?: number;
   isochrony_ratio?: number;
+  preserved_entities?: string[];
+  numeral_adaptations?: string[];
 }
 
 export interface LocalizationInput {
@@ -19,6 +21,7 @@ export interface LocalizationInput {
   target_language: string;
   audience_profile?: string;
   rework_instructions?: string | Record<string, any>;
+  glossary_locks?: string[];
   annotated_segments: AnnotatedSegment[];
 }
 
@@ -29,6 +32,168 @@ export interface LocalizationOutput {
   isochrony_score?: number;
   decision?: string;
   quality_score?: number;
+}
+
+export const KNOWN_TECH_AND_BRAND_ENTITIES = new Set([
+  'Claude Code',
+  'Claude',
+  'Anthropic',
+  'OpenAI',
+  'ChatGPT',
+  'GitHub',
+  'Supabase',
+  'Zenith Chat',
+  'Afan Mustafa',
+  'Playwright',
+  'Vitest',
+  'Pytest',
+  'FFmpeg',
+  'Demucs',
+  'Faster-Whisper',
+  'Whisper',
+  'Silero',
+  'Grafana',
+  'Docker',
+  'Next.js',
+  'React',
+  'TypeScript',
+  'Python',
+  'FastAPI',
+  'SQLite',
+  'PostgreSQL',
+  'Google Cloud',
+  'Gemini',
+  'YouTube',
+  'Netflix',
+  'Localize',
+]);
+
+const COMMON_STOPWORDS = new Set([
+  'The', 'A', 'An', 'And', 'Or', 'But', 'If', 'When', 'Why', 'How', 'What', 'Who', 'Where',
+  'We', 'You', 'He', 'She', 'They', 'It', 'I', 'My', 'Your', 'Our', 'Their', 'His', 'Her',
+  'This', 'That', 'These', 'Those', 'There', 'Here', 'Is', 'Are', 'Was', 'Were', 'Be', 'Been',
+  'Do', 'Does', 'Did', 'Have', 'Has', 'Had', "Don't", "Doesn't", "Didn't", "Won't", "Can't",
+  'Will', 'Would', 'Shall', 'Should', 'Can', 'Could', 'May', 'Might', 'Must', 'Let', "Let's",
+  'No', 'Not', 'Yes', 'So', 'Just', 'Also', 'Now', 'Then', 'After', 'Before', 'While', 'In', 'On', 'At'
+]);
+
+/**
+ * Extracts proper nouns, brand entities, and developer tools from text.
+ */
+export function extractProperNouns(text: string, customEntities?: string[]): string[] {
+  if (!text || !text.trim()) return [];
+
+  const foundEntities: string[] = [];
+  const seenLower = new Set<string>();
+
+  // 1. Custom locks first
+  if (customEntities) {
+    const sorted = [...customEntities].sort((a, b) => b.length - a.length);
+    for (const ent of sorted) {
+      if (ent && ent.trim()) {
+        const clean = ent.trim();
+        const regex = new RegExp(`\\b${clean.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
+        if (regex.test(text) && !seenLower.has(clean.toLowerCase())) {
+          foundEntities.push(clean);
+          seenLower.add(clean.toLowerCase());
+        }
+      }
+    }
+  }
+
+  // 2. Curated tech entities
+  const curated = Array.from(KNOWN_TECH_AND_BRAND_ENTITIES).sort((a, b) => b.length - a.length);
+  for (const ent of curated) {
+    const regex = new RegExp(`\\b${ent.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
+    if (regex.test(text) && !seenLower.has(ent.toLowerCase())) {
+      if (!foundEntities.some((ex) => ent.toLowerCase().includes(ex.toLowerCase()) && ex.length > ent.length)) {
+        foundEntities.push(ent);
+        seenLower.add(ent.toLowerCase());
+      }
+    }
+  }
+
+  // 3. Capitalized title-cased sequences
+  const titleMatches = text.match(/\b[A-Z][a-zA-Z0-9_.-]+(?:\s+[A-Z][a-zA-Z0-9_.-]+)*\b/g);
+  if (titleMatches) {
+    for (const candidate of titleMatches) {
+      const words = candidate.split(/\s+/);
+      if (words.length === 1 && COMMON_STOPWORDS.has(candidate)) {
+        continue;
+      }
+      if (!seenLower.has(candidate.toLowerCase())) {
+        if (!foundEntities.some((ex) => candidate.toLowerCase().includes(ex.toLowerCase()))) {
+          foundEntities.push(candidate);
+          seenLower.add(candidate.toLowerCase());
+        }
+      }
+    }
+  }
+
+  return foundEntities;
+}
+
+/**
+ * Transforms metric abbreviations (2.4k, 100k, 10M, 2.5B) into natural spoken expressions.
+ */
+export function adaptSpokenNumerals(text: string, targetLang = 'en'): [string, string[]] {
+  if (!text || !text.trim()) return [text, []];
+
+  const lang = (targetLang || 'en').toLowerCase();
+  const adaptations: string[] = [];
+  let adapted = text;
+
+  // 1. Metric thousands: 2.4k, 100k
+  adapted = adapted.replace(/\b(\d+(?:[.,]\d+)?)\s*[kK]\b/g, (match, numStr) => {
+    const val = parseFloat(numStr.replace(',', '.'));
+    const isDevanagari = /[\u0900-\u097F]/.test(text);
+    let unit = 'thousand';
+    let decimalSep = '.';
+
+    if (lang === 'hi') {
+      unit = isDevanagari ? 'हज़ार' : 'hazar';
+    } else if (lang === 'es') {
+      unit = 'mil';
+    } else if (lang === 'fr') {
+      unit = 'mille';
+      decimalSep = ',';
+    } else if (lang === 'de') {
+      unit = 'Tausend';
+      decimalSep = ',';
+    }
+
+    const fmtNum = isNaN(val) ? numStr : String(val).replace('.', decimalSep);
+    const replacement = `${fmtNum} ${unit}`;
+    adaptations.push(`${match} -> ${replacement}`);
+    return replacement;
+  });
+
+  // 2. Metric millions: 10M, 2.5m
+  adapted = adapted.replace(/\b(\d+(?:[.,]\d+)?)\s*[mM]\b(?!\w)/g, (match, numStr) => {
+    const val = parseFloat(numStr.replace(',', '.'));
+    const isDevanagari = /[\u0900-\u097F]/.test(text);
+    let unit = 'million';
+    let decimalSep = '.';
+
+    if (lang === 'hi') {
+      unit = isDevanagari ? 'मिलियन' : 'million';
+    } else if (lang === 'es') {
+      unit = val === 1 ? 'millón' : 'millones';
+    } else if (lang === 'fr') {
+      unit = val === 1 ? 'million' : 'millions';
+      decimalSep = ',';
+    } else if (lang === 'de') {
+      unit = val === 1 ? 'Million' : 'Millionen';
+      decimalSep = ',';
+    }
+
+    const fmtNum = isNaN(val) ? numStr : String(val).replace('.', decimalSep);
+    const replacement = `${fmtNum} ${unit}`;
+    adaptations.push(`${match} -> ${replacement}`);
+    return replacement;
+  });
+
+  return [adapted, adaptations];
 }
 
 /**
@@ -118,6 +283,8 @@ export function validateLocalizationOutput(output: any): output is LocalizationO
     if (line.syllable_count !== undefined && typeof line.syllable_count !== 'number') return false;
     if (line.target_budget !== undefined && typeof line.target_budget !== 'number') return false;
     if (line.isochrony_ratio !== undefined && typeof line.isochrony_ratio !== 'number') return false;
+    if (line.preserved_entities !== undefined && !Array.isArray(line.preserved_entities)) return false;
+    if (line.numeral_adaptations !== undefined && !Array.isArray(line.numeral_adaptations)) return false;
   }
   return true;
 }
@@ -151,6 +318,8 @@ export function parseLocalizationOutput(raw: any): LocalizationOutput {
       syllable_count,
       target_budget,
       isochrony_ratio,
+      preserved_entities: Array.isArray(line.preserved_entities) ? line.preserved_entities : undefined,
+      numeral_adaptations: Array.isArray(line.numeral_adaptations) ? line.numeral_adaptations : undefined,
     };
   });
 
@@ -163,4 +332,3 @@ export function parseLocalizationOutput(raw: any): LocalizationOutput {
     quality_score: raw.quality_score !== undefined ? Number(raw.quality_score) : undefined,
   };
 }
-

@@ -30,6 +30,12 @@ This document tracks the current functionality and implementation status of LOCA
 - **Details**: Deduplication, minimum gap enforcement (100ms), minimum duration (1.0s), max characters per second (17.0 CPS), and SRT/VTT file formatting.
 - **Modules**: `backend/app/engine/subtitle_formatter.py`
 
+### Acoustic Mastering Engine (TICKET-13)
+- **Status**: Implemented
+- **Details**: Collapses timeline positioning via `adelay`, multitrack compositing into a dialogue bus via `amix`, dynamic sidechain compression ducking background M&E by `-6.0 dB` with smooth 20ms attack / 250ms release, and EBU R128 (`loudnorm=I=-24.0:LRA=7.0:TP=-2.0`) broadcast loudness mastering into a unified engine.
+- **Modules**: `backend/app/engine/stages/mixer.py`
+- **Verification**: `backend/tests/test_acoustic_mixer.py` (10/10 tests passed).
+
 ---
 
 ## 2. Autonomous Agent Crew Layer (`LOCALIZE_AGENT_BUILD_BRIEF.md`)
@@ -70,17 +76,17 @@ This document tracks the current functionality and implementation status of LOCA
 - **Modules**: `backend/app/agents/subtitle_director.py`, `frontend/lib/agents/subtitle_director.ts`
 - **Verification**: Vitest (`frontend/__tests__/subtitle_director.test.ts`: 3 tests passed), Pytest (`backend/tests/test_subtitle_director.py`: 1 test passed).
 
-### QA / Continuity Agent (Hero Feature - TICKET-07)
+### QA / Continuity Agent (Hero Feature - TICKET-07 & TICKET-14)
 - **Status**: Implemented
-- **Details**: Autonomous reviewer evaluating assembled release candidates. Detects defect classes (`TIMING_OVERFLOW`, `SUBTITLE_DRIFT`, `AUDIO_CLIPPING`), scores release-readiness (0–100), and outputs structured fix proposals targeting upstream agents for targeted repair.
+- **Details**: Autonomous reviewer evaluating assembled release candidates. Performs perceptual digital signal inspection (detecting audio clipping at 0 dBFS / $\ge 0.999$ peak amplitude), calculates exact quantitative syllable delta deficits ($\Delta S = \lceil \Delta t \times 3.2 \rceil$) for timing overflows, checks subtitle drift, scores release-readiness (0–100), and outputs structured fix proposals targeting upstream agents for deterministic self-repair.
 - **Modules**: `backend/app/agents/qa_agent.py`, `frontend/lib/agents/qa_agent.ts`
-- **Verification**: Vitest (`frontend/__tests__/qa_agent.test.ts`: 3 tests passed), Pytest (`backend/tests/test_qa_agent.py`: 1 test passed).
+- **Verification**: Vitest (`frontend/__tests__/qa_agent.test.ts`: 5 tests passed), Pytest (`backend/tests/test_qa_agent.py`: 4 tests passed).
 
-### Director Orchestrator & Targeted Retry Loop (TICKET-08)
+### Director Orchestrator & Quantitative Targeted Retry Loop (TICKET-08 & TICKET-14)
 - **Status**: Implemented
-- **Details**: Orchestrates the multi-agent crew execution graph (Story Analyst -> Localization Director -> Voice Director -> Sync Engineer -> Subtitle Director -> QA Agent). Intercepts QA defect reports and executes targeted retries to upstream agents without restarting the full pipeline, verifying automated repair.
+- **Details**: Orchestrates the multi-agent crew execution graph (Story Analyst -> Localization Director -> Voice Director -> Sync Engineer -> Subtitle Director -> QA Agent). Intercepts QA defect reports and executes closed-loop targeted retries, routing quantitative syllable delta reduction directives directly to `LocalizationDirectorAgent` (for script-level re-budgeting) and gain remediation to `VoiceDirectorAgent` (for clipping) without restarting the full pipeline, verifying automated repair.
 - **Modules**: `backend/app/agents/director.py`, `frontend/lib/agents/director.ts`
-- **Verification**: Vitest (`frontend/__tests__/director_orchestration.test.ts`: 3 tests passed), Pytest (`backend/tests/test_director.py`: 1 test passed).
+- **Verification**: Vitest (`frontend/__tests__/director_orchestration.test.ts`: 3 tests passed), Pytest (`backend/tests/test_director.py`: 2 tests passed).
 
 ### Grafana Telemetry & MCP Integration (TICKET-09)
 - **Status**: Implemented
@@ -154,8 +160,8 @@ This document tracks the current functionality and implementation status of LOCA
 - **Verification**: Vitest (`frontend/__tests__/skeleton_components.test.tsx` 17/17 passed, full suite 74/74 passed across 15 test files), `tsc --noEmit` (passed with 0 errors).
 
 ### English Proper Noun Preservation & Colloquial Numeral Localization (TICKET-15)
-- **Status**: Planned
-- **Details**: Deepening `LocalizationDirectorAgent` with dedicated `EntityPreserver` (locking tech brands, person names, frameworks like Claude Code, Anthropic, Supabase, Zenith Chat against literal translation) and `NumeralLocalizer` (adapting metric numbers e.g. `2.4k` -> `2.4 hazar` in Hindi, `2.4 mil` in Spanish for natural spoken dubbing and clean neural TTS pronunciation).
-- **Modules**: `backend/app/agents/localization_director.py`, `backend/app/engine/localization/entity_preserver.py`, `backend/app/engine/localization/numeral_localizer.py`, `frontend/lib/agents/localization_director.ts`
-- **Verification**: Planned tests in `backend/tests/test_localization_director.py` and `frontend/__tests__/localization_director.test.ts`.
+- **Status**: Implemented
+- **Details**: Deepened `LocalizationDirectorAgent` with dedicated `EntityPreserver` (`backend/app/engine/localization/entity_preserver.py`) for locking tech brands, frameworks, products, and person names (e.g. `Claude Code`, `Anthropic`, `Supabase`, `Zenith Chat`, `Afan Mustafa`, `Playwright`, `Vitest`) against literal translation distortion, and `NumeralLocalizer` (`backend/app/engine/localization/numeral_localizer.py`) for adapting metric quantities and numbers (e.g. `2.4k` -> `2.4 hazar` / `2.4 हज़ार` in Hindi, `2.4 mil` in Spanish, `2,4 mille` in French, `2,4 Tausend` in German; `10M` -> `10 मिलियन` / `10 millones` / `10 millions` / `10 Millionen`) into natural spoken dubbing terms for clean Microsoft Edge-TTS neural speech synthesis. Includes full TypeScript parity and schema validation.
+- **Modules**: `backend/app/agents/localization_director.py`, `backend/app/engine/localization/entity_preserver.py`, `backend/app/engine/localization/numeral_localizer.py`, `backend/app/engine/localization/__init__.py`, `frontend/lib/agents/localization_director.ts`
+- **Verification**: Pytest (`backend/tests/test_localization_director.py`: 44/44 full suite passed), Vitest (`frontend/__tests__/localization_director.test.ts`: 78/78 full suite passed across 15 test files), Next.js production build (`npm run build` 0 errors).
 

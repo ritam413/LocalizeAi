@@ -24,13 +24,200 @@ Last updated: 2026-09-06 by antigravity
 | **TICKET-10** | Post-Production Studio Console UI | Completed | Vitest (All Passed) | No | Before/After toggle, QA cards |
 | **TICKET-11** | Isometric Dialogue Engine & Syllable Quotas | Completed | Pytest + Vitest (All Passed) | Yes | Upfront syllable quota in translation |
 | **TICKET-12** | Pluggable Speech Synthesis Adapter (Edge-TTS) | Completed | Pytest + Vitest (All Passed) | Yes | 300+ Microsoft neural voices |
-| **TICKET-13** | Deep Acoustic Mastering Engine (Sidechain Ducking) | Planned | Pytest | Yes | -6dB ducking & EBU R128 mastering |
-| **TICKET-14** | Perceptual Acoustic QA & Quantitative Retries | Planned | Pytest | No | Clipping check & quantitative retry |
-| **TICKET-15** | English Proper Noun Preservation & Colloquial Numeral Localization | Planned | Pytest + Vitest | Yes | Proper nouns stay intact, 2.4k -> 2.4 hazar |
+| **TICKET-13** | Deep Acoustic Mastering Engine (Sidechain Ducking) | Completed | Pytest (10/10 Passed) | Yes | -6dB ducking & EBU R128 mastering |
+| **TICKET-14** | Perceptual Acoustic QA & Quantitative Retries | Completed | Pytest + Vitest (All Passed) | Yes | Clipping check & quantitative retry |
+| **TICKET-15** | English Proper Noun Preservation & Colloquial Numeral Localization | Completed | Pytest + Vitest (All Passed) | Yes | Proper nouns stay intact, 2.4k -> 2.4 hazar |
+| **TICKET-16** | End-to-End Post-Production Director Pipeline Runner | Planned | Pytest + Vitest | Yes | Encapsulates full pipeline in DirectorAgent |
+| **TICKET-17** | Post-QA Acoustic Master Mixdown & Sidechain Bus Integration | Planned | Pytest | Yes | Wires AcousticMasteringEngine post-QA |
+| **TICKET-18** | Pluggable Speaker Diarization Adapter & Voiceprint Mapping | Planned | Pytest + Vitest | No | Pluggable acoustic & heuristic diarization |
+| **TICKET-19** | Broadcast Video Multiplexing & Studio Deliverables Exporter | Planned | Pytest + Vitest | Yes | Packages release MP4, stems, & subtitles |
 
 ---
 
-### 2026-09-12 — Implement TICKET-12: Pluggable Speech Synthesis Adapter Seam (/implement, /tdd, /codebase-design)
+### 2026-09-13 — Architecture Grilling & Execution Tickets Formulation for Deepened Production Pipeline (/10x-dev, /lazy-dev, /research, /codebase-design, /grill-with-docs, /tdd)
+
+#### Objective
+Conduct a deep architectural review and interrogation round on the post-production pipeline frontiers beyond Ticket 15, and formulate execution tickets TICKET-16 through TICKET-19 adhering to strict `/tdd`, `/codebase-design`, `/10x-dev`, and `/lazy-dev` principles.
+
+#### Changes Made
+1. **Architectural Grilling & Decision Locking**:
+   - Evaluated 4 key frontier decisions:
+     - Q1: Deep single-entry Director pipeline runner vs. fragmented background workers (Approved: Deep Module).
+     - Q2: Post-QA Acoustic Mastering mixdown vs master-first (Approved: Post-QA to avoid wasting mixing compute on defective stems).
+     - Q3: Pluggable Speaker Diarization Adapter seam vs hardcoded dependencies (Approved: Pluggable Adapter).
+     - Q4: Studio Delivery Packaging (Approved: Full package with MP4, mastered WAV, dialogue bus, and subtitle bundles).
+2. **Authored Execution Tickets**:
+   - Created [Docs/tickets/TICKET-16-director-end-to-end-pipeline.md](file:///c:/CCodes_WebDevelopment/hckthon/localize_movie_dub/Docs/tickets/TICKET-16-director-end-to-end-pipeline.md).
+   - Created [Docs/tickets/TICKET-17-post-qa-acoustic-mixdown.md](file:///c:/CCodes_WebDevelopment/hckthon/localize_movie_dub/Docs/tickets/TICKET-17-post-qa-acoustic-mixdown.md).
+   - Created [Docs/tickets/TICKET-18-pluggable-diarization-adapter.md](file:///c:/CCodes_WebDevelopment/hckthon/localize_movie_dub/Docs/tickets/TICKET-18-pluggable-diarization-adapter.md).
+   - Created [Docs/tickets/TICKET-19-broadcast-deliverables-exporter.md](file:///c:/CCodes_WebDevelopment/hckthon/localize_movie_dub/Docs/tickets/TICKET-19-broadcast-deliverables-exporter.md).
+3. **Updated Index & Backlog**:
+   - Updated [Docs/tickets/README.md](file:///c:/CCodes_WebDevelopment/hckthon/localize_movie_dub/Docs/tickets/README.md).
+   - Updated [tracker.md](file:///c:/CCodes_WebDevelopment/hckthon/localize_movie_dub/tracker.md).
+
+#### Files Changed
+- `Docs/tickets/TICKET-16-director-end-to-end-pipeline.md` (Created)
+- `Docs/tickets/TICKET-17-post-qa-acoustic-mixdown.md` (Created)
+- `Docs/tickets/TICKET-18-pluggable-diarization-adapter.md` (Created)
+- `Docs/tickets/TICKET-19-broadcast-deliverables-exporter.md` (Created)
+- `Docs/tickets/README.md` (Modified)
+- `tracker.md` (Modified)
+
+#### Next Agent Instructions
+1. Implement [TICKET-16](file:///c:/CCodes_WebDevelopment/hckthon/localize_movie_dub/Docs/tickets/TICKET-16-director-end-to-end-pipeline.md) or [TICKET-17](file:///c:/CCodes_WebDevelopment/hckthon/localize_movie_dub/Docs/tickets/TICKET-17-post-qa-acoustic-mixdown.md) following `/tdd` with Pytest.
+2. Start with writing red test in `backend/tests/test_director_acoustic_mixdown.py` or `backend/tests/test_director_pipeline.py`.
+
+### 2026-09-13 — Implement TICKET-14: Perceptual Acoustic QA & Quantitative Self-Repair Routing (/scaffold-exercises, /10x-dev, /lazy-dev, /tdd)
+
+#### Objective
+Upgrade `QAContinuityAgent` from shallow duration subtraction to objective perceptual signal inspection (detecting digital audio clipping at 0 dBFS / $\ge 0.999$ amplitude and calculating exact quantitative syllable delta deficits $\Delta S = \lceil \Delta t \times 3.2 \rceil$), and empower `DirectorAgent` to dispatch quantitative fix directives directly to `LocalizationDirectorAgent` (for script-level syllable re-budgeting) and `VoiceDirectorAgent` (for clipping gain remediation) in a deterministic, bounded closed self-repair loop.
+
+#### Changes Made
+1. **Developer Exercise Scaffolding (`Docs/exercises/TICKET-14-perceptual-acoustic-qa-exercises.md`)**:
+   - Structured 4 discrete exercises:
+     - 14.01: Digital Audio Clipping Detection (`check_audio_clipping`)
+     - 14.02: Quantitative Syllable Delta Calculation ($\Delta S = \lceil \Delta t \times 3.2 \rceil$)
+     - 14.03: Signal-Aware Stem Inspection (`inspect_stems_with_signal`)
+     - 14.04: Multi-Agent Targeted Self-Repair Routing in `DirectorAgent`
+2. **QA Continuity Agent Signal Inspection (`backend/app/agents/qa_agent.py`)**:
+   - `check_audio_clipping(audio_path)`: Reads WAV PCM audio (16-bit, 32-bit float/int, 8-bit), normalizes samples to $[-1.0, 1.0]$, and detects digital clipping when samples reach $\ge 0.999$.
+   - `inspect_stems_with_signal(stems, subtitles, job_id, scene_id, min_readiness_threshold)`: Evaluates stems for digital audio clipping (`AUDIO_CLIPPING`) and duration overflow with exact quantitative syllable reduction delta ($\Delta S = \lceil \Delta t \times 3.2 \rceil$), outputting structured defect findings.
+3. **Director Closed Self-Repair Routing (`backend/app/agents/director.py`)**:
+   - Upgraded `DirectorAgent._execute` self-repair loop:
+     - Intercepts `TIMING_OVERFLOW` with $\Delta S > 0$ and routes targeted retries directly to `LocalizationDirectorAgent` with `rework_instructions={"segment_id": seg_id, "delta_syllables": dS}`.
+     - Re-runs downstream `VoiceDirectorAgent` -> `SyncEngineerAgent` -> `SubtitleDirectorAgent` -> `QAContinuityAgent`.
+     - Intercepts `AUDIO_CLIPPING` and dispatches gain remediation to `VoiceDirectorAgent`.
+     - Marks findings with `fix_applied = True` and compiles `repaired_defects`.
+4. **Frontend Agent Contract & TypeScript Parity (`frontend/lib/agents/qa_agent.ts`)**:
+   - Updated `QAFinding` interface with `target_segment_id`, `fix_proposal`, `syllables_to_reduce`, `peak_amplitude`, `clipped_samples`, `overflow_s`.
+   - Updated `inspectCutForDefects` with clipping detection and quantitative syllable delta calculation.
+5. **Automated Unit & Integration Test Suites**:
+   - Added Pytest tests in `backend/tests/test_qa_agent.py` and `backend/tests/test_director.py`.
+   - Added Vitest tests in `frontend/__tests__/qa_agent.test.ts`.
+6. **Documentation & Tickets**:
+   - Marked `Docs/tickets/TICKET-14-perceptual-acoustic-qa-repair.md` as Completed.
+   - Updated `features_implemented.md` and `TRACKER.md`.
+
+#### Files Changed
+- `Docs/exercises/TICKET-14-perceptual-acoustic-qa-exercises.md` (Created)
+- `backend/app/agents/qa_agent.py` (Modified)
+- `backend/app/agents/director.py` (Modified)
+- `frontend/lib/agents/qa_agent.ts` (Modified)
+- `backend/tests/test_qa_agent.py` (Modified)
+- `backend/tests/test_director.py` (Modified)
+- `frontend/__tests__/qa_agent.test.ts` (Modified)
+- `Docs/tickets/TICKET-14-perceptual-acoustic-qa-repair.md` (Modified)
+- `features_implemented.md` (Modified)
+- `TRACKER.md` (Modified)
+
+#### Verification
+- **Pytest**: `backend/.venv/Scripts/pytest backend/tests` — **58 / 58 passed** (100%).
+- **Vitest**: `npm --prefix frontend test -- --run` — **15 / 15 test files passed, 80 / 80 tests passed** (100%).
+- **TypeScript**: `frontend/node_modules/.bin/tsc --project frontend/tsconfig.json --noEmit` — **0 errors**.
+
+#### Current State
+- `QAContinuityAgent` performs perceptual digital audio clipping inspection and quantitative syllable delta calculations, and `DirectorAgent` routes targeted repair directives back to `LocalizationDirectorAgent` and `VoiceDirectorAgent` in a closed self-repair loop.
+
+#### Remaining Work
+- All planned deepened media translation tickets (TICKET-11, TICKET-12, TICKET-13, TICKET-14, TICKET-15) are now completed!
+
+#### Next Agent Instructions
+1. Inspect `TRACKER.md` and `features_implemented.md` for overall project status.
+2. The entire autonomous crew pipeline with isometric syllable budgeting, Edge-TTS synthesis, acoustic mastering, perceptual QA, and closed-loop self-repair is verified and functional.
+
+#### Objective
+Implement a deep `AcousticMasteringEngine` that collapses stem alignment, multitrack timeline compositing, dynamic sidechain ducking (-6dB on background M&E during dialogue), and EBU R128 (-24 LUFS) broadcast loudness mastering into a single high-leverage module, along with step-by-step scaffolded exercises and test suites.
+
+#### Changes Made
+1. **Exercise Scaffolding (`Docs/exercises/TICKET-13-acoustic-mastering-exercises.md`)**:
+   - Structured step-by-step guide breaking Ticket 13 into 4 discrete exercises:
+     - 13.01: Dialogue Bus Compositing (`composite_dialogue_bus` via FFmpeg `adelay` & `amix`)
+     - 13.02: Dynamic Sidechain Compression & Ducking (`apply_sidechain_ducking` with `-6.0 dB`, `20ms` attack, `250ms` release)
+     - 13.03: Broadcast Loudness Mastering (`master_ebu_r128` with `loudnorm=I=-24.0:LRA=7.0:TP=-2.0`)
+     - 13.04: Unified Acoustic Mastering Engine (`AcousticMasteringEngine.master_mix`)
+2. **Acoustic Mastering Engine Module (`backend/app/engine/stages/mixer.py`)**:
+   - `DialogueSegmentInput`: Typed dataclass for segment inputs with audio path, start/end timecodes, and duration.
+   - `AcousticMasteringEngine`:
+     - `build_composite_dialogue_filtergraph`: Generates `-i` arguments and `[i:a]adelay=start_ms|start_ms;amix` filtergraph.
+     - `composite_dialogue_bus`: Asynchronously composites dialogue stems into a single audio bus with silence fallback for empty segments.
+     - `build_sidechain_ducking_filtergraph`: Computes calibrated compression ratio from `ducking_db` and builds `sidechaincompress` filter string.
+     - `apply_sidechain_ducking`: Sidechains background M&E against dialogue bus with graceful fallback when background audio is absent.
+     - `master_ebu_r128`: Applies EBU R128 broadcast loudness normalization.
+     - `master_mix`: High-leverage end-to-end pipeline coordinating compositing, ducking, mastering, and temp cleanup.
+3. **Automated Unit & Integration Test Suite (`backend/tests/test_acoustic_mixer.py`)**:
+   - 10 Pytest tests covering filtergraph construction, empty segment handling, dataclass support, sidechain ducking parameters, missing background track fallback, loudnorm parameters, and end-to-end mastering pipeline.
+
+#### Files Changed
+- `Docs/exercises/TICKET-13-acoustic-mastering-exercises.md` (Created)
+- `backend/app/engine/stages/mixer.py` (Created)
+- `backend/tests/test_acoustic_mixer.py` (Created)
+- `Docs/tickets/TICKET-13-acoustic-mastering-engine.md` (Modified)
+- `features_implemented.md` (Modified)
+- `TRACKER.md` (Modified)
+
+#### Verification
+- **Pytest**: `backend/.venv/Scripts/pytest backend/tests -q` — **54 / 54 passed** (100%).
+- `backend/.venv/Scripts/pytest backend/tests/test_acoustic_mixer.py -v` — **10 / 10 passed** (100%).
+
+#### Current State
+- `AcousticMasteringEngine` is fully implemented and tested with multitrack timeline compositing, dynamic sidechain ducking (-6dB), and EBU R128 (-24 LUFS) broadcast mastering.
+
+#### Remaining Work
+- TICKET-14: Perceptual Acoustic QA & Quantitative Retries.
+
+#### Next Agent Instructions
+1. Proceed with [TICKET-14](file:///c:/CCodes_WebDevelopment/hckthon/localize_movie_dub/Docs/tickets/TICKET-14-perceptual-acoustic-qa.md) for automated audio clipping detection, SNR calculation, and quantitative rework loops.
+2. Follow `/tdd` with Pytest test suites.
+
+#### Objective
+Deepen `LocalizationDirectorAgent` and the localization engine to protect tech brand names, frameworks, tools, and developer names from distorted or literal translation (e.g., `Claude Code`, `Anthropic`, `Supabase`, `Zenith Chat`, `Afan Mustafa`), and adapt spoken numeral abbreviations (e.g. `2.4k`, `100k`, `10M`, `2.5B`) into natural colloquial target-language spoken expressions for clean neural TTS dubbing across Hindi, Spanish, French, German, and English.
+
+#### Changes Made
+1. **Entity Preserver Engine (`backend/app/engine/localization/entity_preserver.py`)**:
+   - `extract_proper_nouns(text, custom_entities=None) -> List[str]`: Extracts brand names, frameworks, tools, and developer names with custom glossary lock support and stopword filtering.
+   - `protect_entities(text, entities) -> Tuple[str, Dict[str, str]]`: Masks detected proper nouns with temporary placeholder tokens (`__ENT_{i}__`) during translation passes.
+   - `restore_entities(text, entity_map) -> str`: Restores canonical proper nouns from masked placeholders in the translated output text.
+2. **Numeral Localizer Engine (`backend/app/engine/localization/numeral_localizer.py`)**:
+   - `adapt_spoken_numerals(text, target_lang) -> Tuple[str, List[str]]`: Transforms metric abbreviations (`2.4k` -> `2.4 hazar` / `2.4 हज़ार` in Hindi, `2.4 mil` in Spanish, `2,4 mille` in French, `2,4 Tausend` in German; `10M` -> `10 मिलियन` / `10 millones` / `10 millions` / `10 Millionen`) into natural spoken forms tailored for TTS pronunciation, returning the adapted text and transformation records.
+3. **Localization Director Agent Integration (`backend/app/agents/localization_director.py`)**:
+   - Integrated entity extraction, masking, restoration, and numeral adaptation into `LocalizationDirectorAgent._execute`.
+   - Populated `preserved_entities` and `numeral_adaptations` on each `localized_line` and documented actions in line `rationale` and `decision` telemetry.
+4. **Frontend Agent Contract & TypeScript Helpers (`frontend/lib/agents/localization_director.ts`)**:
+   - Added `extractProperNouns`, `adaptSpokenNumerals`, `KNOWN_TECH_AND_BRAND_ENTITIES` exports.
+   - Updated `LocalizedLine` and `LocalizationInput` interfaces with `preserved_entities`, `numeral_adaptations`, and `glossary_locks`.
+   - Updated `validateLocalizationOutput` and `parseLocalizationOutput` schema handlers.
+5. **Testing & Verification**:
+   - Pytest unit & integration tests in `backend/tests/test_localization_director.py` (all 44 tests passed).
+   - Vitest unit & contract tests in `frontend/__tests__/localization_director.test.ts` (all 78 tests passed across 15 test files).
+   - Next.js production standalone build (`npm run build` passed with 0 errors).
+
+#### Files Changed
+- `backend/app/engine/localization/__init__.py` (Created)
+- `backend/app/engine/localization/entity_preserver.py` (Created)
+- `backend/app/engine/localization/numeral_localizer.py` (Created)
+- `backend/app/agents/localization_director.py` (Modified)
+- `frontend/lib/agents/localization_director.ts` (Modified)
+- `backend/tests/test_localization_director.py` (Modified)
+- `frontend/__tests__/localization_director.test.ts` (Modified)
+- `Docs/tickets/TICKET-15-proper-noun-and-numeral-localization.md` (Modified)
+- `features_implemented.md` (Modified)
+- `tracker.md` (Modified)
+
+#### Verification
+- **Pytest**: `backend/.venv/Scripts/pytest backend/tests -q` — **44 / 44 passed** (100%).
+- **Vitest**: `npm --prefix frontend test -- --run` — **15 / 15 test files passed, 78 / 78 tests passed** (100%).
+- **Next.js Production Build**: `npm --prefix frontend run build` — **Compiled all routes, 0 errors**.
+
+#### Current State
+- `LocalizationDirectorAgent` preserves proper nouns verbatim and adapts spoken numerals across Hindi, Spanish, French, German, and English with full rationale documentation and Section 6 telemetry.
+
+#### Remaining Work
+- TICKET-13: Deep Acoustic Mastering Engine (Sidechain Ducking & EBU R128).
+- TICKET-14: Perceptual Acoustic QA & Quantitative Retries.
+
+#### Next Agent Instructions
+1. Proceed with [TICKET-13](file:///c:/CCodes_WebDevelopment/hckthon/localize_movie_dub/Docs/tickets/TICKET-13-acoustic-mastering-engine.md) for automated -6dB sidechain ducking and EBU R128 loudness mastering.
+2. Follow `/tdd` with Pytest test suites.
 
 #### Objective
 Introduce a clean, swappable `SpeechSynthesisAdapter` interface behind `VoiceDirectorAgent` to support real studio-grade neural voice synthesis via Microsoft `edge-tts` (300+ multilingual neural voices) with zero cloud costs and zero GPU overhead, while maintaining `MockAudioAdapter` for instant offline unit testing and predictable durations.
