@@ -20,6 +20,9 @@ class Settings(BaseSettings):
 
     # Core AI Reasoning
     GEMINI_API_KEY: str = ""
+    LLM_PROVIDER: str = "ollama"  # "ollama" or "gemini"
+    OLLAMA_BASE_URL: str = "http://ollama:11434"
+    OLLAMA_MODEL: str = "llama3.2:3b"
 
     # Defaults matching 15-schema.md
     GPU_VRAM_MB: int = 4096

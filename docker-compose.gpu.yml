@@ -13,4 +13,13 @@ services:
               count: all
               capabilities: [gpu]
     environment:
-      - GPU_VRAM_MB=${GPU_VRAM_MB:-8192}
+      - GPU_VRAM_MB=${GPU_VRAM_MB:-4096}
+
+  ollama:
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]

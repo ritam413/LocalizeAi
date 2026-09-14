@@ -14,7 +14,10 @@ services:
       - HOST=0.0.0.0
       - PORT=8000
       - CORS_ORIGINS=${CORS_ORIGINS:-*}
-      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+      - LLM_PROVIDER=${LLM_PROVIDER:-ollama}
+      - OLLAMA_BASE_URL=${OLLAMA_BASE_URL:-http://ollama:11434}
+      - OLLAMA_MODEL=${OLLAMA_MODEL:-llama3.2:3b}
       - DB_PATH=/app/storage/dubforge.db
       - STORAGE_DIR=/app/storage
       - SHARED_FOLDER_PATH=/app/shared
@@ -27,6 +30,23 @@ services:
       timeout: 5s
       retries: 3
       start_period: 10s
+    depends_on:
+      ollama:
+        condition: service_started
+    networks:
+      - localize-net
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: localize-ollama
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    environment:
+      - OLLAMA_KEEP_ALIVE=${OLLAMA_KEEP_ALIVE:-0}
+      - OLLAMA_HOST=0.0.0.0:11434
     networks:
       - localize-net
 
@@ -48,6 +68,9 @@ services:
         condition: service_healthy
     networks:
       - localize-net
+
+volumes:
+  ollama_data:
 
 networks:
   localize-net:

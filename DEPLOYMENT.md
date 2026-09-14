@@ -8,12 +8,12 @@ This guide details how to build, containerize, and deploy the **LOCALIZE** (Auto
 
 ```mermaid
 graph TD
-    Client["Browser / Client (Port 3000 / 443)"]
+    Client["Browser / Laptop Frontend (Port 3000)"]
     Nginx["Nginx / Reverse Proxy (SSL/TLS)"]
     Frontend["Next.js Frontend (Port 3000 / Standalone)"]
     Backend["FastAPI Backend (Port 8000)"]
-    Gemini["Google Cloud AI (Gemini 2.5 / Flash)"]
-    Grafana["Grafana Observability / MCP Server"]
+    Ollama["Ollama Container (Llama 3.2 3B / Llama 3.1 8B - Port 11434)"]
+    Gemini["Google Cloud AI (Gemini 2.5 / Flash - Optional)"]
     Storage["Persistent Volume (/storage & /shared)"]
     DB[(SQLite: dubforge.db)]
 
@@ -21,8 +21,8 @@ graph TD
     Nginx -->|HTTP / Static| Frontend
     Nginx -->|WebSocket /ws/runs/*| Backend
     Frontend -->|API Proxy /api/v1/*| Backend
-    Backend -->|Agent Reasoning| Gemini
-    Backend -->|Telemetry & MCP| Grafana
+    Backend -->|Local Agent Reasoning| Ollama
+    Backend -->|Cloud Reasoning Fallback| Gemini
     Backend -->|Read/Write Stems & Media| Storage
     Backend -->|State & Runs| DB
 ```
@@ -34,29 +34,37 @@ graph TD
 ### Prerequisites
 - [Docker Engine](https://docs.docker.com/engine/install/) (>= 24.0)
 - [Docker Compose](https://docs.docker.com/compose/) (>= 2.20)
-- A valid Google AI Studio API key (`GEMINI_API_KEY`)
+- NVIDIA GPU with Drivers (optional for hardware acceleration, e.g. GTX 1050 Ti or higher)
 
-### Standard CPU Deployment
+### Standard Deployment (Local LLM + Docker Stack)
 
 1. **Configure Environment Variables**:
    ```bash
    cp .env.example .env
    ```
-   Edit `.env` and set your `GEMINI_API_KEY`:
+   Edit `.env`:
    ```ini
-   GEMINI_API_KEY=AIzaSy...
+   LLM_PROVIDER=ollama
+   OLLAMA_BASE_URL=http://ollama:11434
+   OLLAMA_MODEL=llama3.2:3b
+   OLLAMA_KEEP_ALIVE=0
    ENVIRONMENT=production
    BACKEND_PORT=8000
    FRONTEND_PORT=3000
    CORS_ORIGINS=*
    ```
 
-2. **Build and Launch the Stack**:
+2. **Build and Launch the Stack (CPU / Standard)**:
    ```bash
    docker compose up --build -d
    ```
 
-3. **Verify Deployment Health**:
+3. **Pull Local Llama Model into Ollama**:
+   ```bash
+   docker exec -it localize-ollama ollama pull llama3.2:3b
+   ```
+
+4. **Verify Deployment Health**:
    ```bash
    # Check container status
    docker compose ps
@@ -69,26 +77,33 @@ graph TD
    docker compose logs -f
    ```
 
-4. **Access the Application**:
+5. **Access the Application**:
    - **Studio Console UI**: `http://localhost:3000`
    - **Backend API & Swagger Docs**: `http://localhost:8000/docs`
-   - **Telemetry Endpoint**: `http://localhost:8000/api/v1/telemetry/events`
+   - **Ollama API**: `http://localhost:11434/api/tags`
 
 ---
 
-### GPU Acceleration (NVIDIA CUDA)
+### GPU Acceleration & Sequential VRAM Strategy (NVIDIA CUDA)
 
-For accelerated Demucs vocal separation and Whisper transcription with CUDA:
+For accelerated Demucs vocal separation, Faster-Whisper transcription, and Llama reasoning with CUDA on tight VRAM envelopes (e.g. 4GB–8GB VRAM):
 
-1. **Ensure NVIDIA Container Toolkit is installed** on host:
-   ```bash
-   nvidia-smi
-   ```
-
+1. **Sequential Execution**: Models run sequentially (Demucs ➔ Whisper ➔ Llama) with `OLLAMA_KEEP_ALIVE=0` so VRAM is dynamically freed between stages without OOM crashes.
 2. **Launch with GPU Override**:
    ```bash
    docker compose -f docker-compose.yml -f docker-compose.gpu.yml up --build -d
    ```
+3. **Pull Llama Model into GPU-enabled Ollama**:
+   ```bash
+   docker exec -it localize-ollama ollama pull llama3.2:3b
+   ```
+
+---
+
+### Remote Compute / Laptop Setup (Desktop Server + Laptop UI)
+
+To run backend compute on this desktop and develop/run Next.js on your laptop:
+- See the dedicated [SERVER_SETUP_GUIDE.md](file:///d:/Games/Hckthons/Side%20Projects/LocalizeAi/SERVER_SETUP_GUIDE.md) for Windows firewall rules, LAN discovery, and `.env.local` configuration.
 
 ---
 
