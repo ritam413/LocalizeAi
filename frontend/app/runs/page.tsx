@@ -55,30 +55,30 @@ export default function RunHistoryPage() {
   };
 
   return (
-    <div className="space-y-8 max-w-6xl font-sans text-[#130e30]">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#130e30]/10 pb-6">
+    <div className="space-y-8 max-w-6xl font-sans text-[#1a1a1a]">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#dbd8e8] pb-6">
         <div>
-          <h1 className="text-3xl font-black text-[#130e30] tracking-tight uppercase flex items-center space-x-3">
-            <History className="w-7 h-7 text-[#130e30]" />
+          <h1 className="text-3xl font-black text-[#1a1a1a] tracking-tight uppercase flex items-center space-x-3">
+            <History className="w-7 h-7 text-[#1a1a1a]" />
             <span>Swarm Run History &amp; Archives</span>
           </h1>
-          <p className="text-xs text-[#5f5c6e] mt-1.5 font-medium">
+          <p className="text-xs text-[#575268] mt-1.5 font-medium">
             Filterable archive of all active and historic autonomous localization pipeline executions.
           </p>
         </div>
 
         <Link
           href="/runs/new"
-          className="bg-[#ffe228] hover:bg-[#ebd020] text-[#130e30] border-[1.5px] border-[#130e30] px-5 py-2.5 rounded-full font-black text-xs shadow-sm flex items-center space-x-2 transition-all active:scale-[0.97]"
+          className="bg-[#7248ea] hover:bg-[#6847ff] text-white border border-[#dbd8e8] px-5 py-2.5 rounded-full font-black text-xs shadow-sm flex items-center space-x-2 transition-all active:scale-[0.97]"
         >
           <Play className="w-3.5 h-3.5 fill-current" />
           <span>New Localization Run</span>
         </Link>
       </div>
 
-      <div className="bg-[#eff2e5] border-[1.5px] border-[#130e30]/15 rounded-[24px] overflow-hidden shadow-sm">
-        <table className="w-full text-left text-xs text-[#130e30]">
-          <thead className="bg-[#eff2e5] text-[10px] font-extrabold text-[#5f5c6e] uppercase tracking-wider border-b border-[#130e30]/10">
+      <div className="bg-[#f8f9fa] border border-[#dbd8e8]/15 rounded-[16px] overflow-hidden shadow-sm">
+        <table className="w-full text-left text-xs text-[#1a1a1a]">
+          <thead className="bg-[#f8f9fa] text-[10px] font-extrabold text-[#575268] uppercase tracking-wider border-b border-[#dbd8e8]">
             <tr>
               <th className="px-6 py-4">Run ID</th>
               <th className="px-6 py-4">Source Master</th>
@@ -88,59 +88,59 @@ export default function RunHistoryPage() {
               <th className="px-6 py-4 text-right">Studio Controls</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-[#130e30]/8 bg-[#f9fbf2]">
+          <tbody className="divide-y divide-[#130e30]/8 bg-[#fbfbfd]">
             {loading ? (
               <RunListSkeleton rows={4} />
             ) : runs.length === 0 ? (
               <tr>
-                <td colSpan={6} className="px-6 py-10 text-center text-[#5f5c6e] italic">
+                <td colSpan={6} className="px-6 py-10 text-center text-[#575268] italic">
                   No runs created yet. Click "New Localization Run" to dispatch your first crew.
                 </td>
               </tr>
             ) : (
               runs.map((run) => (
-                <tr key={run.id} className="hover:bg-[#eff2e5]/60 transition-colors">
+                <tr key={run.id} className="hover:bg-[#f8f9fa]/60 transition-colors">
                   <td className="px-6 py-4 font-mono text-xs font-bold">
                     <Link
                       href={`/runs/${run.id}`}
-                      className="text-[#130e30] hover:underline flex items-center space-x-1"
+                      className="text-[#1a1a1a] hover:underline flex items-center space-x-1"
                     >
-                      <span className="bg-[#eff2e5] border border-[#130e30]/20 px-2 py-0.5 rounded">#{run.id}</span>
+                      <span className="bg-[#f8f9fa] border border-[#dbd8e8] px-2 py-0.5 rounded">#{run.id}</span>
                     </Link>
                   </td>
-                  <td className="px-6 py-4 font-bold text-[#130e30]">
+                  <td className="px-6 py-4 font-bold text-[#1a1a1a]">
                     <Link href={`/runs/${run.id}`} className="hover:underline truncate block max-w-xs">
                       {run.clip?.filename || 'sample_movie.mp4'}
                     </Link>
                   </td>
-                  <td className="px-6 py-4 font-mono text-xs text-[#5f5c6e]">
+                  <td className="px-6 py-4 font-mono text-xs text-[#575268]">
                     Mode {run.project_mode} {run.subtitle_only && '• Subtitle'}
                   </td>
                   <td className="px-6 py-4">
                     <span
                       className={`px-3 py-1 rounded-full text-[10px] font-mono font-extrabold uppercase tracking-wider ${
                         run.status === 'completed'
-                          ? 'bg-[#59e25d] text-[#130e30] border border-[#130e30]'
+                          ? 'bg-[#14804a] text-[#1a1a1a] border border-[#dbd8e8]'
                           : run.status === 'running'
-                          ? 'bg-[#ffe228] text-[#130e30] border border-[#130e30] animate-pulse-yellow'
+                          ? 'bg-[#f2eeff] text-[#7248ea] border border-[#dbd8e8] animate-pulse-yellow'
                           : run.status === 'cancelled'
-                          ? 'bg-[#fdf3fe] text-[#e261e5] border border-[#e261e5]'
+                          ? 'bg-[#fdf3fe] text-[#7248ea] border border-[#e261e5]'
                           : run.status === 'cancelling'
-                          ? 'bg-[#ffe228]/50 text-[#130e30] border border-[#130e30]'
-                          : 'bg-[#130e30]/5 text-[#5f5c6e]'
+                          ? 'bg-[#7248ea]/50 text-[#1a1a1a] border border-[#dbd8e8]'
+                          : 'bg-[#130e30]/5 text-[#575268]'
                       }`}
                     >
                       {run.status === 'completed' ? '✓ Ready' : run.status}
                     </span>
                   </td>
-                  <td className="px-6 py-4 text-[11px] font-mono text-[#5f5c6e]">
+                  <td className="px-6 py-4 text-[11px] font-mono text-[#575268]">
                     {new Date(run.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
                   </td>
                   <td className="px-6 py-4 text-right">
                     <div className="flex items-center justify-end space-x-2">
                       <Link
                         href={`/runs/${run.id}`}
-                        className="px-3 py-1.5 rounded-full text-xs font-extrabold bg-[#130e30] hover:bg-[#222222] text-white border border-[#130e30] transition-all active:scale-[0.97] inline-flex items-center space-x-1"
+                        className="px-3 py-1.5 rounded-full text-xs font-extrabold bg-[#130e30] hover:bg-[#222222] text-white border border-[#dbd8e8] transition-all active:scale-[0.97] inline-flex items-center space-x-1"
                         title="View Run Dashboard"
                       >
                         <span>Console</span>
@@ -150,7 +150,7 @@ export default function RunHistoryPage() {
                       {(run.status === 'running' || run.status === 'queued' || run.status === 'cancelling') && (
                         <button
                           onClick={() => handleCancelRun(run.id)}
-                          className="px-3 py-1.5 rounded-full text-xs font-bold bg-[#fdf3fe] hover:bg-[#fbdcfd] text-[#e261e5] border border-[#e261e5] transition-all active:scale-[0.97] inline-flex items-center space-x-1"
+                          className="px-3 py-1.5 rounded-full text-xs font-bold bg-[#fdf3fe] hover:bg-[#fbdcfd] text-[#7248ea] border border-[#e261e5] transition-all active:scale-[0.97] inline-flex items-center space-x-1"
                           title="Cancel this run"
                         >
                           <XCircle className="w-3 h-3" />
@@ -162,14 +162,14 @@ export default function RunHistoryPage() {
                         <>
                           <Link
                             href={`/runs/${run.id}/subtitles`}
-                            className="px-3 py-1.5 rounded-full text-xs font-bold bg-[#eff2e5] hover:bg-[#f9fbf2] text-[#130e30] border border-[#130e30]/30 transition-all active:scale-[0.97] inline-flex items-center space-x-1"
+                            className="px-3 py-1.5 rounded-full text-xs font-bold bg-[#f8f9fa] hover:bg-[#fbfbfd] text-[#1a1a1a] border border-[#dbd8e8] transition-all active:scale-[0.97] inline-flex items-center space-x-1"
                             title="Review Subtitles"
                           >
                             <span>Subtitles</span>
                           </Link>
                           <Link
                             href={`/runs/${run.id}/output`}
-                            className="px-3 py-1.5 rounded-full text-xs font-bold bg-[#59e25d] hover:bg-[#4dd051] text-[#130e30] border border-[#130e30] transition-all active:scale-[0.97] inline-flex items-center space-x-1"
+                            className="px-3 py-1.5 rounded-full text-xs font-bold bg-[#14804a] hover:bg-[#4dd051] text-[#1a1a1a] border border-[#dbd8e8] transition-all active:scale-[0.97] inline-flex items-center space-x-1"
                             title="Download Deliverables"
                           >
                             <span>Stems</span>

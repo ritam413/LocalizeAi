@@ -299,49 +299,50 @@ export default function DemoRunPage() {
   };
 
   return (
-    <div className="space-y-8 font-sans text-[#130e30] max-w-7xl mx-auto pb-16">
+    <div className="space-y-8 font-sans text-[#1a1a1a] max-w-7xl mx-auto pb-16">
       {/* Top Demo Banner Bar */}
-      <div className="bg-[#eff2e5] border-[2px] border-[#130e30] p-6 rounded-[28px] flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-[0_8px_24px_rgba(19,14,48,0.06)]">
-        <div>
-          <div className="flex items-center space-x-3">
-            <div className="inline-flex items-center space-x-1.5 bg-[#ffe228] px-3 py-1 rounded-full text-xs font-mono font-black uppercase text-[#130e30] border border-[#130e30]">
+      <div className="bg-white border border-[#dbd8e8] p-6 rounded-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-5 shadow-[0_4px_20px_rgba(0,0,0,0.03)]">
+        <div className="space-y-2">
+          <div className="flex flex-wrap items-center gap-2.5">
+            <div className="inline-flex items-center space-x-1.5 bg-[#f2eeff] text-[#7248ea] border border-[#bd98ec]/60 px-3 py-1 rounded-full text-xs font-mono font-bold uppercase shadow-2xs">
               <Sparkles className="w-3.5 h-3.5 fill-current" />
               <span>JUDGE DEMO MODE</span>
             </div>
-            <h1 className="text-xl sm:text-2xl font-black text-[#130e30] uppercase tracking-tight">
+            <h1 className="text-xl sm:text-2xl font-black text-[#1a1a1a] tracking-tight">
               35s AI Post-Production Crew
             </h1>
             <span
-              className={`px-3 py-1 rounded-full text-[10px] font-mono font-extrabold uppercase border ${
+              className={`px-3 py-1 rounded-full text-[11px] font-mono font-bold uppercase border ${
                 isCompleted
-                  ? 'bg-[#59e25d] text-[#130e30] border-[#130e30]'
-                  : 'bg-[#ffe228] text-[#130e30] border-[#130e30] animate-pulse-yellow'
+                  ? 'bg-[#f0f9eb] text-[#14804a] border-[#c2e7b0]'
+                  : 'bg-[#f2eeff] text-[#7248ea] border-[#bd98ec]'
               }`}
             >
               {isCompleted ? '✓ 100% Release Ready' : `Step ${currentStage.stepNumber} Active`}
             </span>
           </div>
-          <p className="text-xs text-[#5f5c6e] mt-1.5 font-mono">
-            Footage: <strong className="text-[#130e30]">Anthropic Hackathon Winner - Afan Mustafa</strong> • 4K
-            Cinema Master • Languages: <strong className="text-[#130e30]">ES, HI, FR</strong>
+          <p className="text-xs text-[#575268] leading-relaxed">
+            Footage: <strong className="text-[#1a1a1a]">Anthropic Hackathon Winner - Afan Mustafa</strong> • 4K
+            Cinema Master • Languages: <strong className="text-[#1a1a1a]">ES, HI, FR</strong>
           </p>
         </div>
 
         {/* Demo Timer HUD & Controls */}
         <div className="flex items-center gap-3 flex-wrap">
-          {/* Progress Timer Badge */}
-          <div className="flex items-center space-x-2 bg-[#f9fbf2] border-[1.5px] border-[#130e30] px-4 py-2 rounded-2xl shadow-xs">
-            <Clock className="w-4 h-4 text-[#130e30]" />
-            <span className="text-xs font-mono font-bold text-[#5f5c6e]">Timer:</span>
-            <span className="text-sm font-mono font-black text-[#130e30] tabular-nums">
+          {/* Progress Timer Badge with Fixed-Width Tabular Numerals */}
+          <div className="flex items-center space-x-2 bg-[#fbfbfd] border border-[#dbd8e8] px-4 py-2 rounded-xl shadow-2xs">
+            <Clock className="w-4 h-4 text-[#7248ea]" />
+            <span className="text-xs font-bold text-[#575268]">Timer:</span>
+            <span className="text-sm font-mono font-bold text-[#1a1a1a] tabular-nums min-w-[70px]">
               {elapsedSeconds.toFixed(1)}s / {TOTAL_DEMO_SECONDS}s
             </span>
           </div>
 
           {/* Pause / Resume Button */}
           <button
+            type="button"
             onClick={() => setIsRunning(!isRunning)}
-            className="flex items-center space-x-1.5 px-4 py-2 rounded-full text-xs font-black bg-[#130e30] hover:bg-[#251d5c] text-[#ffe228] border border-[#130e30] transition active:scale-[0.97] cursor-pointer"
+            className="flex items-center space-x-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-white hover:bg-[#f8f9fa] text-[#1a1a1a] border border-[#dbd8e8] hover:border-[#bd98ec] shadow-2xs transition-all active:scale-[0.97] cursor-pointer"
           >
             {isRunning ? (
               <>
@@ -358,8 +359,9 @@ export default function DemoRunPage() {
 
           {/* Fast-Forward / Skip to Dubbed Video */}
           <button
+            type="button"
             onClick={handleFastForward}
-            className="flex items-center space-x-1.5 px-4 py-2 rounded-full text-xs font-black bg-[#ffe228] hover:bg-[#ebd020] text-[#130e30] border border-[#130e30] transition active:scale-[0.97] cursor-pointer shadow-xs"
+            className="flex items-center space-x-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-[#7248ea] hover:bg-[#6847ff] text-white shadow-[0_4px_12px_rgba(114,72,234,0.3)] transition-all active:scale-[0.97] cursor-pointer"
             title="Jump directly to completed YouTube-style Multi-Audio Player"
           >
             <FastForward className="w-3.5 h-3.5 fill-current" />
@@ -368,8 +370,9 @@ export default function DemoRunPage() {
 
           {/* Restart Demo */}
           <button
+            type="button"
             onClick={handleRestart}
-            className="p-2 rounded-full bg-[#f9fbf2] hover:bg-[#eff2e5] text-[#130e30] border border-[#130e30]/30 transition active:scale-[0.97] cursor-pointer"
+            className="p-2.5 rounded-xl bg-white hover:bg-[#f8f9fa] text-[#575268] hover:text-[#1a1a1a] border border-[#dbd8e8] hover:border-[#bd98ec] shadow-2xs transition-all active:scale-[0.97] cursor-pointer"
             title="Restart 35s Demo"
           >
             <RotateCcw className="w-4 h-4" />
@@ -377,31 +380,33 @@ export default function DemoRunPage() {
         </div>
       </div>
 
-      {/* Primary Visualizer & Switchable Tabs */}
-      <div className="flex items-center space-x-2 bg-[#eff2e5] p-1.5 rounded-2xl border-[2px] border-[#130e30] w-fit shadow-xs">
+      {/* Primary Visualizer & Switchable Segmented Tabs */}
+      <div className="flex items-center space-x-1.5 bg-[#f2f0f8] p-1.5 rounded-2xl border border-[#dbd8e8] w-fit shadow-2xs">
         <button
+          type="button"
           onClick={() => setActiveTab('studio')}
-          className={`px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all flex items-center space-x-2 cursor-pointer ${
+          className={`px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all flex items-center space-x-2 cursor-pointer ${
             activeTab === 'studio'
-              ? 'bg-[#130e30] text-[#ffe228] shadow-sm'
-              : 'text-[#5f5c6e] hover:text-[#130e30]'
+              ? 'bg-white text-[#7248ea] shadow-sm'
+              : 'text-[#575268] hover:text-[#1a1a1a] hover:bg-white/60'
           }`}
         >
-          <Sparkles className="w-4 h-4 text-[#ffe228]" />
+          <Sparkles className="w-4 h-4 text-[#7248ea]" />
           <span>1. Autonomous Crew Visualizer</span>
         </button>
 
         <button
+          type="button"
           onClick={() => setActiveTab('player')}
-          className={`px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all flex items-center space-x-2 cursor-pointer ${
+          className={`px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all flex items-center space-x-2 cursor-pointer ${
             activeTab === 'player'
-              ? 'bg-[#130e30] text-[#ffe228] shadow-sm'
-              : 'text-[#5f5c6e] hover:text-[#130e30]'
+              ? 'bg-white text-[#7248ea] shadow-sm'
+              : 'text-[#575268] hover:text-[#1a1a1a] hover:bg-white/60'
           }`}
         >
-          <Globe2 className="w-4 h-4 text-[#59e25d]" />
+          <Globe2 className="w-4 h-4 text-[#00d4aa]" />
           <span>2. YouTube Multi-Audio Player</span>
-          {isCompleted && <span className="w-2 h-2 rounded-full bg-[#59e25d] animate-pulse" />}
+          {isCompleted && <span className="w-2 h-2 rounded-full bg-[#00d4aa] animate-pulse" />}
         </button>
       </div>
 
@@ -423,16 +428,16 @@ export default function DemoRunPage() {
 
           {/* Post-Completion Hero Card to jump to Video */}
           {isCompleted && (
-            <div className="bg-[#f9fbf2] border-[2.5px] border-[#59e25d] rounded-[24px] p-6 shadow-md flex flex-col sm:flex-row items-center justify-between gap-4 animate-in fade-in zoom-in-95 duration-200">
+            <div className="bg-[#fbfbfd] border-[2.5px] border-[#59e25d] rounded-[16px] p-6 shadow-md flex flex-col sm:flex-row items-center justify-between gap-4 animate-in fade-in zoom-in-95 duration-200">
               <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 rounded-2xl bg-[#59e25d] text-[#130e30] flex items-center justify-center font-black border border-[#130e30]">
+                <div className="w-12 h-12 rounded-2xl bg-[#14804a] text-[#1a1a1a] flex items-center justify-center font-black border border-[#dbd8e8]">
                   <CheckCircle2 className="w-7 h-7 stroke-[2.5]" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-black uppercase tracking-tight text-[#130e30]">
+                  <h3 className="text-lg font-black uppercase tracking-tight text-[#1a1a1a]">
                     Autonomous Multi-Agent Crew Complete!
                   </h3>
-                  <p className="text-xs text-[#5f5c6e] font-medium">
+                  <p className="text-xs text-[#575268] font-medium">
                     All dubbing stems synthesized, lip-sync reconciled, subtitles formatted, and QA 98.0 PASS certified.
                   </p>
                 </div>
@@ -440,7 +445,7 @@ export default function DemoRunPage() {
 
               <button
                 onClick={() => setActiveTab('player')}
-                className="bg-[#130e30] hover:bg-[#251d5c] text-[#ffe228] border-[2px] border-[#130e30] px-6 py-3 rounded-full text-xs font-black uppercase tracking-wider shadow-md cursor-pointer active:scale-[0.97] flex items-center space-x-2"
+                className="bg-[#130e30] hover:bg-[#251d5c] text-[#7248ea] border border-[#dbd8e8] px-6 py-3 rounded-full text-xs font-black uppercase tracking-wider shadow-md cursor-pointer active:scale-[0.97] flex items-center space-x-2"
               >
                 <span>Watch Multi-Audio Dubbed Video</span>
                 <ArrowRight className="w-4 h-4 stroke-[3]" />

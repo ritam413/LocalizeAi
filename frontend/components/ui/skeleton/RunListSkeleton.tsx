@@ -11,7 +11,7 @@ export const RunListSkeleton: React.FC<RunListSkeletonProps> = ({ rows = 4 }) =>
   return (
     <>
       {Array.from({ length: rows }).map((_, idx) => (
-        <tr key={`run-skeleton-${idx}`} className="border-b border-[#130e30]/8 bg-[#f9fbf2]">
+        <tr key={`run-skeleton-${idx}`} className="border-b border-[#dbd8e8]/8 bg-[#fbfbfd]">
           {/* Run ID */}
           <td className="px-6 py-4">
             <Skeleton variant="pill" width={72} height={24} className="rounded" />

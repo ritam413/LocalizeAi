@@ -280,43 +280,43 @@ export function AccessibleErrorReport({
         return {
           label: 'BACKEND OFFLINE (PORT 8000)',
           icon: <ServerOff className="w-3.5 h-3.5" aria-hidden="true" />,
-          bgColor: 'bg-[#ffe228] text-[#130e30] border-[#130e30]',
+          bgColor: 'bg-[#f2eeff] text-[#7248ea] border-[#dbd8e8]',
         };
       case 'FILE_NOT_FOUND':
         return {
           label: 'MEDIA PATH RESOLUTION',
           icon: <Film className="w-3.5 h-3.5" aria-hidden="true" />,
-          bgColor: 'bg-[#ffe228] text-[#130e30] border-[#130e30]',
+          bgColor: 'bg-[#f2eeff] text-[#7248ea] border-[#dbd8e8]',
         };
       case 'AUTH_API_KEY':
         return {
           label: 'GOOGLE AI CONFIGURATION',
           icon: <KeyRound className="w-3.5 h-3.5" aria-hidden="true" />,
-          bgColor: 'bg-[#eff2e5] text-[#130e30] border-[#130e30]',
+          bgColor: 'bg-[#f8f9fa] text-[#1a1a1a] border-[#dbd8e8]',
         };
       case 'GPU_FFMPEG_ENGINE':
         return {
           label: 'AUDIO ENGINE & GPU',
           icon: <Cpu className="w-3.5 h-3.5" aria-hidden="true" />,
-          bgColor: 'bg-[#eff2e5] text-[#130e30] border-[#130e30]',
+          bgColor: 'bg-[#f8f9fa] text-[#1a1a1a] border-[#dbd8e8]',
         };
       case 'MEDIA_DECODE':
         return {
           label: 'BROWSER CODEC NOTICE',
           icon: <Film className="w-3.5 h-3.5" aria-hidden="true" />,
-          bgColor: 'bg-[#eff2e5] text-[#130e30] border-[#130e30]',
+          bgColor: 'bg-[#f8f9fa] text-[#1a1a1a] border-[#dbd8e8]',
         };
       case 'STAGE_FAILURE':
         return {
           label: 'STAGE EXECUTION DEFECT',
-          icon: <AlertOctagon className="w-3.5 h-3.5 text-[#e261e5]" aria-hidden="true" />,
-          bgColor: 'bg-[#fdf3fe] text-[#e261e5] border-[#e261e5]',
+          icon: <AlertOctagon className="w-3.5 h-3.5 text-[#7248ea]" aria-hidden="true" />,
+          bgColor: 'bg-[#fdf3fe] text-[#7248ea] border-[#e261e5]',
         };
       default:
         return {
           label: 'OPERATION ALERT',
-          icon: <AlertTriangle className="w-3.5 h-3.5 text-[#e261e5]" aria-hidden="true" />,
-          bgColor: 'bg-[#fdf3fe] text-[#130e30] border-[#e261e5]',
+          icon: <AlertTriangle className="w-3.5 h-3.5 text-[#7248ea]" aria-hidden="true" />,
+          bgColor: 'bg-[#fdf3fe] text-[#1a1a1a] border-[#e261e5]',
         };
     }
   };
@@ -330,12 +330,12 @@ export function AccessibleErrorReport({
       aria-atomic="true"
       aria-labelledby={`error-title-${reportId}`}
       aria-describedby={`error-cause-${reportId}`}
-      className={`rounded-[24px] bg-[#fdf3fe] border-[2px] border-[#e261e5] p-5 sm:p-6 text-[#130e30] shadow-[0_8px_30px_rgba(226,97,229,0.12)] space-y-4 font-sans transition-all ${className}`}
+      className={`rounded-[16px] bg-[#fdf3fe] border-[2px] border-[#e261e5] p-5 sm:p-6 text-[#1a1a1a] shadow-[0_8px_30px_rgba(226,97,229,0.12)] space-y-4 font-sans transition-all ${className}`}
     >
       {/* Top Header Bar */}
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-start space-x-3">
-          <div className="w-10 h-10 rounded-2xl bg-[#e261e5] text-white flex items-center justify-center flex-shrink-0 shadow-sm mt-0.5">
+          <div className="w-10 h-10 rounded-2xl bg-[#7248ea] text-white flex items-center justify-center flex-shrink-0 shadow-sm mt-0.5">
             <AlertOctagon className="w-5 h-5" aria-hidden="true" />
           </div>
 
@@ -349,7 +349,7 @@ export function AccessibleErrorReport({
               </span>
 
               {diagnostic.statusCode && (
-                <span className="text-[10.5px] font-mono font-bold px-2 py-0.5 rounded-full bg-[#130e30]/10 text-[#130e30]">
+                <span className="text-[10.5px] font-mono font-bold px-2 py-0.5 rounded-full bg-[#130e30]/10 text-[#1a1a1a]">
                   HTTP {diagnostic.statusCode}
                 </span>
               )}
@@ -357,7 +357,7 @@ export function AccessibleErrorReport({
 
             <h2
               id={`error-title-${reportId}`}
-              className="text-base sm:text-lg font-black uppercase tracking-tight text-[#130e30]"
+              className="text-base sm:text-lg font-black uppercase tracking-tight text-[#1a1a1a]"
             >
               {diagnostic.title}
             </h2>
@@ -369,7 +369,7 @@ export function AccessibleErrorReport({
             type="button"
             onClick={onDismiss}
             aria-label="Dismiss error report"
-            className="p-1.5 rounded-full text-[#5f5c6e] hover:text-[#130e30] hover:bg-[#130e30]/10 transition-all focus-visible:ring-2 focus-visible:ring-[#130e30] focus-visible:outline-hidden"
+            className="p-1.5 rounded-full text-[#575268] hover:text-[#1a1a1a] hover:bg-[#130e30]/10 transition-all focus-visible:ring-2 focus-visible:ring-[#7248ea] focus-visible:outline-hidden"
           >
             <X className="w-4 h-4" aria-hidden="true" />
           </button>
@@ -377,30 +377,30 @@ export function AccessibleErrorReport({
       </div>
 
       {/* Root Cause Explanation */}
-      <div className="bg-[#f9fbf2] border border-[#130e30]/15 rounded-2xl p-4 space-y-2">
+      <div className="bg-[#fbfbfd] border border-[#dbd8e8] rounded-2xl p-4 space-y-2">
         <div className="flex items-center space-x-2">
-          <span className="text-[11px] font-mono font-black uppercase tracking-wider text-[#e261e5]">
+          <span className="text-[11px] font-mono font-black uppercase tracking-wider text-[#7248ea]">
             ● What Happened:
           </span>
         </div>
-        <p id={`error-cause-${reportId}`} className="text-xs sm:text-sm font-semibold text-[#130e30] leading-relaxed">
+        <p id={`error-cause-${reportId}`} className="text-xs sm:text-sm font-semibold text-[#1a1a1a] leading-relaxed">
           {diagnostic.rootCause}
         </p>
       </div>
 
       {/* Remediation Action Plan (What users can do to fix it) */}
-      <div className="bg-[#eff2e5] border border-[#130e30]/20 rounded-2xl p-4 space-y-2.5">
+      <div className="bg-[#f8f9fa] border border-[#dbd8e8] rounded-2xl p-4 space-y-2.5">
         <div className="flex items-center space-x-2">
-          <ShieldAlert className="w-4 h-4 text-[#130e30]" aria-hidden="true" />
-          <h3 className="text-xs font-black uppercase tracking-wider text-[#130e30]">
+          <ShieldAlert className="w-4 h-4 text-[#1a1a1a]" aria-hidden="true" />
+          <h3 className="text-xs font-black uppercase tracking-wider text-[#1a1a1a]">
             Recommended Fixes &amp; Next Steps:
           </h3>
         </div>
 
-        <ol className="space-y-2 text-xs text-[#130e30] font-medium list-none">
+        <ol className="space-y-2 text-xs text-[#1a1a1a] font-medium list-none">
           {diagnostic.remediationSteps.map((step, idx) => (
             <li key={idx} className="flex items-start space-x-2.5">
-              <span className="w-5 h-5 rounded-full bg-[#130e30] text-[#ffe228] text-[10px] font-mono font-black flex items-center justify-center flex-shrink-0 mt-0.5">
+              <span className="w-5 h-5 rounded-full bg-[#130e30] text-[#7248ea] text-[10px] font-mono font-black flex items-center justify-center flex-shrink-0 mt-0.5">
                 {idx + 1}
               </span>
               <span className="leading-relaxed">{step}</span>
@@ -409,17 +409,17 @@ export function AccessibleErrorReport({
         </ol>
 
         {diagnostic.suggestedCommand && (
-          <div className="mt-3 pt-2.5 border-t border-[#130e30]/10 flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-[#130e30] text-[#59e25d] p-3 rounded-xl font-mono text-[11px]">
+          <div className="mt-3 pt-2.5 border-t border-[#dbd8e8] flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-[#130e30] text-[#14804a] p-3 rounded-xl font-mono text-[11px]">
             <div className="flex items-center space-x-2 overflow-x-auto">
-              <Terminal className="w-4 h-4 text-[#ffe228] flex-shrink-0" aria-hidden="true" />
+              <Terminal className="w-4 h-4 text-[#7248ea] flex-shrink-0" aria-hidden="true" />
               <code>{diagnostic.suggestedCommand}</code>
             </div>
             <button
               type="button"
               onClick={handleCopyDiagnostics}
-              className="px-3 py-1 bg-[#ffe228] hover:bg-[#ebd020] text-[#130e30] rounded-lg text-[10px] font-black uppercase tracking-wider flex items-center space-x-1 self-start sm:self-auto transition-all active:scale-[0.97]"
+              className="px-3 py-1 bg-[#7248ea] hover:bg-[#6847ff] text-white rounded-lg text-[10px] font-black uppercase tracking-wider flex items-center space-x-1 self-start sm:self-auto transition-all active:scale-[0.97]"
             >
-              {copied ? <Check className="w-3 h-3 text-[#130e30]" /> : <Copy className="w-3 h-3 text-[#130e30]" />}
+              {copied ? <Check className="w-3 h-3 text-[#1a1a1a]" /> : <Copy className="w-3 h-3 text-[#1a1a1a]" />}
               <span>{copied ? 'Copied' : 'Copy'}</span>
             </button>
           </div>
@@ -434,7 +434,7 @@ export function AccessibleErrorReport({
             onClick={() => setShowTechDetails(!showTechDetails)}
             aria-expanded={showTechDetails}
             aria-controls={`tech-details-${reportId}`}
-            className="text-[11px] font-mono font-bold text-[#5f5c6e] hover:text-[#130e30] underline flex items-center space-x-1.5 focus-visible:ring-2 focus-visible:ring-[#130e30] rounded px-1"
+            className="text-[11px] font-mono font-bold text-[#575268] hover:text-[#1a1a1a] underline flex items-center space-x-1.5 focus-visible:ring-2 focus-visible:ring-[#7248ea] rounded px-1"
           >
             <span>{showTechDetails ? 'Hide technical trace' : 'View raw technical trace / status code'}</span>
           </button>
@@ -457,7 +457,7 @@ export function AccessibleErrorReport({
             <button
               type="button"
               onClick={() => (onRetry ? onRetry() : diagnostic.onSuggestedAction?.())}
-              className="px-4 py-2.5 rounded-full bg-[#ffe228] hover:bg-[#ebd020] text-[#130e30] border-[1.5px] border-[#130e30] text-xs font-black uppercase tracking-wider flex items-center space-x-2 transition-all active:scale-[0.97] shadow-xs cursor-pointer focus-visible:ring-2 focus-visible:ring-[#130e30] focus-visible:outline-hidden"
+              className="px-4 py-2.5 rounded-full bg-[#7248ea] hover:bg-[#6847ff] text-white border border-[#dbd8e8] text-xs font-black uppercase tracking-wider flex items-center space-x-2 transition-all active:scale-[0.97] shadow-xs cursor-pointer focus-visible:ring-2 focus-visible:ring-[#7248ea] focus-visible:outline-hidden"
             >
               <RotateCcw className="w-3.5 h-3.5 stroke-[2.5]" aria-hidden="true" />
               <span>{diagnostic.suggestedActionLabel || 'Retry Operation'}</span>
@@ -468,7 +468,7 @@ export function AccessibleErrorReport({
             <button
               type="button"
               onClick={onUseSample}
-              className="px-4 py-2.5 rounded-full bg-[#eff2e5] hover:bg-[#e2e8d4] text-[#130e30] border-[1.5px] border-[#130e30] text-xs font-bold flex items-center space-x-2 transition-all active:scale-[0.97] cursor-pointer focus-visible:ring-2 focus-visible:ring-[#130e30] focus-visible:outline-hidden"
+              className="px-4 py-2.5 rounded-full bg-[#f8f9fa] hover:bg-[#e2e8d4] text-[#1a1a1a] border border-[#dbd8e8] text-xs font-bold flex items-center space-x-2 transition-all active:scale-[0.97] cursor-pointer focus-visible:ring-2 focus-visible:ring-[#7248ea] focus-visible:outline-hidden"
             >
               <Film className="w-3.5 h-3.5" aria-hidden="true" />
               <span>Use Studio Sample Reel</span>
@@ -480,12 +480,12 @@ export function AccessibleErrorReport({
           type="button"
           onClick={handleCopyDiagnostics}
           aria-label="Copy sanitized diagnostic report to clipboard"
-          className="px-3.5 py-2 rounded-full bg-[#f9fbf2] hover:bg-[#eff2e5] text-[#130e30] border border-[#130e30]/30 text-xs font-bold flex items-center space-x-1.5 transition-all active:scale-[0.97] cursor-pointer focus-visible:ring-2 focus-visible:ring-[#130e30] focus-visible:outline-hidden ml-auto"
+          className="px-3.5 py-2 rounded-full bg-[#fbfbfd] hover:bg-[#f8f9fa] text-[#1a1a1a] border border-[#dbd8e8] text-xs font-bold flex items-center space-x-1.5 transition-all active:scale-[0.97] cursor-pointer focus-visible:ring-2 focus-visible:ring-[#7248ea] focus-visible:outline-hidden ml-auto"
         >
           {copied ? (
             <>
-              <Check className="w-3.5 h-3.5 text-[#59e25d]" aria-hidden="true" />
-              <span className="text-[#130e30]">Diagnostic Copied</span>
+              <Check className="w-3.5 h-3.5 text-[#14804a]" aria-hidden="true" />
+              <span className="text-[#1a1a1a]">Diagnostic Copied</span>
             </>
           ) : (
             <>

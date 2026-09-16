@@ -5,9 +5,9 @@ import { Skeleton } from './Skeleton';
 
 export const AgentSequenceTrackSkeleton: React.FC = () => {
   return (
-    <div className="bg-[#eff2e5] border-[1.5px] border-[#130e30]/15 p-6 rounded-[24px] space-y-6 shadow-sm">
+    <div className="bg-[#f8f9fa] border border-[#dbd8e8]/15 p-6 rounded-[16px] space-y-6 shadow-sm">
       {/* Header Row */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#130e30]/10 pb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#dbd8e8] pb-4">
         <div className="space-y-1.5">
           <div className="flex items-center space-x-2">
             <Skeleton variant="circular" width={20} height={20} />
@@ -26,7 +26,7 @@ export const AgentSequenceTrackSkeleton: React.FC = () => {
         {Array.from({ length: 7 }).map((_, idx) => (
           <div
             key={`node-skel-${idx}`}
-            className="bg-[#f9fbf2] border border-[#130e30]/15 rounded-2xl p-3.5 flex flex-col items-center text-center space-y-2.5 relative overflow-hidden"
+            className="bg-[#fbfbfd] border border-[#dbd8e8] rounded-2xl p-3.5 flex flex-col items-center text-center space-y-2.5 relative overflow-hidden"
           >
             {/* Step badge */}
             <div className="w-full flex justify-between items-center">
@@ -50,7 +50,7 @@ export const AgentSequenceTrackSkeleton: React.FC = () => {
       </div>
 
       {/* Track Footnote Metrics */}
-      <div className="flex items-center justify-between pt-2 border-t border-[#130e30]/10 text-xs">
+      <div className="flex items-center justify-between pt-2 border-t border-[#dbd8e8] text-xs">
         <Skeleton variant="text" width={140} height={12} />
         <Skeleton variant="text" width={180} height={12} />
       </div>

@@ -10,9 +10,9 @@ import { DecisionFeedSkeleton } from './DecisionFeedSkeleton';
 
 export const StudioConsoleSkeleton: React.FC = () => {
   return (
-    <div className="space-y-8 font-sans text-[#130e30]">
+    <div className="space-y-8 font-sans text-[#1a1a1a]">
       {/* Top Banner Info Skeleton */}
-      <div className="bg-[#eff2e5] border-[1.5px] border-[#130e30]/15 p-6 rounded-[24px] flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-sm">
+      <div className="bg-[#f8f9fa] border border-[#dbd8e8]/15 p-6 rounded-[16px] flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-sm">
         <div className="space-y-2">
           <div className="flex items-center space-x-3">
             <Skeleton variant="text" width={160} height={28} />
@@ -28,7 +28,7 @@ export const StudioConsoleSkeleton: React.FC = () => {
         {/* Action Controls & Navigation Pills */}
         <div className="flex items-center gap-3 flex-wrap">
           <Skeleton variant="button" width={120} height={36} className="rounded-full" />
-          <div className="flex items-center space-x-1 bg-[#f9fbf2] p-1.5 rounded-full border border-[#130e30]/15">
+          <div className="flex items-center space-x-1 bg-[#fbfbfd] p-1.5 rounded-full border border-[#dbd8e8]">
             <Skeleton variant="button" width={120} height={32} className="rounded-full" />
             <Skeleton variant="button" width={110} height={32} className="rounded-full" />
             <Skeleton variant="button" width={110} height={32} className="rounded-full" />

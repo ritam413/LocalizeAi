@@ -5,9 +5,9 @@ import { Skeleton } from './Skeleton';
 
 export const MultiAudioPlayerSkeleton: React.FC = () => {
   return (
-    <div className="bg-[#eff2e5] border-[1.5px] border-[#130e30]/15 rounded-[24px] p-6 space-y-6 shadow-sm">
+    <div className="bg-[#f8f9fa] border border-[#dbd8e8]/15 rounded-[16px] p-6 space-y-6 shadow-sm">
       {/* Header & Track Selector */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#130e30]/10 pb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#dbd8e8] pb-4">
         <div className="flex items-center space-x-3">
           <Skeleton variant="circular" width={24} height={24} />
           <div className="space-y-1">
@@ -24,7 +24,7 @@ export const MultiAudioPlayerSkeleton: React.FC = () => {
       </div>
 
       {/* Waveform Visualization Bars Skeleton */}
-      <div className="bg-[#f9fbf2] border border-[#130e30]/10 rounded-2xl p-4 space-y-3">
+      <div className="bg-[#fbfbfd] border border-[#dbd8e8] rounded-2xl p-4 space-y-3">
         <div className="flex items-center justify-between">
           <Skeleton variant="text" width={120} height={12} />
           <Skeleton variant="pill" width={70} height={18} />

@@ -110,3 +110,46 @@ export function validateDirectorJobState(state: any): state is DirectorJobState 
   if (!state.crew_statuses || typeof state.crew_statuses !== 'object') return false;
   return true;
 }
+
+export interface PipelineJobSpec {
+  job_id: string;
+  video_path: string;
+  target_language: string;
+  source_language?: string;
+  output_dir?: string;
+  use_demucs?: boolean;
+  whisper_model?: string;
+  whisper_compute_type?: string;
+  llm_provider?: 'gemini' | 'ollama';
+  tts_adapter?: 'edge_tts' | 'kokoro' | 'mock';
+  scene_batch_size?: number;
+  ducking_db?: number;
+  min_readiness_threshold?: number;
+  glossary_locks?: string[];
+  speaker_overrides?: Record<string, string>;
+}
+
+export interface PipelineReleaseResult {
+  job_id: string;
+  status: 'completed' | 'failed';
+  readiness_score: number;
+  total_latency_ms: number;
+  release_candidate_video?: string;
+  mastered_audio_path?: string;
+  dialogue_bus_path?: string;
+  background_me_path?: string;
+  subtitles_srt_path?: string;
+  subtitles_vtt_path?: string;
+  repaired_defects: QAFinding[];
+  telemetry_events: any[];
+  error_message?: string;
+}
+
+export function validatePipelineReleaseResult(result: any): result is PipelineReleaseResult {
+  if (!result || typeof result !== 'object') return false;
+  if (typeof result.job_id !== 'string') return false;
+  if (result.status !== 'completed' && result.status !== 'failed') return false;
+  if (typeof result.readiness_score !== 'number') return false;
+  if (typeof result.total_latency_ms !== 'number') return false;
+  return true;
+}

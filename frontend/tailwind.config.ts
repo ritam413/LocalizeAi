@@ -8,48 +8,92 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        background: "#0b0f19",
-        surface: "#111827",
-        surfaceBorder: "#1f293d",
-        // Ditto Palette Tokens
+        background: "#fbfbfd",
+        surface: "#ffffff",
+        surfaceBorder: "#dbd8e8",
+        
+        // Canonical Studio Design System Tokens (Extracted & Refined)
+        studio: {
+          primary: "#7248ea",
+          primaryHover: "#6847ff",
+          accent: "#6a33e9",
+          soft: "#f2eeff",
+          tint: "#f8f6ff",
+          mint: "#00d4aa",
+          ink: "#1a1a1a",
+          black: "#07060c",
+          muted: "#575268",
+          subtle: "#9e9e9e",
+          line: "#dbd8e8",
+          borderFocus: "#bd98ec",
+          canvas: "#fbfbfd",
+          dark: "#111827",
+          charcoal: "#171427",
+        },
+        
+        // QA Continuity & Defect Status Colors
+        qa: {
+          success: "#14804a",
+          successBg: "#f0f9eb",
+          successBorder: "#c2e7b0",
+          danger: "#b42318",
+          dangerBg: "#fef0f0",
+          dangerBorder: "#fde2e2",
+          warning: "#a96f00",
+          warningBg: "#fdf6ec",
+          warningBorder: "#f5dab1",
+          info: "#409eff",
+          infoBg: "#ecf5ff",
+          infoBorder: "#b3d8ff",
+        },
+
+        // Legacy / Backward-Compatible Theme Aliases
         ditto: {
-          deepInk: "#130e30",
+          deepInk: "#1a1a1a",
           hiYellow: "#ffe228",
-          mossGreen: "#59e25d",
-          fuchsia: "#e261e5",
-          slate: "#5f5c6e",
-          canvas: "#f9fbf2",
-          softMeadow: "#eff2e5",
-          charcoal: "#222222",
-          onyx: "#000000",
+          mossGreen: "#00d4aa",
+          fuchsia: "#7248ea",
+          slate: "#575268",
+          canvas: "#fbfbfd",
+          softMeadow: "#f2eeff",
+          charcoal: "#171427",
+          onyx: "#07060c",
         },
         brand: {
-          50: "#eef2ff",
-          500: "#6366f1",
-          600: "#4f46e5",
-          700: "#4338ca",
+          50: "#f8f6ff",
+          100: "#f2eeff",
+          500: "#7248ea",
+          600: "#6847ff",
+          700: "#6a33e9",
         },
         accent: {
-          cyan: "#06b6d4",
-          violet: "#8b5cf6",
-          emerald: "#10b981",
-          amber: "#f59e0b",
+          cyan: "#00d4aa",
+          violet: "#7248ea",
+          emerald: "#14804a",
+          amber: "#a96f00",
         }
       },
-      fontFamily: {
-        sans: ["Inter", "-apple-system", "BlinkMacSystemFont", "sans-serif"],
-        netflix: ["Inter", "-apple-system", "BlinkMacSystemFont", "sans-serif"],
-        mono: ["JetBrains Mono", "monospace"],
+      borderRadius: {
+        'studio-sm': '6px',
+        'studio-md': '10px',
+        'studio-lg': '16px',
+        'studio-xl': '20px',
       },
       boxShadow: {
-        glow: "0 0 20px -5px rgba(99, 102, 241, 0.4)",
-        yellowGlow: "0 0 0 3px #ffe228, 0 4px 16px rgba(19, 14, 48, 0.08)",
-        fuchsiaGlow: "0 0 0 3px rgba(226, 97, 229, 0.35)",
-        glass: "0 8px 32px 0 rgba(0, 0, 0, 0.37)",
+        'studio-card': '0 2px 8px rgba(0, 0, 0, 0.06)',
+        'studio-float': '0 4px 16px rgba(0, 0, 0, 0.08)',
+        'studio-modal': '0 20px 50px rgba(26, 20, 55, 0.12)',
+        'studio-glow': '0 4px 14px rgba(114, 72, 234, 0.28)',
+        'studio-glow-hover': '0 6px 20px rgba(114, 72, 234, 0.42)',
+        glow: '0 4px 14px rgba(114, 72, 234, 0.28)',
+        glass: '0 8px 32px 0 rgba(0, 0, 0, 0.12)',
+      },
+      fontFamily: {
+        sans: ["Roboto", "Inter", "ui-sans-serif", "-apple-system", "BlinkMacSystemFont", "sans-serif"],
+        mono: ["ui-monospace", "SFMono-Regular", "Menlo", "Monaco", "Consolas", "monospace"],
       }
     },
   },
   plugins: [],
 };
 export default config;
-

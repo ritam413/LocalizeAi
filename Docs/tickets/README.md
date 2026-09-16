@@ -21,9 +21,9 @@ This directory contains individual specification and execution tickets for the L
 | [TICKET-13](./TICKET-13-acoustic-mastering-engine.md) | Deep Acoustic Mastering Engine (Sidechain Ducking) | Completed | `backend/app/engine/stages/mixer.py` | Pytest | TICKET-05, TICKET-12 |
 | [TICKET-14](./TICKET-14-perceptual-acoustic-qa-repair.md) | Perceptual Acoustic QA & Quantitative Retries | Completed | `backend/app/agents/qa_agent.py` | Pytest + Vitest | TICKET-07, TICKET-08, TICKET-11, TICKET-13 |
 | [TICKET-15](./TICKET-15-proper-noun-and-numeral-localization.md) | English Proper Noun Preservation & Colloquial Numeral Localization | Completed | `backend/app/agents/localization_director.py` | Pytest + Vitest | TICKET-03 |
-| [TICKET-16](./TICKET-16-director-end-to-end-pipeline.md) | End-to-End Post-Production Director Pipeline Runner | Planned | `backend/app/agents/director.py` | Pytest + Vitest | TICKET-08, TICKET-13, TICKET-14, TICKET-15 |
-| [TICKET-17](./TICKET-17-post-qa-acoustic-mixdown.md) | Post-QA Acoustic Master Mixdown & Sidechain Bus Integration | Planned | `backend/app/agents/director.py` | Pytest | TICKET-08, TICKET-13, TICKET-14 |
-| [TICKET-18](./TICKET-18-pluggable-diarization-adapter.md) | Pluggable Speaker Diarization Adapter & Voiceprint Mapping | Planned | `backend/app/agents/story_analyst.py` | Pytest + Vitest | TICKET-02 |
-| [TICKET-19](./TICKET-19-broadcast-deliverables-exporter.md) | Broadcast Video Multiplexing & Studio Deliverables Exporter | Planned | `backend/app/engine/stages/exporter.py` | Pytest + Vitest | TICKET-06, TICKET-13, TICKET-16, TICKET-17 |
+| [TICKET-16](./TICKET-16-director-end-to-end-pipeline.md) | End-to-End Post-Production Director Pipeline Runner | Completed | `backend/app/agents/director.py` | Pytest + Vitest | TICKET-08, TICKET-13, TICKET-14, TICKET-15 |
+| [TICKET-17](./TICKET-17-post-qa-acoustic-mixdown.md) | Post-QA Acoustic Master Mixdown & Sidechain Bus Integration | Completed | `backend/app/agents/director.py` | Pytest | TICKET-08, TICKET-13, TICKET-14 |
+| [TICKET-18](./TICKET-18-pluggable-diarization-adapter.md) | Pluggable Speaker Diarization Adapter & Voiceprint Mapping | Completed | `backend/app/agents/story_analyst.py` | Pytest + Vitest | TICKET-02 |
+| [TICKET-19](./TICKET-19-broadcast-deliverables-exporter.md) | Broadcast Video Multiplexing & Studio Deliverables Exporter | Completed | `backend/app/engine/stages/exporter.py` | Pytest | TICKET-06, TICKET-13, TICKET-16, TICKET-17 |
 
 

@@ -1,7 +1,7 @@
 # TICKET-18: Pluggable Speaker Diarization Adapter & Voiceprint Mapping
 
 ## Status
-- **State**: Planned
+- **State**: Completed
 - **Primary Seam**: `backend/app/agents/story_analyst.py` (`DiarizationAdapter`, `HeuristicDiarizationAdapter`, `PyAnnoteDiarizationAdapter`) & `frontend/lib/agents/story_analyst.ts`
 - **Verification**: Pytest (`backend/tests/test_diarization_adapter.py`) & Vitest (`frontend/__tests__/story_analyst.test.ts`)
 - **Blocking Dependencies**: TICKET-02

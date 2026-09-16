@@ -31,14 +31,14 @@ export const CrewStatus: React.FC<CrewStatusProps> = ({ crewStatuses, retries })
   ];
 
   return (
-    <div className="bg-[#eff2e5] border-[1.5px] border-[#130e30]/15 rounded-[24px] p-6 text-[#130e30] font-sans shadow-sm">
-      <div className="flex items-center justify-between pb-4 border-b border-[#130e30]/10 mb-4">
+    <div className="bg-[#f8f9fa] border border-[#dbd8e8]/15 rounded-[16px] p-6 text-[#1a1a1a] font-sans shadow-sm">
+      <div className="flex items-center justify-between pb-4 border-b border-[#dbd8e8] mb-4">
         <div>
-          <h3 className="text-sm font-extrabold tracking-tight uppercase text-[#130e30] flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#ffe228] border border-[#130e30] animate-pulse" />
+          <h3 className="text-sm font-extrabold tracking-tight uppercase text-[#1a1a1a] flex items-center gap-2">
+            <span className="w-2.5 h-2.5 rounded-full bg-[#7248ea] border border-[#dbd8e8] animate-pulse" />
             Autonomous Post-Production Crew
           </h3>
-          <p className="text-xs text-[#5f5c6e] mt-0.5">Google Cloud Gemini Reasoning Core</p>
+          <p className="text-xs text-[#575268] mt-0.5">Google Cloud Gemini Reasoning Core</p>
         </div>
       </div>
 
@@ -49,25 +49,25 @@ export const CrewStatus: React.FC<CrewStatusProps> = ({ crewStatuses, retries })
           const info = AGENT_LABELS[agent];
 
           let statusBadge = (
-            <span className="text-[9.5px] font-mono font-semibold px-2.5 py-0.5 rounded-full bg-[#130e30]/5 text-[#5f5c6e] uppercase">
+            <span className="text-[9.5px] font-mono font-semibold px-2.5 py-0.5 rounded-full bg-[#130e30]/5 text-[#575268] uppercase">
               PENDING
             </span>
           );
           if (status === 'running') {
             statusBadge = (
-              <span className="text-[9.5px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-[#ffe228] border border-[#130e30] text-[#130e30] animate-pulse-yellow uppercase">
+              <span className="text-[9.5px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-[#7248ea] border border-[#dbd8e8] text-[#1a1a1a] animate-pulse-yellow uppercase">
                 RUNNING
               </span>
             );
           } else if (status === 'retrying') {
             statusBadge = (
-              <span className="text-[9.5px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-[#e261e5] text-white uppercase animate-pulse">
+              <span className="text-[9.5px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-[#7248ea] text-white uppercase animate-pulse">
                 RETRYING
               </span>
             );
           } else if (status === 'completed') {
             statusBadge = (
-              <span className="text-[9.5px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-[#59e25d] text-[#130e30] uppercase">
+              <span className="text-[9.5px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-[#14804a] text-[#1a1a1a] uppercase">
                 READY
               </span>
             );
@@ -76,20 +76,20 @@ export const CrewStatus: React.FC<CrewStatusProps> = ({ crewStatuses, retries })
           return (
             <div
               key={agent}
-              className="flex items-center justify-between p-3 rounded-xl bg-[#f9fbf2] border border-[#130e30]/10 hover:border-[#130e30]/30 transition"
+              className="flex items-center justify-between p-3 rounded-xl bg-[#fbfbfd] border border-[#dbd8e8] hover:border-[#dbd8e8] transition"
             >
               <div className="flex items-center gap-3">
-                <span className="font-mono text-[10px] font-bold text-[#5f5c6e] bg-[#eff2e5] px-1.5 py-0.5 rounded border border-[#130e30]/10">
+                <span className="font-mono text-[10px] font-bold text-[#575268] bg-[#f8f9fa] px-1.5 py-0.5 rounded border border-[#dbd8e8]">
                   {info.step}
                 </span>
                 <div className="flex flex-col">
-                  <span className="text-xs font-bold text-[#130e30]">{info.title}</span>
-                  <span className="text-[10.5px] text-[#5f5c6e]">{info.subtitle}</span>
+                  <span className="text-xs font-bold text-[#1a1a1a]">{info.title}</span>
+                  <span className="text-[10.5px] text-[#575268]">{info.subtitle}</span>
                 </div>
               </div>
               <div className="flex items-center gap-2">
                 {retryCount > 0 && (
-                  <span className="text-[9.5px] font-mono font-bold px-2 py-0.5 rounded-full bg-[#fdf3fe] border border-[#e261e5] text-[#e261e5]">
+                  <span className="text-[9.5px] font-mono font-bold px-2 py-0.5 rounded-full bg-[#fdf3fe] border border-[#e261e5] text-[#7248ea]">
                     Retry #{retryCount}
                   </span>
                 )}

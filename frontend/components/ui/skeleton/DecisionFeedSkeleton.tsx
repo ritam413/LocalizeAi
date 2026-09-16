@@ -9,9 +9,9 @@ export interface DecisionFeedSkeletonProps {
 
 export const DecisionFeedSkeleton: React.FC<DecisionFeedSkeletonProps> = ({ items = 3 }) => {
   return (
-    <div className="bg-[#eff2e5] border-[1.5px] border-[#130e30]/15 p-6 rounded-[24px] space-y-5 shadow-sm">
+    <div className="bg-[#f8f9fa] border border-[#dbd8e8]/15 p-6 rounded-[16px] space-y-5 shadow-sm">
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-[#130e30]/10 pb-4">
+      <div className="flex items-center justify-between border-b border-[#dbd8e8] pb-4">
         <div className="flex items-center space-x-2">
           <Skeleton variant="circular" width={20} height={20} />
           <Skeleton variant="text" width={180} height={16} />
@@ -24,7 +24,7 @@ export const DecisionFeedSkeleton: React.FC<DecisionFeedSkeletonProps> = ({ item
         {Array.from({ length: items }).map((_, idx) => (
           <div
             key={`decision-skel-${idx}`}
-            className="bg-[#f9fbf2] border border-[#130e30]/10 rounded-2xl p-4 space-y-2.5"
+            className="bg-[#fbfbfd] border border-[#dbd8e8] rounded-2xl p-4 space-y-2.5"
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">

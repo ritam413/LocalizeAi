@@ -23,7 +23,7 @@ export const Skeleton: React.FC<SkeletonProps> = ({
   const getVariantStyles = () => {
     switch (variant) {
       case 'card':
-        return 'rounded-[24px] bg-[#eff2e5] border-[1.5px] border-[#130e30]/10 p-6';
+        return 'rounded-[24px] bg-[#f8f9fa] border border-[#dbd8e8]/10 p-6';
       case 'text':
         return 'h-3.5 w-full rounded-md bg-[#130e30]/10 my-1';
       case 'circular':
@@ -31,7 +31,7 @@ export const Skeleton: React.FC<SkeletonProps> = ({
       case 'pill':
         return 'rounded-full bg-[#130e30]/10 h-6 px-3';
       case 'button':
-        return 'rounded-full bg-[#130e30]/15 h-9 px-4 border border-[#130e30]/15';
+        return 'rounded-full bg-[#130e30]/15 h-9 px-4 border border-[#dbd8e8]';
       case 'badge':
         return 'rounded-md bg-[#130e30]/10 h-5 px-2 text-[10px]';
       default:

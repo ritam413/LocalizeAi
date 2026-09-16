@@ -68,13 +68,13 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="space-y-8 max-w-4xl font-sans text-[#130e30]">
-      <div className="border-b border-[#130e30]/10 pb-6">
-        <h1 className="text-3xl font-black text-[#130e30] tracking-tight uppercase flex items-center space-x-3">
-          <Settings className="w-7 h-7 text-[#130e30]" aria-hidden="true" />
+    <div className="space-y-8 max-w-4xl font-sans text-[#1a1a1a]">
+      <div className="border-b border-[#dbd8e8] pb-6">
+        <h1 className="text-3xl font-black text-[#1a1a1a] tracking-tight uppercase flex items-center space-x-3">
+          <Settings className="w-7 h-7 text-[#1a1a1a]" aria-hidden="true" />
           <span>Studio Settings &amp; QA Guardrails</span>
         </h1>
-        <p className="text-xs text-[#5f5c6e] mt-1.5 font-medium">
+        <p className="text-xs text-[#575268] mt-1.5 font-medium">
           Configure hardware cluster constraints for GpuLock and global subtitle reading speed (CPS) thresholds.
         </p>
       </div>
@@ -92,24 +92,24 @@ export default function SettingsPage() {
         <div
           role="status"
           aria-live="polite"
-          className="p-4 rounded-2xl bg-[#59e25d]/20 border-[1.5px] border-[#130e30] text-[#130e30] text-xs font-bold flex items-center space-x-2 shadow-xs"
+          className="p-4 rounded-2xl bg-[#14804a]/20 border border-[#dbd8e8] text-[#1a1a1a] text-xs font-bold flex items-center space-x-2 shadow-xs"
         >
-          <CheckCircle2 className="w-4 h-4 text-[#130e30]" aria-hidden="true" />
+          <CheckCircle2 className="w-4 h-4 text-[#1a1a1a]" aria-hidden="true" />
           <span>Settings saved and synchronized with agent runtime.</span>
         </div>
       )}
 
       {/* Hardware Profile Section */}
-      <section className="bg-[#eff2e5] border-[1.5px] border-[#130e30]/15 p-6 rounded-[24px] space-y-4 shadow-sm">
-        <h2 className="text-sm font-extrabold text-[#130e30] uppercase tracking-tight flex items-center space-x-2">
-          <Cpu className="w-4 h-4 text-[#130e30]" aria-hidden="true" />
+      <section className="bg-[#f8f9fa] border border-[#dbd8e8]/15 p-6 rounded-[16px] space-y-4 shadow-sm">
+        <h2 className="text-sm font-extrabold text-[#1a1a1a] uppercase tracking-tight flex items-center space-x-2">
+          <Cpu className="w-4 h-4 text-[#1a1a1a]" aria-hidden="true" />
           <span>Hardware Constraint Settings</span>
         </h2>
 
         <div>
           <label
             htmlFor="gpu-vram-input"
-            className="block text-xs font-extrabold uppercase tracking-wider text-[#5f5c6e] mb-1.5"
+            className="block text-xs font-extrabold uppercase tracking-wider text-[#575268] mb-1.5"
           >
             GPU Box VRAM Limit (MB)
           </label>
@@ -119,18 +119,18 @@ export default function SettingsPage() {
             value={settings.gpu_vram_mb}
             onChange={(e) => setSettings({ ...settings, gpu_vram_mb: parseInt(e.target.value) || 4096 })}
             aria-describedby="gpu-vram-help"
-            className="w-full bg-[#f9fbf2] border-[1.5px] border-[#130e30]/20 focus:border-[#130e30] rounded-xl px-4 py-3 text-xs text-[#130e30] font-mono focus:outline-none focus:ring-2 focus:ring-[#ffe228]"
+            className="w-full bg-[#fbfbfd] border border-[#dbd8e8]/20 focus:border-[#dbd8e8] rounded-xl px-4 py-3 text-xs text-[#1a1a1a] font-mono focus:outline-none focus:ring-2 focus:ring-[#7248ea]/20"
           />
-          <p id="gpu-vram-help" className="text-[11px] text-[#5f5c6e] mt-1.5 font-mono">
+          <p id="gpu-vram-help" className="text-[11px] text-[#575268] mt-1.5 font-mono">
             Enforces GpuLock model serialization for GTX 1050 Ti (default 4096 MB).
           </p>
         </div>
       </section>
 
       {/* Subtitle QA Thresholds */}
-      <section className="bg-[#eff2e5] border-[1.5px] border-[#130e30]/15 p-6 rounded-[24px] space-y-4 shadow-sm">
-        <h2 className="text-sm font-extrabold text-[#130e30] uppercase tracking-tight flex items-center space-x-2">
-          <Sliders className="w-4 h-4 text-[#130e30]" aria-hidden="true" />
+      <section className="bg-[#f8f9fa] border border-[#dbd8e8]/15 p-6 rounded-[16px] space-y-4 shadow-sm">
+        <h2 className="text-sm font-extrabold text-[#1a1a1a] uppercase tracking-tight flex items-center space-x-2">
+          <Sliders className="w-4 h-4 text-[#1a1a1a]" aria-hidden="true" />
           <span>Subtitle QA Validation Thresholds</span>
         </h2>
 
@@ -138,7 +138,7 @@ export default function SettingsPage() {
           <div>
             <label
               htmlFor="qa-min-gap-input"
-              className="block text-xs font-extrabold uppercase tracking-wider text-[#5f5c6e] mb-1.5"
+              className="block text-xs font-extrabold uppercase tracking-wider text-[#575268] mb-1.5"
             >
               Min Inter-segment Gap (ms)
             </label>
@@ -147,14 +147,14 @@ export default function SettingsPage() {
               type="number"
               value={settings.qa_min_gap_ms}
               onChange={(e) => setSettings({ ...settings, qa_min_gap_ms: parseInt(e.target.value) || 100 })}
-              className="w-full bg-[#f9fbf2] border border-[#130e30]/20 rounded-xl px-4 py-2.5 text-xs text-[#130e30] font-mono focus:outline-none focus:ring-2 focus:ring-[#ffe228]"
+              className="w-full bg-[#fbfbfd] border border-[#dbd8e8] rounded-xl px-4 py-2.5 text-xs text-[#1a1a1a] font-mono focus:outline-none focus:ring-2 focus:ring-[#7248ea]/20"
             />
           </div>
 
           <div>
             <label
               htmlFor="qa-max-cps-input"
-              className="block text-xs font-extrabold uppercase tracking-wider text-[#5f5c6e] mb-1.5"
+              className="block text-xs font-extrabold uppercase tracking-wider text-[#575268] mb-1.5"
             >
               Max Characters Per Second (CPS)
             </label>
@@ -164,14 +164,14 @@ export default function SettingsPage() {
               step="0.5"
               value={settings.qa_max_cps}
               onChange={(e) => setSettings({ ...settings, qa_max_cps: parseFloat(e.target.value) || 17.0 })}
-              className="w-full bg-[#f9fbf2] border border-[#130e30]/20 rounded-xl px-4 py-2.5 text-xs text-[#130e30] font-mono focus:outline-none focus:ring-2 focus:ring-[#ffe228]"
+              className="w-full bg-[#fbfbfd] border border-[#dbd8e8] rounded-xl px-4 py-2.5 text-xs text-[#1a1a1a] font-mono focus:outline-none focus:ring-2 focus:ring-[#7248ea]/20"
             />
           </div>
 
           <div>
             <label
               htmlFor="qa-min-dur-input"
-              className="block text-xs font-extrabold uppercase tracking-wider text-[#5f5c6e] mb-1.5"
+              className="block text-xs font-extrabold uppercase tracking-wider text-[#575268] mb-1.5"
             >
               Min Subtitle Duration (seconds)
             </label>
@@ -181,14 +181,14 @@ export default function SettingsPage() {
               step="0.1"
               value={settings.qa_min_duration_s}
               onChange={(e) => setSettings({ ...settings, qa_min_duration_s: parseFloat(e.target.value) || 1.0 })}
-              className="w-full bg-[#f9fbf2] border border-[#130e30]/20 rounded-xl px-4 py-2.5 text-xs text-[#130e30] font-mono focus:outline-none focus:ring-2 focus:ring-[#ffe228]"
+              className="w-full bg-[#fbfbfd] border border-[#dbd8e8] rounded-xl px-4 py-2.5 text-xs text-[#1a1a1a] font-mono focus:outline-none focus:ring-2 focus:ring-[#7248ea]/20"
             />
           </div>
 
           <div>
             <label
               htmlFor="qa-max-chars-input"
-              className="block text-xs font-extrabold uppercase tracking-wider text-[#5f5c6e] mb-1.5"
+              className="block text-xs font-extrabold uppercase tracking-wider text-[#575268] mb-1.5"
             >
               Max Line Length (characters)
             </label>
@@ -197,7 +197,7 @@ export default function SettingsPage() {
               type="number"
               value={settings.qa_max_line_chars}
               onChange={(e) => setSettings({ ...settings, qa_max_line_chars: parseInt(e.target.value) || 42 })}
-              className="w-full bg-[#f9fbf2] border border-[#130e30]/20 rounded-xl px-4 py-2.5 text-xs text-[#130e30] font-mono focus:outline-none focus:ring-2 focus:ring-[#ffe228]"
+              className="w-full bg-[#fbfbfd] border border-[#dbd8e8] rounded-xl px-4 py-2.5 text-xs text-[#1a1a1a] font-mono focus:outline-none focus:ring-2 focus:ring-[#7248ea]/20"
             />
           </div>
         </div>
@@ -209,7 +209,7 @@ export default function SettingsPage() {
           onClick={handleSave}
           disabled={isSaving}
           aria-busy={isSaving}
-          className="bg-[#ffe228] hover:bg-[#ebd020] text-[#130e30] border-[1.5px] border-[#130e30] px-8 py-3.5 rounded-full font-black text-xs shadow-sm flex items-center space-x-2 transition-all active:scale-[0.97] cursor-pointer focus-visible:ring-2 focus-visible:ring-[#130e30]"
+          className="bg-[#7248ea] hover:bg-[#6847ff] text-white border border-[#dbd8e8] px-8 py-3.5 rounded-full font-black text-xs shadow-sm flex items-center space-x-2 transition-all active:scale-[0.97] cursor-pointer focus-visible:ring-2 focus-visible:ring-[#7248ea]"
         >
           <Save className="w-4 h-4" aria-hidden="true" />
           <span>{isSaving ? 'SAVING SETTINGS…' : 'SAVE SYSTEM SETTINGS'}</span>

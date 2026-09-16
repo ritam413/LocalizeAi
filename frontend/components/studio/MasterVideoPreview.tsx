@@ -162,20 +162,20 @@ export const MasterVideoPreview: React.FC<MasterVideoPreviewProps> = ({
 
   if (!videoSrc) {
     return (
-      <div className="bg-white border-[2.5px] border-[#130e30] rounded-[32px] p-8 sm:p-12 text-center space-y-5 shadow-[0_8px_30px_rgba(19,14,48,0.08)]">
-        <div className="w-16 h-16 rounded-2xl bg-[#eff2e5] border-[2px] border-[#130e30] flex items-center justify-center mx-auto text-[#130e30]">
+      <div className="bg-white border border-[#dbd8e8] rounded-[20px] p-8 sm:p-12 text-center space-y-5 shadow-[0_2px_12px_rgba(0,0,0,0.04)]">
+        <div className="w-16 h-16 rounded-2xl bg-[#f8f9fa] border border-[#dbd8e8] flex items-center justify-center mx-auto text-[#1a1a1a]">
           <Film className="w-8 h-8 stroke-[2.5]" />
         </div>
         <div>
-          <h3 className="text-xl font-black text-[#130e30] uppercase tracking-tight">No Master Footage Loaded</h3>
-          <p className="text-xs sm:text-sm text-[#5f5c6e] mt-1 font-medium">
+          <h3 className="text-xl font-black text-[#1a1a1a] uppercase tracking-tight">No Master Footage Loaded</h3>
+          <p className="text-xs sm:text-sm text-[#575268] mt-1 font-medium">
             Please ingest a video file via drag-and-drop, disk path, or sample reel to unlock preview.
           </p>
         </div>
         {onBackToSetup && (
           <button
             onClick={onBackToSetup}
-            className="px-6 py-2.5 rounded-full bg-[#ffe228] text-[#130e30] border-[1.5px] border-[#130e30] font-black text-xs uppercase tracking-wider shadow-xs hover:bg-[#ebd020] active:scale-[0.97] cursor-pointer"
+            className="px-6 py-2.5 rounded-full bg-[#f2eeff] text-[#7248ea] border border-[#dbd8e8] font-black text-xs uppercase tracking-wider shadow-xs hover:bg-[#6847ff] active:scale-[0.97] cursor-pointer"
           >
             Go to Ingestion Setup
           </button>
@@ -185,20 +185,20 @@ export const MasterVideoPreview: React.FC<MasterVideoPreviewProps> = ({
   }
 
   return (
-    <div className="bg-white border-[2.5px] border-[#130e30] rounded-[32px] p-6 sm:p-8 space-y-6 shadow-[0_8px_30px_rgba(19,14,48,0.08)] font-sans text-[#130e30]">
+    <div className="bg-white border border-[#dbd8e8] rounded-[20px] p-6 sm:p-8 space-y-6 shadow-[0_2px_12px_rgba(0,0,0,0.04)] font-sans text-[#1a1a1a]">
       {/* Top Monitor Status Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-[#130e30]/10">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-[#dbd8e8]">
         <div className="flex items-center space-x-3">
-          <div className="w-9 h-9 rounded-xl bg-[#130e30] text-[#ffe228] flex items-center justify-center font-black text-sm border border-[#130e30]">
+          <div className="w-9 h-9 rounded-xl bg-[#130e30] text-[#7248ea] flex items-center justify-center font-black text-sm border border-[#dbd8e8]">
             <Film className="w-4.5 h-4.5" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h3 className="text-base sm:text-lg font-black uppercase tracking-tight text-[#130e30] truncate max-w-md">
+              <h3 className="text-base sm:text-lg font-black uppercase tracking-tight text-[#1a1a1a] truncate max-w-md">
                 {filename}
               </h3>
             </div>
-            <p className="text-[11px] font-mono text-[#5f5c6e]">
+            <p className="text-[11px] font-mono text-[#575268]">
               Master Studio Viewfinder • Live Local Direct Stream
             </p>
           </div>
@@ -206,19 +206,19 @@ export const MasterVideoPreview: React.FC<MasterVideoPreviewProps> = ({
 
         <div className="flex items-center gap-2 flex-wrap">
           {sourceType === 'blob' && (
-            <span className="inline-flex items-center gap-1.5 bg-[#59e25d] text-[#130e30] border border-[#130e30] px-3 py-1 rounded-full text-xs font-mono font-black uppercase shadow-xs">
+            <span className="inline-flex items-center gap-1.5 bg-[#14804a] text-[#1a1a1a] border border-[#dbd8e8] px-3 py-1 rounded-full text-xs font-mono font-black uppercase shadow-xs">
               <Zap className="w-3.5 h-3.5 fill-current" />
               <span>Direct Local Disk Zero-Copy</span>
             </span>
           )}
           {sourceType === 'sample' && (
-            <span className="inline-flex items-center gap-1.5 bg-[#ffe228] text-[#130e30] border border-[#130e30] px-3 py-1 rounded-full text-xs font-mono font-black uppercase shadow-xs">
+            <span className="inline-flex items-center gap-1.5 bg-[#f2eeff] text-[#7248ea] border border-[#dbd8e8] px-3 py-1 rounded-full text-xs font-mono font-black uppercase shadow-xs">
               <Sparkles className="w-3.5 h-3.5" />
               <span>Studio 4K Reel</span>
             </span>
           )}
           {sourceType === 'stream' && (
-            <span className="inline-flex items-center gap-1.5 bg-[#eff2e5] text-[#130e30] border border-[#130e30] px-3 py-1 rounded-full text-xs font-mono font-black uppercase shadow-xs">
+            <span className="inline-flex items-center gap-1.5 bg-[#f8f9fa] text-[#1a1a1a] border border-[#dbd8e8] px-3 py-1 rounded-full text-xs font-mono font-black uppercase shadow-xs">
               <HardDrive className="w-3.5 h-3.5" />
               <span>Direct Disk NVMe Stream</span>
             </span>
@@ -227,7 +227,7 @@ export const MasterVideoPreview: React.FC<MasterVideoPreviewProps> = ({
           {onBackToSetup && (
             <button
               onClick={onBackToSetup}
-              className="px-3.5 py-1 rounded-full bg-[#eff2e5] hover:bg-[#ffe228] text-[#130e30] border border-[#130e30] text-xs font-bold transition active:scale-[0.97] cursor-pointer"
+              className="px-3.5 py-1 rounded-full bg-[#f8f9fa] hover:bg-[#f2eeff] text-[#7248ea] border border-[#dbd8e8] text-xs font-bold transition active:scale-[0.97] cursor-pointer"
             >
               Configure Run ⚙️
             </button>
@@ -236,7 +236,7 @@ export const MasterVideoPreview: React.FC<MasterVideoPreviewProps> = ({
       </div>
 
       {/* Cinema Monitor Screen Container */}
-      <div className="relative rounded-[24px] overflow-hidden bg-[#130e30] border-[2px] border-[#130e30] shadow-inner group">
+      <div className="relative rounded-[16px] overflow-hidden bg-[#130e30] border border-[#dbd8e8] shadow-inner group">
         <video
           ref={videoRef}
           src={videoSrc}
@@ -256,14 +256,14 @@ export const MasterVideoPreview: React.FC<MasterVideoPreviewProps> = ({
 
         {/* Viewfinder Corner Overlays */}
         <div className="absolute top-4 left-4 pointer-events-none flex items-center gap-2 bg-[#130e30]/80 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/20 text-white text-xs font-mono font-bold">
-          <span className="w-2 h-2 rounded-full bg-[#e261e5] animate-ping" />
+          <span className="w-2 h-2 rounded-full bg-[#7248ea] animate-ping" />
           <span>REC MASTER</span>
           <span className="text-white/40">|</span>
-          <span className="text-[#ffe228]">{formatTime(currentTime)}</span>
+          <span className="text-[#7248ea]">{formatTime(currentTime)}</span>
         </div>
 
         {videoDimensions && (
-          <div className="absolute top-4 right-4 pointer-events-none bg-[#130e30]/80 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/20 text-[#59e25d] text-xs font-mono font-bold">
+          <div className="absolute top-4 right-4 pointer-events-none bg-[#130e30]/80 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/20 text-[#14804a] text-xs font-mono font-bold">
             {videoDimensions.width}x{videoDimensions.height} DCI
           </div>
         )}
@@ -284,7 +284,7 @@ export const MasterVideoPreview: React.FC<MasterVideoPreviewProps> = ({
               aria-valuemax={duration || 100}
               aria-valuenow={currentTime}
               aria-valuetext={formatTime(currentTime)}
-              className="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer accent-[#ffe228] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#ffe228]"
+              className="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer accent-[#7248ea] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7248ea]"
             />
             <div className="flex items-center justify-between text-[10px] font-mono text-white/70 font-semibold px-0.5">
               <span>{formatTime(currentTime)}</span>
@@ -299,7 +299,7 @@ export const MasterVideoPreview: React.FC<MasterVideoPreviewProps> = ({
                 type="button"
                 onClick={togglePlay}
                 aria-label={isPlaying ? 'Pause video' : 'Play video'}
-                className="w-10 h-10 rounded-xl bg-[#ffe228] hover:bg-[#ebd020] text-[#130e30] flex items-center justify-center font-black border border-[#130e30] shadow-xs active:scale-[0.95] transition cursor-pointer focus-visible:ring-2 focus-visible:ring-[#ffe228]"
+                className="w-10 h-10 rounded-xl bg-[#7248ea] hover:bg-[#6847ff] text-white flex items-center justify-center font-black border border-[#dbd8e8] shadow-xs active:scale-[0.95] transition cursor-pointer focus-visible:ring-2 focus-visible:ring-[#7248ea]"
                 title={isPlaying ? 'Pause' : 'Play'}
               >
                 {isPlaying ? <Pause className="w-5 h-5 fill-current" aria-hidden="true" /> : <Play className="w-5 h-5 fill-current ml-0.5" aria-hidden="true" />}
@@ -309,7 +309,7 @@ export const MasterVideoPreview: React.FC<MasterVideoPreviewProps> = ({
                 type="button"
                 onClick={handleRestart}
                 aria-label="Restart video from beginning"
-                className="w-9 h-9 rounded-xl bg-white/10 hover:bg-white/20 text-white flex items-center justify-center border border-white/20 active:scale-[0.95] transition cursor-pointer focus-visible:ring-2 focus-visible:ring-[#ffe228]"
+                className="w-9 h-9 rounded-xl bg-white/10 hover:bg-white/20 text-white flex items-center justify-center border border-white/20 active:scale-[0.95] transition cursor-pointer focus-visible:ring-2 focus-visible:ring-[#7248ea]"
                 title="Restart"
               >
                 <RotateCcw className="w-4 h-4" aria-hidden="true" />
@@ -320,7 +320,7 @@ export const MasterVideoPreview: React.FC<MasterVideoPreviewProps> = ({
                   type="button"
                   onClick={toggleMute}
                   aria-label={isMuted || volume === 0 ? 'Unmute video audio' : 'Mute video audio'}
-                  className="text-white hover:text-[#ffe228] transition cursor-pointer focus-visible:ring-2 focus-visible:ring-[#ffe228] rounded p-0.5"
+                  className="text-white hover:text-[#7248ea] transition cursor-pointer focus-visible:ring-2 focus-visible:ring-[#7248ea] rounded p-0.5"
                 >
                   {isMuted || volume === 0 ? <VolumeX className="w-4 h-4" aria-hidden="true" /> : <Volume2 className="w-4 h-4" aria-hidden="true" />}
                 </button>
@@ -332,7 +332,7 @@ export const MasterVideoPreview: React.FC<MasterVideoPreviewProps> = ({
                   value={isMuted ? 0 : volume}
                   onChange={handleVolumeChange}
                   aria-label="Volume level"
-                  className="w-16 sm:w-20 h-1.5 bg-white/30 rounded-lg appearance-none cursor-pointer accent-[#ffe228] focus-visible:ring-2 focus-visible:ring-[#ffe228]"
+                  className="w-16 sm:w-20 h-1.5 bg-white/30 rounded-lg appearance-none cursor-pointer accent-[#7248ea] focus-visible:ring-2 focus-visible:ring-[#7248ea]"
                 />
               </div>
             </div>
@@ -342,7 +342,7 @@ export const MasterVideoPreview: React.FC<MasterVideoPreviewProps> = ({
                 type="button"
                 onClick={handleFullscreen}
                 aria-label="Toggle full-screen cinema view"
-                className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white border border-white/20 active:scale-[0.95] transition cursor-pointer focus-visible:ring-2 focus-visible:ring-[#ffe228]"
+                className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white border border-white/20 active:scale-[0.95] transition cursor-pointer focus-visible:ring-2 focus-visible:ring-[#7248ea]"
                 title="Fullscreen"
               >
                 <Maximize2 className="w-4 h-4" aria-hidden="true" />
@@ -369,38 +369,38 @@ export const MasterVideoPreview: React.FC<MasterVideoPreviewProps> = ({
 
       {/* Ingestion Technical Specs Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
-        <div className="p-3.5 rounded-2xl bg-[#eff2e5] border border-[#130e30]/15 space-y-1">
-          <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#5f5c6e] block">
+        <div className="p-3.5 rounded-2xl bg-[#f8f9fa] border border-[#dbd8e8] space-y-1">
+          <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#575268] block">
             Container Resolution
           </span>
-          <span className="text-sm font-black text-[#130e30] font-mono">
+          <span className="text-sm font-black text-[#1a1a1a] font-mono">
             {videoDimensions ? `${videoDimensions.width}x${videoDimensions.height}` : 'Probing...'}
           </span>
         </div>
 
-        <div className="p-3.5 rounded-2xl bg-[#eff2e5] border border-[#130e30]/15 space-y-1">
-          <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#5f5c6e] block">
+        <div className="p-3.5 rounded-2xl bg-[#f8f9fa] border border-[#dbd8e8] space-y-1">
+          <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#575268] block">
             Total Footage Duration
           </span>
-          <span className="text-sm font-black text-[#130e30] font-mono">
+          <span className="text-sm font-black text-[#1a1a1a] font-mono">
             {duration ? `${duration.toFixed(2)}s` : 'Probing...'}
           </span>
         </div>
 
-        <div className="p-3.5 rounded-2xl bg-[#eff2e5] border border-[#130e30]/15 space-y-1">
-          <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#5f5c6e] block">
+        <div className="p-3.5 rounded-2xl bg-[#f8f9fa] border border-[#dbd8e8] space-y-1">
+          <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#575268] block">
             File Size
           </span>
-          <span className="text-sm font-black text-[#130e30] font-mono">
+          <span className="text-sm font-black text-[#1a1a1a] font-mono">
             {file ? formatFileSize(file.size) : isSampleReel ? '12.4 MB' : 'Direct Disk File'}
           </span>
         </div>
 
-        <div className="p-3.5 rounded-2xl bg-[#eff2e5] border border-[#130e30]/15 space-y-1">
-          <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#5f5c6e] block">
+        <div className="p-3.5 rounded-2xl bg-[#f8f9fa] border border-[#dbd8e8] space-y-1">
+          <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#575268] block">
             Playback Transport
           </span>
-          <span className="text-sm font-black text-[#130e30] font-mono text-[#59e25d]">
+          <span className="text-sm font-black text-[#1a1a1a] font-mono text-[#14804a]">
             {sourceType === 'blob' ? '⚡ 0-Latency Blob' : '📡 Range Stream'}
           </span>
         </div>

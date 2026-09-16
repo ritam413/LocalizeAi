@@ -213,23 +213,23 @@ export const MultiAudioPlayer: React.FC<MultiAudioPlayerProps> = ({
   };
 
   return (
-    <div className="bg-[#eff2e5] border-[2.5px] border-[#130e30] rounded-[32px] p-6 sm:p-8 space-y-6 shadow-[0_8px_30px_rgba(19,14,48,0.08)] font-sans text-[#130e30]">
+    <div className="bg-[#f8f9fa] border border-[#dbd8e8] rounded-[20px] p-6 sm:p-8 space-y-6 shadow-[0_2px_12px_rgba(0,0,0,0.04)] font-sans text-[#1a1a1a]">
       {/* Top Header Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#130e30]/15">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#dbd8e8]">
         <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 rounded-2xl bg-[#130e30] text-[#ffe228] flex items-center justify-center font-black text-base border border-[#130e30] shadow-xs">
+          <div className="w-10 h-10 rounded-2xl bg-[#130e30] text-[#7248ea] flex items-center justify-center font-black text-base border border-[#dbd8e8] shadow-xs">
             <Film className="w-5 h-5" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h3 className="text-base sm:text-lg font-black uppercase tracking-tight text-[#130e30]">
+              <h3 className="text-base sm:text-lg font-black uppercase tracking-tight text-[#1a1a1a]">
                 {title}
               </h3>
-              <span className="px-2.5 py-0.5 rounded-full bg-[#59e25d] text-[#130e30] border border-[#130e30] text-[10px] font-mono font-black uppercase shadow-2xs">
+              <span className="px-2.5 py-0.5 rounded-full bg-[#14804a] text-[#1a1a1a] border border-[#dbd8e8] text-[10px] font-mono font-black uppercase shadow-2xs">
                 RELEASE READY • QA 98.0
               </span>
             </div>
-            <p className="text-xs text-[#5f5c6e] font-medium">
+            <p className="text-xs text-[#575268] font-medium">
               Multi-Language Dubbed Release Cut • YouTube-Style Multi-Track Audio Switcher
             </p>
           </div>
@@ -237,18 +237,18 @@ export const MultiAudioPlayer: React.FC<MultiAudioPlayerProps> = ({
 
         {/* Current Active Language Pill */}
         <div className="flex items-center gap-2">
-          <div className="inline-flex items-center gap-2 bg-[#f9fbf2] border-[1.5px] border-[#130e30] px-4 py-1.5 rounded-full shadow-2xs">
+          <div className="inline-flex items-center gap-2 bg-[#fbfbfd] border border-[#dbd8e8] px-4 py-1.5 rounded-full shadow-2xs">
             <span className="text-lg">{activeTrack.flag}</span>
-            <span className="text-xs font-black uppercase text-[#130e30]">
+            <span className="text-xs font-black uppercase text-[#1a1a1a]">
               {activeTrack.language_name}
             </span>
-            <span className="w-2 h-2 rounded-full bg-[#59e25d] animate-pulse" />
+            <span className="w-2 h-2 rounded-full bg-[#14804a] animate-pulse" />
           </div>
         </div>
       </div>
 
       {/* Main Cinema Screen & Video Viewport */}
-      <div className="relative rounded-[24px] overflow-hidden bg-[#130e30] border-[2px] border-[#130e30] shadow-inner group">
+      <div className="relative rounded-[16px] overflow-hidden bg-[#130e30] border border-[#dbd8e8] shadow-inner group">
         <video
           ref={videoRef}
           src={activeTrack.video_url}
@@ -273,7 +273,7 @@ export const MultiAudioPlayer: React.FC<MultiAudioPlayerProps> = ({
 
         {/* On-screen Toast Notification */}
         {trackNotification && (
-          <div className="absolute top-4 left-1/2 -translate-x-1/2 z-30 bg-[#ffe228] text-[#130e30] border-[1.5px] border-[#130e30] font-black text-xs px-4 py-1.5 rounded-full shadow-md animate-bounce flex items-center gap-2">
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 z-30 bg-[#f2eeff] text-[#7248ea] border border-[#dbd8e8] font-black text-xs px-4 py-1.5 rounded-full shadow-md animate-bounce flex items-center gap-2">
             <AudioWaveform className="w-4 h-4 animate-pulse" />
             <span>{trackNotification}</span>
           </div>
@@ -281,14 +281,14 @@ export const MultiAudioPlayer: React.FC<MultiAudioPlayerProps> = ({
 
         {/* Top Viewfinder Overlays */}
         <div className="absolute top-4 left-4 pointer-events-none flex items-center gap-2 bg-[#130e30]/85 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/20 text-white text-xs font-mono font-bold">
-          <span className="w-2 h-2 rounded-full bg-[#59e25d] animate-ping" />
+          <span className="w-2 h-2 rounded-full bg-[#14804a] animate-ping" />
           <span>BROADCAST MASTER</span>
           <span className="text-white/40">|</span>
-          <span className="text-[#ffe228]">{formatTime(currentTime)}</span>
+          <span className="text-[#7248ea]">{formatTime(currentTime)}</span>
         </div>
 
         <div className="absolute top-4 right-4 pointer-events-none flex items-center gap-2">
-          <div className="bg-[#130e30]/85 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/20 text-[#59e25d] text-xs font-mono font-bold">
+          <div className="bg-[#130e30]/85 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/20 text-[#14804a] text-xs font-mono font-bold">
             {activeTrack.voice}
           </div>
         </div>
@@ -296,7 +296,7 @@ export const MultiAudioPlayer: React.FC<MultiAudioPlayerProps> = ({
         {/* YouTube-Style Floating Audio Track Selection Menu */}
         {showAudioMenu && (
           <div className="absolute bottom-20 right-4 z-40 w-72 bg-[#130e30]/95 backdrop-blur-xl border-[2px] border-[#ffe228] rounded-2xl p-3 text-white shadow-2xl space-y-2 animate-in fade-in zoom-in-95 duration-150">
-            <div className="flex items-center justify-between px-2 pb-2 border-b border-white/10 text-xs font-black uppercase text-[#ffe228] tracking-wider">
+            <div className="flex items-center justify-between px-2 pb-2 border-b border-white/10 text-xs font-black uppercase text-[#7248ea] tracking-wider">
               <span className="flex items-center gap-1.5">
                 <Globe2 className="w-4 h-4" />
                 <span>Audio Track (Multi-Dub)</span>
@@ -313,7 +313,7 @@ export const MultiAudioPlayer: React.FC<MultiAudioPlayerProps> = ({
                     onClick={() => handleSelectTrack(track)}
                     className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-left transition text-xs font-medium cursor-pointer ${
                       isSelected
-                        ? 'bg-[#ffe228] text-[#130e30] font-black border border-[#130e30] shadow-xs'
+                        ? 'bg-[#f2eeff] text-[#7248ea] font-black border border-[#dbd8e8] shadow-xs'
                         : 'hover:bg-white/10 text-white'
                     }`}
                   >
@@ -323,7 +323,7 @@ export const MultiAudioPlayer: React.FC<MultiAudioPlayerProps> = ({
                         <div className="font-bold">{track.language_name}</div>
                         <div
                           className={`text-[10px] font-mono ${
-                            isSelected ? 'text-[#130e30]/80' : 'text-white/60'
+                            isSelected ? 'text-[#1a1a1a]/80' : 'text-white/60'
                           }`}
                         >
                           {track.voice}
@@ -377,7 +377,7 @@ export const MultiAudioPlayer: React.FC<MultiAudioPlayerProps> = ({
                       }}
                       className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-left text-xs transition cursor-pointer ${
                         isSelected
-                          ? 'bg-[#ffe228] text-[#130e30] font-black'
+                          ? 'bg-[#f2eeff] text-[#7248ea] font-black'
                           : 'hover:bg-white/10 text-white'
                       }`}
                     >
@@ -409,7 +409,7 @@ export const MultiAudioPlayer: React.FC<MultiAudioPlayerProps> = ({
               aria-valuemax={duration || 100}
               aria-valuenow={currentTime}
               aria-valuetext={formatTime(currentTime)}
-              className="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer accent-[#ffe228] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#ffe228]"
+              className="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer accent-[#7248ea] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7248ea]"
             />
             <div className="flex items-center justify-between text-[10px] font-mono text-white/70 font-semibold px-0.5">
               <span>{formatTime(currentTime)}</span>
@@ -425,7 +425,7 @@ export const MultiAudioPlayer: React.FC<MultiAudioPlayerProps> = ({
                 type="button"
                 onClick={togglePlay}
                 aria-label={isPlaying ? 'Pause' : 'Play'}
-                className="w-10 h-10 rounded-xl bg-[#ffe228] hover:bg-[#ebd020] text-[#130e30] flex items-center justify-center font-black border border-[#130e30] shadow-xs active:scale-[0.95] transition cursor-pointer"
+                className="w-10 h-10 rounded-xl bg-[#7248ea] hover:bg-[#6847ff] text-white flex items-center justify-center font-black border border-[#dbd8e8] shadow-xs active:scale-[0.95] transition cursor-pointer"
               >
                 {isPlaying ? <Pause className="w-5 h-5 fill-current" /> : <Play className="w-5 h-5 fill-current ml-0.5" />}
               </button>
@@ -444,7 +444,7 @@ export const MultiAudioPlayer: React.FC<MultiAudioPlayerProps> = ({
                   type="button"
                   onClick={toggleMute}
                   aria-label="Mute"
-                  className="text-white hover:text-[#ffe228] transition cursor-pointer"
+                  className="text-white hover:text-[#7248ea] transition cursor-pointer"
                 >
                   {isMuted || volume === 0 ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
                 </button>
@@ -456,7 +456,7 @@ export const MultiAudioPlayer: React.FC<MultiAudioPlayerProps> = ({
                   value={isMuted ? 0 : volume}
                   onChange={handleVolumeChange}
                   aria-label="Volume level"
-                  className="w-16 sm:w-20 h-1.5 bg-white/30 rounded-lg appearance-none cursor-pointer accent-[#ffe228]"
+                  className="w-16 sm:w-20 h-1.5 bg-white/30 rounded-lg appearance-none cursor-pointer accent-[#7248ea]"
                 />
               </div>
             </div>
@@ -472,7 +472,7 @@ export const MultiAudioPlayer: React.FC<MultiAudioPlayerProps> = ({
                 }}
                 className={`px-3 py-1.5 rounded-xl border text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
                   activeSubtitleLang
-                    ? 'bg-[#ffe228] text-[#130e30] border-[#ffe228]'
+                    ? 'bg-[#f2eeff] text-[#7248ea] border-[#ffe228]'
                     : 'bg-white/10 text-white hover:bg-white/20 border-white/20'
                 }`}
               >
@@ -491,8 +491,8 @@ export const MultiAudioPlayer: React.FC<MultiAudioPlayerProps> = ({
                 }}
                 className={`px-3.5 py-1.5 rounded-xl border text-xs font-black transition flex items-center gap-2 cursor-pointer shadow-xs active:scale-[0.97] ${
                   showAudioMenu
-                    ? 'bg-[#ffe228] text-[#130e30] border-[#ffe228]'
-                    : 'bg-[#130e30] hover:bg-[#222222] text-[#ffe228] border-[#ffe228]/50'
+                    ? 'bg-[#f2eeff] text-[#7248ea] border-[#ffe228]'
+                    : 'bg-[#130e30] hover:bg-[#222222] text-[#7248ea] border-[#ffe228]/50'
                 }`}
               >
                 <Globe2 className="w-4 h-4" />
@@ -516,10 +516,10 @@ export const MultiAudioPlayer: React.FC<MultiAudioPlayerProps> = ({
       </div>
 
       {/* Quick Track Switcher Bar */}
-      <div className="bg-[#f9fbf2] border-[1.5px] border-[#130e30]/15 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div className="bg-[#fbfbfd] border border-[#dbd8e8]/15 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <Globe2 className="w-4 h-4 text-[#130e30]" />
-          <span className="text-xs font-black uppercase text-[#130e30] tracking-wider">
+          <Globe2 className="w-4 h-4 text-[#1a1a1a]" />
+          <span className="text-xs font-black uppercase text-[#1a1a1a] tracking-wider">
             Available Audio Tracks:
           </span>
         </div>
@@ -533,13 +533,13 @@ export const MultiAudioPlayer: React.FC<MultiAudioPlayerProps> = ({
                 onClick={() => handleSelectTrack(track)}
                 className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition flex items-center gap-1.5 active:scale-[0.97] cursor-pointer ${
                   isSelected
-                    ? 'bg-[#130e30] text-[#ffe228] border border-[#130e30] shadow-xs'
-                    : 'bg-[#eff2e5] hover:bg-[#ffe228]/40 text-[#130e30] border border-[#130e30]/20'
+                    ? 'bg-[#130e30] text-[#7248ea] border border-[#dbd8e8] shadow-xs'
+                    : 'bg-[#f8f9fa] hover:bg-[#f2eeff]/40 text-[#1a1a1a] border border-[#dbd8e8]'
                 }`}
               >
                 <span>{track.flag}</span>
                 <span>{track.language_name}</span>
-                {isSelected && <span className="text-[10px] font-mono text-[#59e25d]">● Active</span>}
+                {isSelected && <span className="text-[10px] font-mono text-[#14804a]">● Active</span>}
               </button>
             );
           })}

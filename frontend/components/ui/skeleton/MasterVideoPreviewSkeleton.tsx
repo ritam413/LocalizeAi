@@ -5,9 +5,9 @@ import { Skeleton } from './Skeleton';
 
 export const MasterVideoPreviewSkeleton: React.FC = () => {
   return (
-    <div className="bg-[#eff2e5] border-[1.5px] border-[#130e30]/15 rounded-[24px] overflow-hidden shadow-sm space-y-4 p-6">
+    <div className="bg-[#f8f9fa] border border-[#dbd8e8]/15 rounded-[16px] overflow-hidden shadow-sm space-y-4 p-6">
       {/* Top Meta Bar */}
-      <div className="flex items-center justify-between border-b border-[#130e30]/10 pb-4">
+      <div className="flex items-center justify-between border-b border-[#dbd8e8] pb-4">
         <div className="flex items-center space-x-3">
           <Skeleton variant="circular" width={24} height={24} />
           <div className="space-y-1">

@@ -3,19 +3,34 @@
 @tailwind utilities;
 
 :root {
-  --background: 11 15 25;
-  --foreground: 243 244 246;
+  /* Canonical Studio Design System Tokens */
+  --primary-color: #7248ea;
+  --primary-hover: #6847ff;
+  --accent-color: #6a33e9;
+  --secondary-color: #00d4aa;
+  --violet-soft: #f2eeff;
+  --violet-tint: #f8f6ff;
 
-  /* Ditto Color System */
-  --color-deep-ink: #130e30;
-  --color-hi-yellow: #ffe228;
-  --color-moss-green: #59e25d;
-  --color-fuchsia: #e261e5;
-  --color-slate: #5f5c6e;
-  --color-canvas: #f9fbf2;
-  --color-soft-meadow: #eff2e5;
-  --color-charcoal: #222222;
-  --color-onyx: #000000;
+  --text-primary: #1a1a1a;
+  --text-secondary: #575268;
+  --text-light: #9e9e9e;
+  --bg-primary: #fbfbfd;
+  --bg-secondary: #f8f9fa;
+  --paper: #ffffff;
+  --bg-dark: #111827;
+  --border-color: #bd98ec;
+  --line-color: #dbd8e8;
+
+  --qa-success: #14804a;
+  --qa-danger: #b42318;
+  --qa-warning: #a96f00;
+  --qa-info: #409eff;
+
+  --border-radius: 12px;
+  --border-radius-large: 20px;
+  --shadow-light: 0 2px 8px rgba(0, 0, 0, 0.06);
+  --shadow-heavy: 0 20px 50px rgba(26, 20, 55, 0.12);
+  --shadow-glow: 0 4px 14px rgba(114, 72, 234, 0.28);
 
   /* Emil Kowalski Motion Curves */
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
@@ -24,9 +39,9 @@
 }
 
 body {
-  background-color: #f9fbf2;
-  color: #130e30;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: 'Roboto', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   overflow-x: hidden;
 }
 
@@ -47,33 +62,38 @@ body {
 
 /* Glassmorphism panel */
 .glass-panel {
-  background: rgba(17, 24, 39, 0.7);
+  background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(189, 152, 236, 0.2);
 }
 
 .glass-card {
-  background: rgba(15, 23, 42, 0.6);
+  background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(8px);
-  border: 1px solid rgba(99, 102, 241, 0.15);
+  border: 1px solid rgba(219, 216, 232, 0.8);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
   transition: all 0.2s ease-in-out;
 }
 
 .glass-card:hover {
-  border-color: rgba(99, 102, 241, 0.4);
-  box-shadow: 0 0 25px -5px rgba(99, 102, 241, 0.25);
+  border-color: rgba(114, 72, 234, 0.4);
+  box-shadow: 0 4px 16px rgba(114, 72, 234, 0.12);
 }
 
-/* Animations */
+/* Keyframe Animations */
+@keyframes pulse-violet {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(114, 72, 234, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(114, 72, 234, 0);
+  }
+}
+
 @keyframes dash-flow {
   from { stroke-dashoffset: 24; }
   to { stroke-dashoffset: 0; }
-}
-
-@keyframes pulse-yellow-pill {
-  0% { transform: scale(1); }
-  100% { transform: scale(1.04); }
 }
 
 @keyframes pulse-arrow {
@@ -86,13 +106,13 @@ body {
   100% { transform: translateX(-4px); }
 }
 
+.animate-pulse-violet {
+  animation: pulse-violet 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
 .animate-dash-flow {
   stroke-dasharray: 8 4;
   animation: dash-flow 0.8s linear infinite;
-}
-
-.animate-pulse-yellow {
-  animation: pulse-yellow-pill 1.2s infinite alternate;
 }
 
 /* Impeccable Shimmer Skeleton Loading Animation */
@@ -117,8 +137,8 @@ body {
   background-image: linear-gradient(
     90deg,
     rgba(255, 255, 255, 0) 0,
-    rgba(255, 255, 255, 0.25) 20%,
-    rgba(255, 255, 255, 0.45) 60%,
+    rgba(255, 255, 255, 0.35) 20%,
+    rgba(255, 255, 255, 0.6) 60%,
     rgba(255, 255, 255, 0)
   );
   animation: shimmer 1.8s cubic-bezier(0.23, 1, 0.32, 1) infinite;
@@ -138,13 +158,12 @@ body {
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #0b0f19;
+  background: #fbfbfd;
 }
 ::-webkit-scrollbar-thumb {
-  background: #1f293d;
+  background: #dbd8e8;
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #4f46e5;
+  background: #7248ea;
 }
-

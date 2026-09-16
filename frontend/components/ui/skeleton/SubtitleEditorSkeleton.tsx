@@ -9,9 +9,9 @@ export interface SubtitleEditorSkeletonProps {
 
 export const SubtitleEditorSkeleton: React.FC<SubtitleEditorSkeletonProps> = ({ rows = 5 }) => {
   return (
-    <div className="space-y-8 max-w-6xl font-sans text-[#130e30]">
+    <div className="space-y-8 max-w-6xl font-sans text-[#1a1a1a]">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#130e30]/10 pb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#dbd8e8] pb-6">
         <div className="space-y-2">
           <Skeleton variant="text" width={180} height={12} />
           <div className="flex items-center space-x-3">
@@ -25,9 +25,9 @@ export const SubtitleEditorSkeleton: React.FC<SubtitleEditorSkeletonProps> = ({ 
       </div>
 
       {/* Subtitle Table */}
-      <div className="bg-[#eff2e5] border-[1.5px] border-[#130e30]/15 rounded-[24px] overflow-hidden shadow-sm">
-        <table className="w-full text-left text-xs text-[#130e30]">
-          <thead className="bg-[#eff2e5] text-[10px] font-extrabold text-[#5f5c6e] uppercase tracking-wider border-b border-[#130e30]/10">
+      <div className="bg-[#f8f9fa] border border-[#dbd8e8]/15 rounded-[16px] overflow-hidden shadow-sm">
+        <table className="w-full text-left text-xs text-[#1a1a1a]">
+          <thead className="bg-[#f8f9fa] text-[10px] font-extrabold text-[#575268] uppercase tracking-wider border-b border-[#dbd8e8]">
             <tr>
               <th className="px-4 py-4 w-16">#</th>
               <th className="px-4 py-4 w-44">Dialogue Window</th>
@@ -37,7 +37,7 @@ export const SubtitleEditorSkeleton: React.FC<SubtitleEditorSkeletonProps> = ({ 
               <th className="px-4 py-4 w-20 text-center">Save</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-[#130e30]/8 bg-[#f9fbf2]">
+          <tbody className="divide-y divide-[#130e30]/8 bg-[#fbfbfd]">
             {Array.from({ length: rows }).map((_, idx) => (
               <tr key={`sub-skel-${idx}`}>
                 <td className="px-4 py-4">

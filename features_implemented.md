@@ -46,11 +46,11 @@ This document tracks the current functionality and implementation status of LOCA
 - **Modules**: `backend/app/telemetry/events.py`, `frontend/lib/telemetry.ts`
 - **Verification**: Vitest (`frontend/__tests__/telemetry.test.ts`: 3 tests passed), Pytest (`backend/tests/test_telemetry.py`: 2 tests passed).
 
-### Story Analyst Agent (TICKET-02)
+### Story Analyst Agent & Pluggable Diarization Adapter (TICKET-02 & TICKET-18)
 - **Status**: Implemented
-- **Details**: Extracts character speaker attribution, scene boundaries, emotional tone tags (e.g. urgent, warning, inquisitive), and cultural idiom flags from raw transcripts. Wraps execution with Section 6 telemetry logging.
+- **Details**: Extracts character speaker attribution, scene boundaries, emotional tone tags (e.g. urgent, warning, inquisitive), and cultural idiom flags from raw transcripts. Features pluggable `DiarizationAdapter` architecture supporting `HeuristicDiarizationAdapter` (zero-dependency, rule/text-based speaker mapping with custom `speaker_overrides` support) and `PyAnnoteDiarizationAdapter` (acoustic embedding clustering with fallback). Emits `adapter_used` in Section 6 telemetry events.
 - **Modules**: `backend/app/agents/story_analyst.py`, `frontend/lib/agents/story_analyst.ts`
-- **Verification**: Vitest (`frontend/__tests__/story_analyst.test.ts`: 3 tests passed), Pytest (`backend/tests/test_story_analyst.py`: 1 test passed).
+- **Verification**: Vitest (`frontend/__tests__/story_analyst.test.ts`: 3 tests passed), Pytest (`backend/tests/test_diarization_adapter.py`: 4 tests passed, `backend/tests/test_story_analyst.py`: 1 test passed, 71/71 full backend suite passed).
 
 ### Localization Director Agent & Isometric Dialogue Engine (TICKET-03 & TICKET-11)
 - **Status**: Implemented
@@ -87,6 +87,24 @@ This document tracks the current functionality and implementation status of LOCA
 - **Details**: Orchestrates the multi-agent crew execution graph (Story Analyst -> Localization Director -> Voice Director -> Sync Engineer -> Subtitle Director -> QA Agent). Intercepts QA defect reports and executes closed-loop targeted retries, routing quantitative syllable delta reduction directives directly to `LocalizationDirectorAgent` (for script-level re-budgeting) and gain remediation to `VoiceDirectorAgent` (for clipping) without restarting the full pipeline, verifying automated repair.
 - **Modules**: `backend/app/agents/director.py`, `frontend/lib/agents/director.ts`
 - **Verification**: Vitest (`frontend/__tests__/director_orchestration.test.ts`: 3 tests passed), Pytest (`backend/tests/test_director.py`: 2 tests passed).
+
+### Director End-to-End Pipeline Runner (TICKET-16)
+- **Status**: Implemented
+- **Details**: High-leverage unified interface `DirectorAgent.run_pipeline(spec: PipelineJobSpec) -> PipelineReleaseResult`. Encapsulates full lifecycle: (1) Audio extraction (16kHz WAV), (2) Vocal isolation (`use_demucs=True/False` with fast FFmpeg speech-formant fallback), (3) Faster-Whisper ASR + PyTorch CUDA VRAM cleanup (`torch.cuda.empty_cache()` / `gc.collect()`), (4) Scene-batched multi-agent crew execution (configurable batch size $\le 30$ dialogue lines/scene) with closed-loop QA self-repair and combined subtitle merging, (5) Acoustic mastering (dialogue bus compositing, -6dB background M&E sidechain ducking, EBU R128 -24 LUFS loudness mastering), and (6) Broadcast video multiplexing (`ffmpeg -c:v copy`). Full Section 6 telemetry events emitted across every phase transition.
+- **Modules**: `backend/app/agents/director.py`, `frontend/lib/agents/director.ts`
+- **Verification**: Pytest (`backend/tests/test_director_pipeline.py`: 5/5 passed, full backend suite 67/67 passed), Vitest (`frontend/__tests__/director_pipeline.test.ts`: 3/3 passed, full frontend suite 83/83 passed), Next.js production build (`npm run build` compiled 9/9 pages with 0 errors).
+
+### Post-QA Acoustic Master Mixdown & Sidechain Bus Integration (TICKET-17)
+- **Status**: Implemented
+- **Details**: Deep method `DirectorAgent.execute_acoustic_mixdown()` coordinating timeline positioning (`adelay`), dialogue bus multitrack compositing (`amix`), dynamic `-6.0 dB` sidechain ducking against background M&E stem, and EBU R128 (`-24.0 LUFS`) broadcast loudness mastering. Guarantees mixdown executes strictly post-QA on verified and repaired stems, with graceful dialogue-only normalization when background stems are absent, and emits Section 6 telemetry events.
+- **Modules**: `backend/app/agents/director.py`, `backend/app/engine/stages/mixer.py`
+- **Verification**: Pytest (`backend/tests/test_director_acoustic_mixdown.py`: 4/4 passed, full backend suite 74/74 passed).
+
+### Broadcast Video Multiplexing & Studio Deliverables Exporter (TICKET-19)
+- **Status**: Implemented
+- **Details**: Studio deliverables packaging and broadcast multiplexing engine (`BroadcastDeliverablesExporter`). Packages release candidate MP4 (stream-copied H.264 video with AAC 192k audio and embedded `mov_text` soft subtitles), standalone dialogue bus WAV, master composite soundtrack WAV, timed subtitle files (.srt and .vtt), and structured `deliverables.json` manifest with SHA-256 checksums, durations, and codecs. Exposes `/api/v1/runs/{id}/deliverables` REST endpoints with path traversal defenses.
+- **Modules**: `backend/app/engine/stages/exporter.py`, `backend/app/api/deliverables.py`
+- **Verification**: Pytest (`backend/tests/test_deliverables_exporter.py`: 3/3 passed, full backend suite 74/74 passed).
 
 ### Grafana Telemetry & MCP Integration (TICKET-09)
 - **Status**: Implemented
@@ -164,4 +182,38 @@ This document tracks the current functionality and implementation status of LOCA
 - **Details**: Deepened `LocalizationDirectorAgent` with dedicated `EntityPreserver` (`backend/app/engine/localization/entity_preserver.py`) for locking tech brands, frameworks, products, and person names (e.g. `Claude Code`, `Anthropic`, `Supabase`, `Zenith Chat`, `Afan Mustafa`, `Playwright`, `Vitest`) against literal translation distortion, and `NumeralLocalizer` (`backend/app/engine/localization/numeral_localizer.py`) for adapting metric quantities and numbers (e.g. `2.4k` -> `2.4 hazar` / `2.4 हज़ार` in Hindi, `2.4 mil` in Spanish, `2,4 mille` in French, `2,4 Tausend` in German; `10M` -> `10 मिलियन` / `10 millones` / `10 millions` / `10 Millionen`) into natural spoken dubbing terms for clean Microsoft Edge-TTS neural speech synthesis. Includes full TypeScript parity and schema validation.
 - **Modules**: `backend/app/agents/localization_director.py`, `backend/app/engine/localization/entity_preserver.py`, `backend/app/engine/localization/numeral_localizer.py`, `backend/app/engine/localization/__init__.py`, `frontend/lib/agents/localization_director.ts`
 - **Verification**: Pytest (`backend/tests/test_localization_director.py`: 44/44 full suite passed), Vitest (`frontend/__tests__/localization_director.test.ts`: 78/78 full suite passed across 15 test files), Next.js production build (`npm run build` 0 errors).
+
+### Canonical Design System & Token Extraction (`/extract-design-system`, `/create-design-md`, `/awesome-design`, `/impeccable`, `/taste`)
+- **Status**: Implemented
+- **Details**: Extracted and codified the full design system, visual language, color tokens, typography scales, spatial grids, and component patterns from `https://aidubbing.io/movie-dubbing` into the project root `DESIGN.md`. Formalized Electric Violet brand hierarchy (`#7248EA`, `#6847FF`, `#F2EEFF`), Secondary Mint sync highlights (`#00D4AA`), high-contrast dark foundations (`#1A1A1A`, `#07060C`), crisp paper surfaces (`#FBFBFD`, `#FFFFFF`), QA defect statuses (`#14804A`, `#B42318`, `#A96F00`), standard transition tokens, and ready-to-use Tailwind / CSS Custom Property code exports. Fully integrated across the frontend styling layer (`frontend/tailwind.config.ts`, `frontend/app/globals.css`, `frontend/components/AppShell.tsx`) with zero-slop anti-aliased typography, tactile interactive feedback, and responsive layout mechanics.
+- **Modules**: `DESIGN.md`, `frontend/tailwind.config.ts`, `frontend/app/globals.css`, `frontend/components/AppShell.tsx`
+- **Verification**: Conforms to `@google/design.md` canonical specification. Vitest (16/16 suites, 83/83 passed), Next.js production build (`npm run build` compiled 9/9 pages with 0 errors).
+
+### aidubbing.io Studio & 4-Section Landing Experience (`/adversarial-review`, `/council-review`, `/awesome_design`, `/create-design-md`, `/emil-design-eng`, `/ui-skills-root`)
+- **Status**: Implemented
+- **Details**: Reconstructed the master Studio & Landing page (`/`) according to the exact aidubbing.io specification and user uploaded reference screenshots:
+  1. **Top Ingestion Workbench & Model Dropdown**: Features `ModelPicker` popover supporting `Mode C · Festival Subtitle Master` (1 Credit/s), `Mode B · Broadcast Streaming Dub` (3 Credits/s, 25% Off), and `Mode A · Theatrical Cinema Dub` (6 Credits/s, 14% Off). Includes drag-and-drop video/link ingestion with instant 35s demo scene loading, language selection (Auto-detect -> English/Spanish/French/German/Japanese/Hindi/Chinese), and subtitle toggle.
+  2. **Section 1 (YouTube Film Explainers & Reviews)**: Vector illustration of multilingual creator at laptop with EN/FR/ES/JA/ZH speech bubbles, headline, overview copy, and `Try Movie Dubbing` CTA button that smoothly scrolls to and highlights `#workbench-dropzone`.
+  3. **Section 2 (Indie Filmmakers & Festival Submissions)**: International film festival foreign audio track overview with clapperboard slate illustration and `See Our Demo` button that routes directly to `/runs/demo`.
+  4. **Section 3 (How to Use Movie Dubbing for Film Translation)**: 3 tactile step cards (`Step 1: Upload Your Movie File`, `Step 2: Set Dubbing Parameters`, `Step 3: Review & Download`) paired with Emil Kowalski-styled Model variation switcher tabs (`Mode C · Festival Subtitle Master`, `Mode B · Broadcast Streaming Dub`, `Mode A · Theatrical Cinema Dub`).
+  5. **Section 4 (Call to Action Banner)**: Full-width Electric Violet banner (`bg-gradient-to-r from-[#7248EA] to-[#6847FF]`) with `Your Film Deserves a Global Audience` and `Start Dubbing Now` tactile CTA.
+  6. **Genre Video Showcase**: Emil-style floating pill tabs (`Cartoon`, `Concert`, `Horror`, `Comedy`, `Science Fiction`), studio video player preview, and expandable engine specifications disclosure.
+  7. **Creator Testimonials, Ecosystem Tools, FAQ Accordion & Footer**: 6-card creator review grid, 4-card tool ecosystem, 7 collapsible FAQs, and multi-column global studio footer.
+- **Modules**: `frontend/app/page.tsx`, `frontend/components/studio/ModelPicker.tsx`, `frontend/components/studio/WorkbenchCard.tsx`, `frontend/components/studio/GenreVideoShowcase.tsx`, `frontend/components/landing/FeatureExplainers.tsx`, `frontend/components/landing/HowItWorksSteps.tsx`, `frontend/components/landing/CTABanner.tsx`, `frontend/components/landing/CreatorTestimonials.tsx`, `frontend/components/landing/MoreToolsGrid.tsx`, `frontend/components/landing/FAQAccordion.tsx`, `frontend/components/landing/StudioFooter.tsx`, `frontend/components/AppShell.tsx`
+- **Verification**: Vitest (`frontend/__tests__/aidubbing_studio_landing.test.tsx`: 7/7 passed, full suite 95/95 passed across 18 test files), TypeScript type-checking (0 errors), Next.js production build (`npm run build` compiled 9/9 pages with 0 errors).
+
+### Live Judge Demo & Studio Console Accessible Redesign (`/taste`, `/emil-design-eng`, `/fixing-accessibility`, `/impeccable`, `/improve-ui`)
+- **Status**: Implemented
+- **Details**: Overhauled the Live Judge Demo view (`/runs/demo`) and associated studio console components:
+  1. **Real Engine Options Integration**: Replaced all generic placeholders across `ModelPicker.tsx` and `HowItWorksSteps.tsx` with actual engine capabilities: `Mode C · Festival Subtitle Master` (Faster-Whisper Turbo, 100% actor audio preserved, Netflix 16 CPS Standard), `Mode B · Broadcast Streaming Dub` (Demucs 4-stem vocal separation + Edge-TTS 300+ neural voices, 170+ languages), and `Mode A · Theatrical Cinema Dub` (6 Autonomous Crew Agents, character voice cloning, atempo sync, and QA defect repair).
+  2. **WCAG 2.1 Contrast AA/AAA Remediation**: Fixed low-contrast color pairings across buttons, badges, and status pills. Eliminated dark text on solid violet (`#7248ea`) or dark green (`#14804a`), replacing them with high-contrast text combinations (`text-white` on saturated fills, dark `#1a1a1a` on soft pastel backgrounds `#f0f9eb`, `#f2eeff`, `#fffbeb`).
+  3. **Visual Hierarchy & Palette De-slopping**: Stripped out legacy neo-brutalist neon yellow (`#ffe228`), clashing magenta borders (`#e261e5`), and raw dark backgrounds (`#130e30`). Introduced warm amber (`#f59e0b`/`#b45309`) for targeted self-repair and QA warnings.
+  4. **Emil Kowalski Tactile Micro-Interactions**: Segmented view switcher (`Console Workbench` vs `Multi-Audio Player`) with white active pill on soft lavender background (`#f2f0f8`), smooth spring clicks (`active:scale-[0.97]`), and expandable telemetry drawer on step click.
+  5. **Tabular Timer Stability**: Added `tabular-nums` and a fixed minimum width (`min-w-[70px]`) to the demo countdown and elapsed timer in `Demo HUD` to eliminate horizontal layout jitter during execution.
+- **Modules**: `frontend/app/runs/demo/page.tsx`, `frontend/components/studio/ModelPicker.tsx`, `frontend/components/landing/HowItWorksSteps.tsx`, `frontend/components/studio/AgentSequenceTrack.tsx`, `frontend/components/studio/ProducerBoard.tsx`, `frontend/components/studio/QARepairCard.tsx`
+- **Verification**: Vitest (`frontend/__tests__/demo_page_redesign.test.tsx` 5/5 passed, full test suite 18/18 files and 95/95 tests passed), TypeScript `tsc --noEmit` passed with 0 errors, Next.js production build (`npm run build` 9/9 routes compiled with 0 errors).
+
+
+
+
 

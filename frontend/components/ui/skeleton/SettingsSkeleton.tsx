@@ -5,9 +5,9 @@ import { Skeleton } from './Skeleton';
 
 export const SettingsSkeleton: React.FC = () => {
   return (
-    <div className="space-y-8 max-w-4xl font-sans text-[#130e30]">
+    <div className="space-y-8 max-w-4xl font-sans text-[#1a1a1a]">
       {/* Header */}
-      <div className="border-b border-[#130e30]/10 pb-6 space-y-2">
+      <div className="border-b border-[#dbd8e8] pb-6 space-y-2">
         <div className="flex items-center space-x-3">
           <Skeleton variant="circular" width={28} height={28} />
           <Skeleton variant="text" width={280} height={28} />
@@ -18,8 +18,8 @@ export const SettingsSkeleton: React.FC = () => {
       {/* Settings Form Cards */}
       <div className="space-y-6">
         {/* Hardware & GPU Card */}
-        <div className="bg-[#eff2e5] border-[1.5px] border-[#130e30]/15 p-6 rounded-[24px] space-y-4 shadow-sm">
-          <div className="flex items-center space-x-2 border-b border-[#130e30]/10 pb-3">
+        <div className="bg-[#f8f9fa] border border-[#dbd8e8]/15 p-6 rounded-[24px] space-y-4 shadow-sm">
+          <div className="flex items-center space-x-2 border-b border-[#dbd8e8] pb-3">
             <Skeleton variant="circular" width={20} height={20} />
             <Skeleton variant="text" width={180} height={16} />
           </div>
@@ -30,8 +30,8 @@ export const SettingsSkeleton: React.FC = () => {
         </div>
 
         {/* QA Thresholds Card */}
-        <div className="bg-[#eff2e5] border-[1.5px] border-[#130e30]/15 p-6 rounded-[24px] space-y-4 shadow-sm">
-          <div className="flex items-center space-x-2 border-b border-[#130e30]/10 pb-3">
+        <div className="bg-[#f8f9fa] border border-[#dbd8e8]/15 p-6 rounded-[24px] space-y-4 shadow-sm">
+          <div className="flex items-center space-x-2 border-b border-[#dbd8e8] pb-3">
             <Skeleton variant="circular" width={20} height={20} />
             <Skeleton variant="text" width={190} height={16} />
           </div>

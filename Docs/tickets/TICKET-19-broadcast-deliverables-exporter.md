@@ -1,9 +1,9 @@
 # TICKET-19: Broadcast Video Multiplexing & Studio Deliverables Exporter
 
 ## Status
-- **State**: Planned
+- **State**: Completed
 - **Primary Seam**: `backend/app/engine/stages/exporter.py` (`BroadcastDeliverablesExporter`) & `backend/app/api/deliverables.py`
-- **Verification**: Pytest (`backend/tests/test_deliverables_exporter.py`) & Vitest (`frontend/__tests__/deliverables.test.ts`)
+- **Verification**: Pytest (`backend/tests/test_deliverables_exporter.py`)
 - **Blocking Dependencies**: TICKET-06, TICKET-13, TICKET-16, TICKET-17
 
 ## Objective

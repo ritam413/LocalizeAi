@@ -244,31 +244,40 @@ const AgentCard: React.FC<AgentCardProps> = ({
   return (
     <div
       id={`agent-card-${node.id}`}
+      role="button"
+      tabIndex={0}
+      aria-pressed={isSelected}
       onClick={onClick}
-      className={`bg-[#f9fbf2] border-[1.5px] rounded-[16px] p-4 flex flex-col gap-2.5 cursor-pointer transition-all duration-200 select-none ${
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onClick();
+        }
+      }}
+      className={`bg-white border rounded-2xl p-4 flex flex-col gap-2.5 cursor-pointer transition-all duration-200 select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7248ea] focus-visible:ring-offset-2 ${
         isSelected
-          ? 'border-[#130e30] shadow-[0_0_0_3px_#ffe228,0_4px_16px_rgba(19,14,48,0.08)]'
-          : 'border-[#130e30]/15 hover:border-[#130e30] hover:-translate-y-0.5'
+          ? 'border-[#7248ea] shadow-[0_4px_16px_rgba(114,72,234,0.14)]'
+          : 'border-[#dbd8e8] hover:border-[#bd98ec] hover:-translate-y-0.5 shadow-2xs'
       } ${
         status === 'retrying' || retryCount > 0
-          ? 'border-[#e261e5] shadow-[0_0_0_3px_rgba(226,97,229,0.35)]'
+          ? 'border-[#f59e0b] shadow-[0_0_0_3px_rgba(245,158,11,0.2)]'
           : ''
       }`}
     >
       {/* Top Header Step & Status Pill */}
       <div className="flex items-center justify-between">
-        <span className="font-mono text-[10px] font-extrabold text-[#5f5c6e]">
+        <span className="font-mono text-[10px] font-bold text-[#575268]">
           STEP {node.stepNumber} {node.id === 'qa_agent' ? '(FINAL)' : ''}
         </span>
         <span
-          className={`text-[9.5px] font-mono font-bold px-2 py-0.5 rounded-full uppercase tracking-wider transition-colors duration-150 ${
+          className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full uppercase tracking-wider transition-colors duration-150 ${
             status === 'completed'
-              ? 'bg-[#59e25d] text-[#130e30]'
+              ? 'bg-[#f0f9eb] text-[#14804a] border border-[#c2e7b0]'
               : status === 'running'
-              ? 'bg-[#ffe228] text-[#130e30] border border-[#130e30] animate-pulse-yellow'
+              ? 'bg-[#f2eeff] text-[#7248ea] border border-[#bd98ec] animate-pulse'
               : status === 'retrying'
-              ? 'bg-[#e261e5] text-white animate-pulse'
-              : 'bg-[#130e30]/5 text-[#5f5c6e]'
+              ? 'bg-[#fffbeb] text-[#b45309] border border-[#fde68a] animate-pulse'
+              : 'bg-[#f8f9fa] text-[#575268] border border-[#dbd8e8]'
           }`}
         >
           {status === 'completed'
@@ -287,14 +296,14 @@ const AgentCard: React.FC<AgentCardProps> = ({
 
       {/* Role and Label */}
       <div className="flex flex-col">
-        <h3 className="text-sm font-extrabold text-[#130e30] truncate">{node.stepLabel}</h3>
-        <p className="text-[11px] text-[#5f5c6e] truncate">{node.role}</p>
+        <h3 className="text-sm font-extrabold text-[#1a1a1a] truncate">{node.stepLabel}</h3>
+        <p className="text-[11px] text-[#575268] truncate">{node.role}</p>
       </div>
 
       {/* Dynamic Linear Counter (starts from 0.00s and linearly reaches target duration) */}
-      <div className="font-mono text-base font-extrabold text-[#130e30] flex items-baseline justify-between tabular-nums pt-1">
+      <div className="font-mono text-base font-extrabold text-[#1a1a1a] flex items-baseline justify-between tabular-nums pt-1">
         <span className="tabular-nums tracking-tight font-black">{displayedSeconds.toFixed(2)}s</span>
-        <span className="text-[9px] font-bold uppercase text-[#5f5c6e] font-sans">
+        <span className="text-[9px] font-bold uppercase text-[#575268] font-sans">
           {status === 'running'
             ? 'Active'
             : status === 'retrying'
@@ -312,16 +321,22 @@ const AgentCard: React.FC<AgentCardProps> = ({
       </div>
 
       {/* Organic Micro Progress Bar with Bumps & Speedups */}
-      <div className="h-1.5 w-full bg-[#130e30]/10 rounded-full overflow-hidden relative">
+      <div
+        role="progressbar"
+        aria-valuenow={Math.round(progressPct)}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        className="h-1.5 w-full bg-[#f2f0f8] rounded-full overflow-hidden relative"
+      >
         <div
           className={`h-full rounded-full transition-all duration-75 ease-out relative ${
             status === 'completed'
-              ? 'bg-[#59e25d]'
+              ? 'bg-[#14804a]'
               : status === 'running'
-              ? 'bg-[#ffe228]'
+              ? 'bg-[#7248ea]'
               : status === 'retrying'
-              ? 'bg-[#e261e5]'
-              : 'bg-[#130e30]/10'
+              ? 'bg-[#f59e0b]'
+              : 'bg-[#dbd8e8]'
           }`}
           style={{ width: `${progressPct}%` }}
         >
@@ -330,8 +345,8 @@ const AgentCard: React.FC<AgentCardProps> = ({
             <span
               className={`absolute right-0 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full ${
                 status === 'retrying'
-                  ? 'bg-[#e261e5] shadow-[0_0_8px_#e261e5]'
-                  : 'bg-[#130e30] shadow-[0_0_6px_#ffe228]'
+                  ? 'bg-[#f59e0b] shadow-[0_0_6px_rgba(245,158,11,0.6)]'
+                  : 'bg-[#7248ea] shadow-[0_0_6px_rgba(114,72,234,0.6)]'
               }`}
             />
           )}
@@ -339,14 +354,14 @@ const AgentCard: React.FC<AgentCardProps> = ({
       </div>
 
       {/* Footer Specs & Retry Counts */}
-      <div className="text-[10px] font-mono text-[#5f5c6e] flex items-center justify-between border-t border-[#130e30]/8 pt-2">
+      <div className="text-[10px] font-mono text-[#575268] flex items-center justify-between border-t border-[#dbd8e8]/8 pt-2">
         <span>{node.footerLeft || 'Gemini Core'}</span>
         <span
           className={
             node.id === 'qa_agent'
-              ? 'text-[#59e25d] font-bold'
+              ? 'text-[#14804a] font-bold'
               : status === 'retrying'
-              ? 'text-[#e261e5] font-bold'
+              ? 'text-[#7248ea] font-bold'
               : ''
           }
         >
@@ -411,12 +426,12 @@ export const AgentSequenceTrack: React.FC<AgentSequenceTrackProps> = ({
   const step04Node = AGENT_NODES.find((n) => n.id === 'sync_engineer')!;
 
   return (
-    <div className="bg-[#eff2e5] border-[1.5px] border-[#130e30]/15 rounded-[24px] p-6 text-[#130e30] space-y-5 shadow-sm font-sans">
+    <div className="bg-white border border-[#dbd8e8] rounded-2xl p-6 text-[#1a1a1a] space-y-5 shadow-xs font-sans">
       {/* Header with Title and Live Execution Indicator */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#130e30]/10 pb-4">
-        <div className="flex items-center gap-3">
-          <div className="w-2.5 h-2.5 rounded-full bg-[#ffe228] border-[1.5px] border-[#130e30] animate-pulse" />
-          <h2 className="text-sm font-extrabold uppercase tracking-tight text-[#130e30]">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#f2f0f8] pb-4">
+        <div className="flex items-center gap-2.5">
+          <div className="w-2.5 h-2.5 rounded-full bg-[#7248ea] animate-pulse" />
+          <h2 className="text-sm font-bold uppercase tracking-wider text-[#1a1a1a]">
             Serpentine Agent Workflow Route
           </h2>
         </div>
@@ -424,12 +439,12 @@ export const AgentSequenceTrack: React.FC<AgentSequenceTrackProps> = ({
         {/* Self-Repair status indicator */}
         <div className="flex items-center gap-2">
           {retries.sync_engineer > 0 || demoRetryActive ? (
-            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#fdf3fe] border border-[#e261e5] text-[11px] font-mono font-bold text-[#e261e5]">
+            <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#fffbeb] border border-[#fde68a] text-[11px] font-mono font-bold text-[#b45309]">
               <Zap className="w-3.5 h-3.5 fill-current" />
               <span>Self-Repair Active (Row 2 ➔ Step 04)</span>
             </div>
           ) : (
-            <span className="text-xs text-[#5f5c6e] font-mono font-medium">
+            <span className="text-xs text-[#575268] font-mono font-medium">
               Autonomic 6-Agent Swarm
             </span>
           )}
@@ -461,10 +476,10 @@ export const AgentSequenceTrack: React.FC<AgentSequenceTrackProps> = ({
 
                 {/* Arrow Connector (Between nodes in row 1) */}
                 {index < 2 && (
-                  <div className="hidden md:flex items-center justify-center text-[#130e30]/40 font-bold">
+                  <div className="hidden md:flex items-center justify-center text-[#1a1a1a]/40 font-bold">
                     <ArrowRight
                       className={`w-5 h-5 transition-all ${
-                        status === 'completed' ? 'text-[#130e30]' : 'text-[#5f5c6e]/30'
+                        status === 'completed' ? 'text-[#1a1a1a]' : 'text-[#575268]/30'
                       }`}
                     />
                   </div>
@@ -478,7 +493,7 @@ export const AgentSequenceTrack: React.FC<AgentSequenceTrackProps> = ({
         <div className="flex items-center justify-end pr-4 md:pr-[12%] h-12 my-[-4px] relative">
           <div className="flex items-center gap-3">
             <span
-              className={`text-[10.5px] font-mono font-bold px-3 py-0.5 rounded-full bg-[#f9fbf2] border-[1.5px] border-[#130e30] text-[#130e30] uppercase tracking-wider transition-all duration-200 ${
+              className={`text-[10.5px] font-mono font-bold px-3 py-0.5 rounded-full bg-[#fbfbfd] border border-[#dbd8e8] text-[#1a1a1a] uppercase tracking-wider transition-all duration-200 ${
                 isTurnConduitActive ? 'opacity-100 scale-100' : 'opacity-40 scale-95'
               }`}
             >
@@ -511,8 +526,8 @@ export const AgentSequenceTrack: React.FC<AgentSequenceTrackProps> = ({
           />
 
           {/* Left Arrow Connector (Step 05 -> Step 06) */}
-          <div className="hidden md:flex items-center justify-center text-[#130e30]/40 font-bold">
-            <ArrowLeft className="w-5 h-5 text-[#130e30]" />
+          <div className="hidden md:flex items-center justify-center text-[#1a1a1a]/40 font-bold">
+            <ArrowLeft className="w-5 h-5 text-[#1a1a1a]" />
           </div>
 
           {/* Step 05: Subtitle Director (Middle) */}
@@ -527,8 +542,8 @@ export const AgentSequenceTrack: React.FC<AgentSequenceTrackProps> = ({
           />
 
           {/* Left Arrow Connector (Step 04 -> Step 05) */}
-          <div className="hidden md:flex items-center justify-center text-[#130e30]/40 font-bold">
-            <ArrowLeft className="w-5 h-5 text-[#130e30]" />
+          <div className="hidden md:flex items-center justify-center text-[#1a1a1a]/40 font-bold">
+            <ArrowLeft className="w-5 h-5 text-[#1a1a1a]" />
           </div>
 
           {/* Step 04: Sync Engineer (Right - directly under Step 03) */}
@@ -546,57 +561,57 @@ export const AgentSequenceTrack: React.FC<AgentSequenceTrackProps> = ({
 
       {/* TARGETED SELF-REPAIR FEEDBACK ARC BANNER (Row 2 Feedback) */}
       {(retries.sync_engineer > 0 || demoRetryActive || activeAgent === 'sync_engineer' || activeAgent === 'qa_agent') && (
-        <div className="bg-[#fdf3fe] border-[1.5px] border-dashed border-[#e261e5] rounded-[14px] p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-[#130e30]">
+        <div className="bg-[#fdf3fe] border-[1.5px] border-dashed border-[#e261e5] rounded-[14px] p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-[#1a1a1a]">
           <div className="flex items-center gap-2.5">
-            <span className="font-mono bg-[#e261e5] text-white px-2.5 py-0.5 rounded-full font-bold text-[10px]">
+            <span className="font-mono bg-[#7248ea] text-white px-2.5 py-0.5 rounded-full font-bold text-[10px]">
               AUTONOMIC SELF-REPAIR
             </span>
             <span className="font-medium">
               QA Continuity Agent detected <strong>TIMING_OVERFLOW (+1.40s)</strong> in Scene 07 ➔ Dispatched targeted retry across Row 2 to <strong>Sync Engineer</strong>.
             </span>
           </div>
-          <span className="font-mono text-[11px] text-[#e261e5] font-bold whitespace-nowrap">
+          <span className="font-mono text-[11px] text-[#7248ea] font-bold whitespace-nowrap">
             atempo=1.25x (Resolved)
           </span>
         </div>
       )}
 
       {/* EXPANDABLE TELEMETRY DRILLDOWN DRAWER */}
-      <div className="bg-[#f9fbf2] border-[1.5px] border-[#130e30] rounded-[16px] p-5 space-y-4 shadow-sm animate-in fade-in duration-200">
-        <div className="flex items-center justify-between border-b border-[#130e30]/10 pb-3">
-          <div className="flex items-center gap-2">
-            <span className="font-mono text-xs font-extrabold text-[#130e30] bg-[#eff2e5] px-2.5 py-1 rounded-md border border-[#130e30]/20">
+      <div className="bg-white border border-[#dbd8e8] rounded-2xl p-5 space-y-4 shadow-xs animate-in fade-in duration-200">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#f2f0f8] pb-3">
+          <div className="flex items-center gap-2.5">
+            <span className="font-mono text-xs font-bold text-[#7248ea] bg-[#f2eeff] px-2.5 py-1 rounded-lg border border-[#bd98ec]/40">
               STEP {selectedNodeConfig.stepNumber} DRILLDOWN
             </span>
-            <h4 className="text-sm font-extrabold text-[#130e30]">{selectedNodeConfig.stepLabel}</h4>
+            <h4 className="text-sm font-bold text-[#1a1a1a]">{selectedNodeConfig.stepLabel}</h4>
           </div>
-          <span className="font-mono text-xs font-bold text-[#5f5c6e]">
-            Execution ID: <span className="text-[#130e30]">op-{selectedNodeConfig.id}-098</span>
+          <span className="font-mono text-xs font-medium text-[#575268]">
+            Execution ID: <span className="text-[#1a1a1a] font-semibold">op-{selectedNodeConfig.id}-098</span>
           </span>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
-          <div className="flex flex-col gap-1.5 bg-[#eff2e5] p-3 rounded-xl border border-[#130e30]/10">
-            <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#5f5c6e]">Technology & Model</span>
-            <span className="font-semibold text-[#130e30] leading-snug">{selectedNodeConfig.techStack}</span>
+          <div className="flex flex-col gap-1.5 bg-[#fbfbfd] p-3.5 rounded-xl border border-[#dbd8e8]">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-[#575268]">Technology & Model</span>
+            <span className="font-semibold text-[#1a1a1a] leading-snug">{selectedNodeConfig.techStack}</span>
           </div>
 
-          <div className="flex flex-col gap-1.5 bg-[#eff2e5] p-3 rounded-xl border border-[#130e30]/10">
-            <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#5f5c6e]">Input Artifact</span>
-            <span className="font-mono text-[11px] text-[#130e30] leading-snug">{selectedNodeConfig.inputDesc}</span>
+          <div className="flex flex-col gap-1.5 bg-[#fbfbfd] p-3.5 rounded-xl border border-[#dbd8e8]">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-[#575268]">Input Artifact</span>
+            <span className="font-mono text-[11px] text-[#1a1a1a] leading-snug">{selectedNodeConfig.inputDesc}</span>
           </div>
 
-          <div className="flex flex-col gap-1.5 bg-[#eff2e5] p-3 rounded-xl border border-[#130e30]/10">
-            <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#5f5c6e]">Synthesized Output</span>
-            <span className="font-mono text-[11px] text-[#130e30] leading-snug">{selectedNodeConfig.outputDesc}</span>
+          <div className="flex flex-col gap-1.5 bg-[#fbfbfd] p-3.5 rounded-xl border border-[#dbd8e8]">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-[#575268]">Synthesized Output</span>
+            <span className="font-mono text-[11px] text-[#1a1a1a] leading-snug">{selectedNodeConfig.outputDesc}</span>
           </div>
         </div>
 
         {selectedEvent && (
-          <div className="pt-1 flex items-center justify-between text-[11px] font-mono text-[#5f5c6e] bg-[#eff2e5]/50 px-3 py-2 rounded-lg">
-            <span>Action: <strong className="text-[#130e30]">{selectedEvent.action}</strong></span>
-            <span>Decision: <strong className="text-[#130e30]">{selectedEvent.decision}</strong></span>
-            <span>Q-Score: <strong className="text-[#59e25d]">{selectedEvent.quality_score}%</strong></span>
+          <div className="pt-1 flex flex-wrap items-center justify-between gap-2 text-[11px] font-mono text-[#575268] bg-[#f8f9fa] border border-[#dbd8e8] px-3 py-2 rounded-xl">
+            <span>Action: <strong className="text-[#1a1a1a]">{selectedEvent.action}</strong></span>
+            <span>Decision: <strong className="text-[#1a1a1a]">{selectedEvent.decision}</strong></span>
+            <span>Q-Score: <strong className="text-[#14804a]">{selectedEvent.quality_score}%</strong></span>
           </div>
         )}
       </div>

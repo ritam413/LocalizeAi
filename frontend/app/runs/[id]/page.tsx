@@ -245,36 +245,36 @@ export default function RunDashboardPage() {
   };
 
   return (
-    <div className="space-y-8 font-sans text-[#130e30]">
+    <div className="space-y-8 font-sans text-[#1a1a1a]">
       {/* Header Info Banner */}
-      <div className="bg-[#eff2e5] border-[1.5px] border-[#130e30]/15 p-6 rounded-[24px] flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-sm">
+      <div className="bg-[#f8f9fa] border border-[#dbd8e8]/15 p-6 rounded-[16px] flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-sm">
         <div>
           <div className="flex items-center space-x-3">
-            <h1 className="text-2xl font-black text-[#130e30] uppercase tracking-tight">Run #{runId}</h1>
+            <h1 className="text-2xl font-black text-[#1a1a1a] uppercase tracking-tight">Run #{runId}</h1>
             <span
               className={`px-3 py-1 rounded-full text-[10px] font-mono font-extrabold uppercase tracking-wider border ${
                 runData.status === 'completed'
-                  ? 'bg-[#59e25d] text-[#130e30] border-[#130e30]'
+                  ? 'bg-[#14804a] text-[#1a1a1a] border-[#dbd8e8]'
                   : runData.status === 'running'
-                  ? 'bg-[#ffe228] text-[#130e30] border-[#130e30] animate-pulse-yellow'
+                  ? 'bg-[#f2eeff] text-[#7248ea] border-[#dbd8e8] animate-pulse-yellow'
                   : runData.status === 'cancelling'
-                  ? 'bg-[#ffe228]/50 text-[#130e30] border-[#130e30]'
+                  ? 'bg-[#7248ea]/50 text-[#1a1a1a] border-[#dbd8e8]'
                   : runData.status === 'cancelled'
-                  ? 'bg-[#fdf3fe] text-[#e261e5] border-[#e261e5]'
-                  : 'bg-[#130e30]/5 text-[#5f5c6e] border-[#130e30]/10'
+                  ? 'bg-[#fdf3fe] text-[#7248ea] border-[#e261e5]'
+                  : 'bg-[#130e30]/5 text-[#575268] border-[#dbd8e8]'
               }`}
             >
               {runData.status === 'cancelling' ? '⏳ Cancelling…' : runData.status === 'completed' ? '✓ Master Ready' : runData.status}
             </span>
           </div>
-          <p className="text-xs text-[#5f5c6e] mt-1.5 flex items-center space-x-3 font-mono font-medium flex-wrap">
+          <p className="text-xs text-[#575268] mt-1.5 flex items-center space-x-3 font-mono font-medium flex-wrap">
             <span>Clip: {runData.clip?.filename || 'sample_movie.mp4'}</span>
             <span>•</span>
             <span>Mode: Project {runData.project_mode}</span>
             <span>•</span>
             <span>Pair: {(runData.source_language || 'es').toUpperCase()} → EN</span>
             <span>•</span>
-            <span className="text-[#130e30] font-bold">
+            <span className="text-[#1a1a1a] font-bold">
               ASR: {(() => {
                 try {
                   const cfg = runData.frozen_stage_config_json ? JSON.parse(runData.frozen_stage_config_json) : {};
@@ -294,13 +294,13 @@ export default function RunDashboardPage() {
             <button
               id="btn-cancel-run"
               onClick={handleCancel}
-              className="flex items-center space-x-1.5 px-4 py-2 rounded-full text-xs font-bold bg-[#fdf3fe] border border-[#e261e5] text-[#e261e5] hover:bg-[#fbdcfd] transition-all active:scale-[0.97]"
+              className="flex items-center space-x-1.5 px-4 py-2 rounded-full text-xs font-bold bg-[#fdf3fe] border border-[#e261e5] text-[#7248ea] hover:bg-[#fbdcfd] transition-all active:scale-[0.97]"
             >
               <XCircle className="w-3.5 h-3.5" />
               <span>Stop Pipeline</span>
             </button>
           ) : runData.status === 'completed' ? (
-            <span className="flex items-center space-x-1.5 px-4 py-2 rounded-full text-xs font-bold bg-[#59e25d] text-[#130e30] border border-[#130e30] shadow-sm">
+            <span className="flex items-center space-x-1.5 px-4 py-2 rounded-full text-xs font-bold bg-[#14804a] text-[#1a1a1a] border border-[#dbd8e8] shadow-sm">
               <CheckCircle2 className="w-3.5 h-3.5" />
               <span>Pipeline Completed</span>
             </span>
@@ -308,23 +308,23 @@ export default function RunDashboardPage() {
             <button
               id="btn-continue-pipeline"
               onClick={handleContinuePipeline}
-              className="flex items-center space-x-1.5 px-4 py-2 rounded-full text-xs font-black bg-[#ffe228] hover:bg-[#ebd020] text-[#130e30] border border-[#130e30] transition-all active:scale-[0.97] shadow-sm"
+              className="flex items-center space-x-1.5 px-4 py-2 rounded-full text-xs font-black bg-[#7248ea] hover:bg-[#6847ff] text-white border border-[#dbd8e8] transition-all active:scale-[0.97] shadow-sm"
             >
               <Play className="w-3.5 h-3.5 fill-current" />
               <span>Resume Pipeline</span>
             </button>
           )}
 
-          <div className="flex items-center space-x-1 bg-[#f9fbf2] p-1.5 rounded-full border border-[#130e30]/15">
+          <div className="flex items-center space-x-1 bg-[#fbfbfd] p-1.5 rounded-full border border-[#dbd8e8]">
             <button
               onClick={() => setActiveTab('studio')}
               className={`px-4 py-2 rounded-full text-xs font-bold transition-all flex items-center space-x-1.5 active:scale-[0.97] ${
                 activeTab === 'studio'
                   ? 'bg-[#130e30] text-white shadow-sm'
-                  : 'text-[#5f5c6e] hover:text-[#130e30]'
+                  : 'text-[#575268] hover:text-[#1a1a1a]'
               }`}
             >
-              <Sparkles className="w-3.5 h-3.5 text-[#ffe228] fill-current" />
+              <Sparkles className="w-3.5 h-3.5 text-[#7248ea] fill-current" />
               <span>Studio Console</span>
             </button>
             <button
@@ -332,10 +332,10 @@ export default function RunDashboardPage() {
               className={`px-4 py-2 rounded-full text-xs font-bold transition-all flex items-center space-x-1.5 active:scale-[0.97] ${
                 activeTab === 'preview'
                   ? 'bg-[#130e30] text-white shadow-sm'
-                  : 'text-[#5f5c6e] hover:text-[#130e30]'
+                  : 'text-[#575268] hover:text-[#1a1a1a]'
               }`}
             >
-              <Film className="w-3.5 h-3.5 text-[#59e25d]" />
+              <Film className="w-3.5 h-3.5 text-[#14804a]" />
               <span>Video Preview</span>
             </button>
             <button
@@ -343,21 +343,21 @@ export default function RunDashboardPage() {
               className={`px-4 py-2 rounded-full text-xs font-bold transition-all active:scale-[0.97] ${
                 activeTab === 'progress'
                   ? 'bg-[#130e30] text-white shadow-sm'
-                  : 'text-[#5f5c6e] hover:text-[#130e30]'
+                  : 'text-[#575268] hover:text-[#1a1a1a]'
               }`}
             >
               Progress &amp; Logs
             </button>
             <Link
               href={`/runs/${runId}/subtitles`}
-              className="px-3 py-2 rounded-full text-xs font-bold text-[#5f5c6e] hover:text-[#130e30] transition-all flex items-center space-x-1.5 active:scale-[0.97]"
+              className="px-3 py-2 rounded-full text-xs font-bold text-[#575268] hover:text-[#1a1a1a] transition-all flex items-center space-x-1.5 active:scale-[0.97]"
             >
               <Subtitles className="w-3.5 h-3.5" />
               <span>Subtitles</span>
             </Link>
             <Link
               href={`/runs/${runId}/output`}
-              className="px-3 py-2 rounded-full text-xs font-bold text-[#5f5c6e] hover:text-[#130e30] transition-all flex items-center space-x-1.5 active:scale-[0.97]"
+              className="px-3 py-2 rounded-full text-xs font-bold text-[#575268] hover:text-[#1a1a1a] transition-all flex items-center space-x-1.5 active:scale-[0.97]"
             >
               <Download className="w-3.5 h-3.5" />
               <span>Outputs</span>
@@ -500,13 +500,13 @@ export default function RunDashboardPage() {
       ) : activeTab === 'progress' ? (
         <div className="space-y-6">
           {/* Stage Timeline Card (S-07) */}
-          <div className="bg-[#eff2e5] border-[1.5px] border-[#130e30]/15 p-6 rounded-[24px] space-y-6 shadow-sm">
+          <div className="bg-[#f8f9fa] border border-[#dbd8e8]/15 p-6 rounded-[16px] space-y-6 shadow-sm">
             <div className="flex items-center justify-between">
-              <h2 className="text-xs font-black text-[#130e30] uppercase tracking-tight flex items-center space-x-2">
-                <Clock className="w-4 h-4 text-[#130e30]" />
+              <h2 className="text-xs font-black text-[#1a1a1a] uppercase tracking-tight flex items-center space-x-2">
+                <Clock className="w-4 h-4 text-[#1a1a1a]" />
                 <span>Pipeline Stage Timeline</span>
               </h2>
-              <span className="text-[11px] text-[#5f5c6e] font-mono">Click any stage to execute or rerun individually</span>
+              <span className="text-[11px] text-[#575268] font-mono">Click any stage to execute or rerun individually</span>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
@@ -520,38 +520,38 @@ export default function RunDashboardPage() {
                     key={stageName}
                     className={`p-4 rounded-[16px] border-[1.5px] flex flex-col justify-between transition-all select-none ${
                       status === 'completed'
-                        ? 'bg-[#f9fbf2] border-[#59e25d]'
+                        ? 'bg-[#fbfbfd] border-[#59e25d]'
                         : status === 'running'
-                        ? 'bg-[#f9fbf2] border-[#130e30] shadow-[0_0_0_3px_#ffe228]'
+                        ? 'bg-[#fbfbfd] border-[#dbd8e8] shadow-[0_4px_16px_rgba(114,72,234,0.15)]'
                         : status === 'failed'
                         ? 'bg-[#fdf3fe] border-[#e261e5]'
-                        : 'bg-[#f9fbf2] border-[#130e30]/15'
+                        : 'bg-[#fbfbfd] border-[#dbd8e8]'
                     }`}
                   >
                     <div>
                       <div className="flex items-center justify-between mb-2">
-                        <span className="text-[10px] font-mono text-[#5f5c6e] font-extrabold uppercase">
+                        <span className="text-[10px] font-mono text-[#575268] font-extrabold uppercase">
                           Stage 0{index + 1}
                         </span>
                         {isGpu && (
-                          <span className="text-[9.5px] px-2 py-0.5 rounded-full bg-[#eff2e5] text-[#130e30] border border-[#130e30]/20 font-bold flex items-center space-x-1">
+                          <span className="text-[9.5px] px-2 py-0.5 rounded-full bg-[#f8f9fa] text-[#1a1a1a] border border-[#dbd8e8] font-bold flex items-center space-x-1">
                             <Cpu className="w-3 h-3" />
                             <span>GPU</span>
                           </span>
                         )}
                       </div>
-                      <h3 className="font-extrabold text-[#130e30] text-sm capitalize">{stageName}</h3>
+                      <h3 className="font-extrabold text-[#1a1a1a] text-sm capitalize">{stageName}</h3>
 
                       {/* Progress Bar */}
                       <div className="w-full bg-[#130e30]/10 h-1.5 rounded-full overflow-hidden mt-3">
                         <div
                           className={`h-full transition-all duration-300 ${
                             status === 'completed'
-                              ? 'bg-[#59e25d]'
+                              ? 'bg-[#14804a]'
                               : status === 'running'
-                              ? 'bg-[#ffe228]'
+                              ? 'bg-[#7248ea]'
                               : status === 'failed'
-                              ? 'bg-[#e261e5]'
+                              ? 'bg-[#7248ea]'
                               : 'bg-[#5f5c6e]'
                           }`}
                           style={{ width: `${status === 'completed' ? 100 : pct}%` }}
@@ -563,26 +563,26 @@ export default function RunDashboardPage() {
                       <span
                         className={`capitalize font-bold text-[11px] ${
                           status === 'completed'
-                            ? 'text-[#130e30]'
+                            ? 'text-[#1a1a1a]'
                             : status === 'running'
-                            ? 'text-[#130e30]'
+                            ? 'text-[#1a1a1a]'
                             : status === 'failed'
-                            ? 'text-[#e261e5]'
-                            : 'text-[#5f5c6e]'
+                            ? 'text-[#7248ea]'
+                            : 'text-[#575268]'
                         }`}
                       >
                         {status} ({status === 'completed' ? '100%' : `${pct.toFixed(0)}%`})
                       </span>
 
                       {status === 'running' ? (
-                        <span className="flex items-center space-x-1 text-[#130e30] text-[11px] font-bold">
+                        <span className="flex items-center space-x-1 text-[#1a1a1a] text-[11px] font-bold">
                           <RefreshCw className="w-3 h-3 animate-spin" />
                           <span>Running</span>
                         </span>
                       ) : (status === 'pending' || status === 'cancelled') ? (
                         <button
                           onClick={() => handleRunSingleStage(stageName)}
-                          className="flex items-center space-x-1 px-2.5 py-1 rounded-full bg-[#ffe228] hover:bg-[#ebd020] text-[#130e30] border border-[#130e30] text-[10.5px] font-black transition-all active:scale-[0.97] cursor-pointer"
+                          className="flex items-center space-x-1 px-2.5 py-1 rounded-full bg-[#7248ea] hover:bg-[#6847ff] text-white border border-[#dbd8e8] text-[10.5px] font-black transition-all active:scale-[0.97] cursor-pointer"
                           title={`Run ${stageName} stage only`}
                         >
                           <Play className="w-3 h-3 fill-current" />
@@ -591,7 +591,7 @@ export default function RunDashboardPage() {
                       ) : (
                         <button
                           onClick={() => handleRetryStage(stageName)}
-                          className="flex items-center space-x-1 px-2.5 py-1 rounded-full hover:bg-[#eff2e5] text-[#5f5c6e] hover:text-[#130e30] border border-[#130e30]/20 text-[10.5px] font-bold transition-all active:scale-[0.97] cursor-pointer"
+                          className="flex items-center space-x-1 px-2.5 py-1 rounded-full hover:bg-[#f8f9fa] text-[#575268] hover:text-[#1a1a1a] border border-[#dbd8e8] text-[10.5px] font-bold transition-all active:scale-[0.97] cursor-pointer"
                           title={`Rerun ${stageName} stage only`}
                         >
                           <RefreshCw className="w-3 h-3" />
@@ -606,16 +606,16 @@ export default function RunDashboardPage() {
           </div>
 
           {/* Real-time Stage Log Terminal in Deep Ink */}
-          <div className="bg-[#130e30] border-[1.5px] border-[#130e30] p-6 rounded-[24px] space-y-4 shadow-sm text-white">
+          <div className="bg-[#130e30] border border-[#dbd8e8] p-6 rounded-[16px] space-y-4 shadow-sm text-white">
             <div className="flex items-center justify-between">
-              <h2 className="text-xs font-black text-[#ffe228] uppercase tracking-tight flex items-center space-x-2">
-                <Terminal className="w-4 h-4 text-[#ffe228]" />
+              <h2 className="text-xs font-black text-[#7248ea] uppercase tracking-tight flex items-center space-x-2">
+                <Terminal className="w-4 h-4 text-[#7248ea]" />
                 <span>Streaming Stage Logs</span>
               </h2>
-              <span className="text-[10px] text-[#59e25d] font-mono font-bold">● Live WebSocket Stream</span>
+              <span className="text-[10px] text-[#14804a] font-mono font-bold">● Live WebSocket Stream</span>
             </div>
 
-            <div className="bg-black/80 border border-white/10 rounded-xl p-4 font-mono text-xs text-[#59e25d] h-64 overflow-y-auto space-y-1">
+            <div className="bg-black/80 border border-white/10 rounded-xl p-4 font-mono text-xs text-[#14804a] h-64 overflow-y-auto space-y-1">
               {logs.length === 0 ? (
                 <div className="text-white/40 italic">Listening for pipeline stage logs…</div>
               ) : (
@@ -625,10 +625,10 @@ export default function RunDashboardPage() {
                     <span
                       className={
                         log.level === 'WARNING'
-                          ? 'text-[#ffe228]'
+                          ? 'text-[#7248ea]'
                           : log.level === 'ERROR'
-                          ? 'text-[#e261e5]'
-                          : 'text-[#59e25d]'
+                          ? 'text-[#7248ea]'
+                          : 'text-[#14804a]'
                       }
                     >
                       [{log.level}] {log.msg}
@@ -657,8 +657,8 @@ export default function RunDashboardPage() {
             })()}
           />
 
-          <div className="pt-4 border-t border-[#130e30]/10">
-            <h4 className="text-xs font-black uppercase tracking-tight text-[#130e30] mb-3">
+          <div className="pt-4 border-t border-[#dbd8e8]">
+            <h4 className="text-xs font-black uppercase tracking-tight text-[#1a1a1a] mb-3">
               Raw Source Footage Inspection
             </h4>
             <MasterVideoPreview

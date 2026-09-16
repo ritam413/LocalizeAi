@@ -48,7 +48,7 @@ export default function NewRunPage() {
       category: 'MAX FIDELITY RELEASE',
       subtitle: 'Actor Voice Cloning • Soundtrack Preserved',
       desc: 'Deep cultural adaptation reasoning via Gemini 2.5 Pro, Demucs 4-stem soundtrack preservation, and pitch-matched neural character casting.',
-      badgeColor: 'bg-[#ffe228] text-[#130e30] border-[#130e30]',
+      badgeColor: 'bg-[#f2eeff] text-[#7248ea] border-[#bd98ec]',
       crewCount: '6 Post-Production Agents',
       turnaround: '~2m 15s (Scene Cut)',
       deliverables: 'Master MP4 + Dual 5.1/Stereo WAV + SRT',
@@ -59,7 +59,7 @@ export default function NewRunPage() {
       category: 'FAST OTT & TV PIPELINE',
       subtitle: 'High-Throughput Neutral Voice Dub',
       desc: 'Optimized for rapid streaming turnaround with Whisper Turbo dialogue transcription, fast neural voices, and continuous phonetic alignment.',
-      badgeColor: 'bg-[#eff2e5] text-[#130e30] border-[#130e30]/30',
+      badgeColor: 'bg-[#f8f9fa] text-[#575268] border-[#dbd8e8]',
       crewCount: '6 Post-Production Agents',
       turnaround: '~1m 05s (Fast Path)',
       deliverables: 'Master MP4 + Master SRT Subtitles',
@@ -70,7 +70,7 @@ export default function NewRunPage() {
       category: 'RAPID SUBTITLE SPRINT',
       subtitle: 'Netflix-Standard 16 CPS Subtitles',
       desc: 'Fastest pipeline path. Skips voice synthesis to deliver timed, Netflix-compliant master subtitle tracks (.srt/.vtt) with 100% original actor audio.',
-      badgeColor: 'bg-[#59e25d] text-[#130e30] border-[#130e30]',
+      badgeColor: 'bg-[#f0f9eb] text-[#14804a] border-[#c2e7b0]',
       crewCount: '4 Subtitle & QA Agents',
       turnaround: '< 35 seconds',
       deliverables: 'Master SRT + WebVTT Files',
@@ -197,21 +197,21 @@ export default function NewRunPage() {
   const activeVideoName = file ? file.name : sampleLoaded ? 'sample_movie.mp4 (Studio Master Reel)' : importPath || '';
 
   return (
-    <div className="space-y-8 max-w-6xl mx-auto font-sans text-[#130e30] pb-16">
+    <div className="space-y-8 max-w-[1200px] mx-auto font-sans text-[#1a1a1a] pb-16">
       {/* Streamlined Top Title Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#130e30]/10 pb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#dbd8e8] pb-5">
         <div>
-          <div className="inline-flex items-center space-x-2 bg-[#ffe228] px-3 py-1 rounded-full text-xs font-mono font-black uppercase tracking-wider text-[#130e30] border border-[#130e30] mb-2">
+          <div className="inline-flex items-center space-x-2 bg-[#f2eeff] px-3.5 py-1 rounded-full text-xs font-mono font-bold uppercase tracking-wider text-[#7248ea] border border-[#bd98ec]/40 mb-2.5">
             <Clapperboard className="w-3.5 h-3.5 fill-current" />
             <span>AI Cinema Post-Production Atelier</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-black text-[#130e30] tracking-tight uppercase">
+          <h1 className="text-2xl sm:text-3xl font-bold text-[#1a1a1a] tracking-tight">
             New Film Localization Run
           </h1>
         </div>
 
-        <div className="flex items-center space-x-2 bg-[#eff2e5] border-[1.5px] border-[#130e30] px-4 py-2 rounded-2xl text-xs font-extrabold text-[#130e30] shadow-xs">
-          <span className="w-2.5 h-2.5 rounded-full bg-[#59e25d] animate-pulse border border-[#130e30]" />
+        <div className="flex items-center space-x-2 bg-[#ffffff] border border-[#dbd8e8] px-4 py-2 rounded-xl text-xs font-semibold text-[#575268] shadow-xs">
+          <span className="w-2.5 h-2.5 rounded-full bg-[#14804a] animate-pulse" />
           <span>6 Post-Production Agents Armed</span>
         </div>
       </div>
@@ -229,22 +229,22 @@ export default function NewRunPage() {
       {/* =========================================================
           HERO JUDGE DEMO MODE BANNER (35s AI Crew Showcase)
       ========================================================= */}
-      <div className="bg-[#f9fbf2] border-[2.5px] border-[#130e30] rounded-[28px] p-6 shadow-[0_8px_30px_rgba(19,14,48,0.08)] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="bg-[#ffffff] border border-[#dbd8e8] rounded-[20px] p-6 sm:p-7 shadow-[0_2px_12px_rgba(0,0,0,0.04)] flex flex-col sm:flex-row sm:items-center justify-between gap-5 hover:border-[#bd98ec] transition-all">
         <div className="flex items-center space-x-4">
-          <div className="w-12 h-12 rounded-2xl bg-[#ffe228] text-[#130e30] border-[2px] border-[#130e30] flex items-center justify-center font-black shadow-xs">
-            <Sparkles className="w-6 h-6 stroke-[2.5]" />
+          <div className="w-12 h-12 rounded-xl bg-[#f2eeff] text-[#7248ea] border border-[#bd98ec]/40 flex items-center justify-center font-bold shadow-xs">
+            <Sparkles className="w-6 h-6 stroke-[2.2]" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-[10px] font-mono font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#130e30] text-[#ffe228]">
+              <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#7248ea] text-white">
                 HACKATHON PRESENTATION
               </span>
-              <span className="text-xs font-mono font-bold text-[#5f5c6e]">35s Calibrated Run</span>
+              <span className="text-xs font-mono font-semibold text-[#575268]">35s Calibrated Run</span>
             </div>
-            <h3 className="text-base sm:text-lg font-black uppercase tracking-tight text-[#130e30] mt-0.5">
+            <h3 className="text-base sm:text-lg font-bold text-[#1a1a1a] mt-1">
               Live Judge Demo: Autonomous AI Crew + YouTube Multi-Audio Dub
             </h3>
-            <p className="text-xs text-[#5f5c6e] font-medium">
+            <p className="text-xs text-[#575268] font-normal leading-relaxed">
               Runs the 6-agent post-production pipeline in 35 seconds and plays the localized video with YouTube-style audio tracks (English, Spanish, Hindi, French).
             </p>
           </div>
@@ -252,10 +252,10 @@ export default function NewRunPage() {
 
         <Link
           href="/runs/demo"
-          className="bg-[#130e30] hover:bg-[#251d5c] text-[#ffe228] border-[2px] border-[#130e30] px-6 py-3.5 rounded-full font-black text-xs uppercase tracking-wider shadow-md flex items-center justify-center space-x-2 transition-all active:scale-[0.97] cursor-pointer flex-shrink-0"
+          className="bg-[#7248ea] hover:bg-[#6847ff] text-white px-6 py-3.5 rounded-full font-semibold text-xs tracking-wider shadow-[0_4px_14px_rgba(114,72,234,0.28)] flex items-center justify-center space-x-2 transition-all active:scale-[0.98] cursor-pointer flex-shrink-0"
         >
           <span>🎬 Launch 35s Live Judge Demo</span>
-          <ArrowRight className="w-4 h-4 stroke-[3]" />
+          <ArrowRight className="w-4 h-4 stroke-[2.5]" />
         </Link>
       </div>
 
@@ -265,17 +265,17 @@ export default function NewRunPage() {
       <section className="space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-2xl bg-[#130e30] text-[#ffe228] flex items-center justify-center font-black text-base border border-[#130e30] shadow-sm">
+            <div className="w-9 h-9 rounded-full bg-[#7248ea] text-white flex items-center justify-center font-bold text-sm shadow-sm">
               01
             </div>
             <div>
-              <h2 className="text-xl sm:text-2xl font-black uppercase tracking-tight text-[#130e30] flex items-center gap-2">
+              <h2 className="text-xl font-bold text-[#1a1a1a] flex items-center gap-2">
                 <span>Master Movie Footage Ingestion</span>
-                <span className="text-xs font-mono font-bold px-2.5 py-0.5 rounded-full bg-[#ffe228] text-[#130e30] border border-[#130e30]">
+                <span className="text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-[#f2eeff] text-[#7248ea] border border-[#bd98ec]/40">
                   PRIMARY INPUT
                 </span>
               </h2>
-              <p className="text-xs sm:text-sm text-[#5f5c6e] font-medium">
+              <p className="text-xs sm:text-sm text-[#575268] font-normal">
                 Drag and drop cinema footage, stream from disk, or preview live video playback
               </p>
             </div>
@@ -288,22 +288,22 @@ export default function NewRunPage() {
                 loadSampleMovie();
                 setActiveIngestionTab('preview');
               }}
-              className="flex items-center space-x-2 bg-[#eff2e5] hover:bg-[#ffe228] text-[#130e30] border-[1.5px] border-[#130e30] px-4 py-2 rounded-full text-xs font-extrabold transition-all active:scale-[0.97] cursor-pointer shadow-xs"
+              className="flex items-center space-x-2 bg-[#f2eeff] hover:bg-[#6847ff]/20 hover:border-[#bd98ec] text-[#7248ea] border border-[#bd98ec]/60 px-4 py-2 rounded-full text-xs font-semibold transition-all active:scale-[0.98] cursor-pointer shadow-xs"
             >
-              <PlayCircle className="w-4 h-4 text-[#130e30]" />
+              <PlayCircle className="w-4 h-4 text-[#7248ea]" />
               <span>Load Studio 4K Sample Reel</span>
             </button>
           </div>
         </div>
 
         {/* Ingestion Sub-Navigation Tabs */}
-        <div className="flex items-center space-x-2 bg-[#eff2e5] p-1.5 rounded-2xl border-[2px] border-[#130e30] w-fit shadow-xs">
+        <div className="flex items-center space-x-2 bg-[#f8f9fa] p-1.5 rounded-xl border border-[#dbd8e8] w-fit shadow-xs">
           <button
             onClick={() => setActiveIngestionTab('setup')}
-            className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all flex items-center space-x-2 cursor-pointer ${
+            className={`px-4 py-2 rounded-lg text-xs font-semibold uppercase tracking-wider transition-all flex items-center space-x-2 cursor-pointer ${
               activeIngestionTab === 'setup'
-                ? 'bg-[#130e30] text-[#ffe228] shadow-sm'
-                : 'text-[#5f5c6e] hover:text-[#130e30]'
+                ? 'bg-[#7248ea] text-white shadow-xs'
+                : 'text-[#575268] hover:text-[#1a1a1a]'
             }`}
           >
             <Upload className="w-3.5 h-3.5" />
@@ -312,18 +312,18 @@ export default function NewRunPage() {
 
           <button
             onClick={() => setActiveIngestionTab('preview')}
-            className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all flex items-center space-x-2 cursor-pointer ${
+            className={`px-4 py-2 rounded-lg text-xs font-semibold uppercase tracking-wider transition-all flex items-center space-x-2 cursor-pointer ${
               activeIngestionTab === 'preview'
-                ? 'bg-[#130e30] text-[#ffe228] shadow-sm'
-                : 'text-[#5f5c6e] hover:text-[#130e30]'
+                ? 'bg-[#7248ea] text-white shadow-xs'
+                : 'text-[#575268] hover:text-[#1a1a1a]'
             }`}
           >
             <Film className="w-3.5 h-3.5" />
             <span>2. Master Video Preview</span>
             {hasVideo ? (
-              <span className="w-2 h-2 rounded-full bg-[#59e25d] animate-pulse" />
+              <span className="w-2 h-2 rounded-full bg-[#00d4aa] animate-pulse" />
             ) : (
-              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-black/10 text-[#5f5c6e]">Standby</span>
+              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-black/5 text-[#575268]">Standby</span>
             )}
           </button>
         </div>
@@ -337,19 +337,19 @@ export default function NewRunPage() {
           />
         ) : (
           /* Grand Hero Master Movie Container */
-          <div className="bg-white border-[2.5px] border-[#130e30] rounded-[32px] p-6 sm:p-8 space-y-6 shadow-[0_8px_30px_rgba(19,14,48,0.08)]">
+          <div className="bg-white border border-[#dbd8e8] rounded-[20px] p-6 sm:p-8 space-y-6 shadow-[0_2px_12px_rgba(0,0,0,0.04)]">
             {/* Top Ingestion Switcher */}
-            <div className="flex items-center justify-between flex-wrap gap-3 pb-4 border-b border-[#130e30]/10">
-              <div className="flex items-center space-x-3 text-xs font-black">
+            <div className="flex items-center justify-between flex-wrap gap-3 pb-4 border-b border-[#dbd8e8]">
+              <div className="flex items-center space-x-3 text-xs font-semibold">
                 <button
                   onClick={() => {
                     setUseImportPath(false);
                     setSampleLoaded(false);
                   }}
-                  className={`px-5 py-2.5 rounded-full border-[1.5px] transition-all duration-150 active:scale-[0.97] cursor-pointer flex items-center space-x-2 ${
+                  className={`px-5 py-2.5 rounded-full border transition-all duration-150 active:scale-[0.98] cursor-pointer flex items-center space-x-2 ${
                     !useImportPath
-                      ? 'bg-[#130e30] text-[#ffe228] border-[#130e30] shadow-sm'
-                      : 'bg-[#eff2e5] text-[#5f5c6e] border-[#130e30]/20 hover:text-[#130e30]'
+                      ? 'bg-[#7248ea] text-white border-[#7248ea] shadow-xs'
+                      : 'bg-[#f8f9fa] text-[#575268] border-[#dbd8e8] hover:text-[#1a1a1a]'
                   }`}
                 >
                   <Upload className="w-4 h-4" />
@@ -360,10 +360,10 @@ export default function NewRunPage() {
                     setUseImportPath(true);
                     setSampleLoaded(false);
                   }}
-                  className={`px-5 py-2.5 rounded-full border-[1.5px] transition-all duration-150 active:scale-[0.97] cursor-pointer flex items-center space-x-2 ${
+                  className={`px-5 py-2.5 rounded-full border transition-all duration-150 active:scale-[0.98] cursor-pointer flex items-center space-x-2 ${
                     useImportPath
-                      ? 'bg-[#130e30] text-[#ffe228] border-[#130e30] shadow-sm'
-                      : 'bg-[#eff2e5] text-[#5f5c6e] border-[#130e30]/20 hover:text-[#130e30]'
+                      ? 'bg-[#7248ea] text-white border-[#7248ea] shadow-xs'
+                      : 'bg-[#f8f9fa] text-[#575268] border-[#dbd8e8] hover:text-[#1a1a1a]'
                   }`}
                 >
                   <FolderOpen className="w-4 h-4" />
@@ -377,7 +377,7 @@ export default function NewRunPage() {
                   loadSampleMovie();
                   setActiveIngestionTab('preview');
                 }}
-                className="sm:hidden flex items-center space-x-1.5 bg-[#ffe228] text-[#130e30] border border-[#130e30] px-3 py-1.5 rounded-full text-xs font-extrabold"
+                className="sm:hidden flex items-center space-x-1.5 bg-[#f2eeff] text-[#7248ea] border border-[#bd98ec] px-3 py-1.5 rounded-full text-xs font-semibold"
               >
                 <PlayCircle className="w-3.5 h-3.5" />
                 <span>Sample Reel</span>
@@ -408,36 +408,36 @@ export default function NewRunPage() {
                     setSampleLoaded(false);
                   }
                 }}
-                className={`border-3 border-dashed rounded-[26px] p-8 sm:p-12 text-center transition-all duration-200 cursor-pointer relative focus-visible:ring-2 focus-visible:ring-[#130e30] focus-visible:outline-hidden ${
+                className={`border-2 border-dashed rounded-[16px] p-8 sm:p-12 text-center transition-all duration-200 cursor-pointer relative focus-visible:ring-2 focus-visible:ring-[#7248ea] focus-visible:outline-hidden ${
                   hasVideo
-                    ? 'border-[#59e25d] bg-[#f2fcf3] shadow-[0_0_0_3px_#59e25d/30]'
-                    : 'border-[#130e30]/40 hover:border-[#130e30] bg-[#f9fbf2] hover:bg-[#fffde6]'
+                    ? 'border-[#00d4aa] bg-[#f0fdf9] shadow-sm'
+                    : 'border-[#bd98ec] hover:border-[#7248ea] bg-[#fbfbfd] hover:bg-[#f2eeff]/30'
                 }`}
               >
                 {hasVideo ? (
                   /* Rich Video Ingested State Card */
                   <div className="space-y-4 max-w-xl mx-auto">
-                    <div className="w-16 h-16 rounded-2xl bg-[#130e30] text-[#59e25d] border-[2px] border-[#130e30] flex items-center justify-center mx-auto shadow-md">
-                      <Check className="w-9 h-9 stroke-[3]" aria-hidden="true" />
+                    <div className="w-14 h-14 rounded-2xl bg-[#00d4aa]/15 text-[#00d4aa] border border-[#00d4aa]/30 flex items-center justify-center mx-auto shadow-sm">
+                      <Check className="w-8 h-8 stroke-[3]" aria-hidden="true" />
                     </div>
                     <div>
-                      <span className="text-[10px] font-mono font-black uppercase tracking-wider px-3 py-1 rounded-full bg-[#59e25d] text-[#130e30] border border-[#130e30]">
+                      <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-3 py-1 rounded-full bg-[#f0f9eb] text-[#14804a] border border-[#c2e7b0]">
                         MASTER FOOTAGE LOADED &amp; READY
                       </span>
-                      <h3 className="text-xl sm:text-2xl font-black text-[#130e30] tracking-tight mt-2 break-all">
+                      <h3 className="text-xl sm:text-2xl font-bold text-[#1a1a1a] tracking-tight mt-2 break-all">
                         {activeVideoName}
                       </h3>
                     </div>
 
                     {/* Cinema Spec Pills */}
-                    <div className="flex items-center justify-center gap-2 flex-wrap text-xs font-mono font-bold text-[#130e30]">
-                      <span className="bg-white px-3 py-1 rounded-xl border border-[#130e30]/20">
+                    <div className="flex items-center justify-center gap-2 flex-wrap text-xs font-mono font-medium text-[#575268]">
+                      <span className="bg-white px-3 py-1 rounded-lg border border-[#dbd8e8]">
                         🎬 4K Cinema Master
                       </span>
-                      <span className="bg-white px-3 py-1 rounded-xl border border-[#130e30]/20">
+                      <span className="bg-white px-3 py-1 rounded-lg border border-[#dbd8e8]">
                         🔊 5.1 Multitrack Audio
                       </span>
-                      <span className="bg-white px-3 py-1 rounded-xl border border-[#130e30]/20">
+                      <span className="bg-white px-3 py-1 rounded-lg border border-[#dbd8e8]">
                         ⚡ Direct Disk 0-Latency
                       </span>
                     </div>
@@ -446,7 +446,7 @@ export default function NewRunPage() {
                       <button
                         type="button"
                         onClick={() => setActiveIngestionTab('preview')}
-                        className="bg-[#130e30] hover:bg-[#251d5c] text-[#ffe228] border-[1.5px] border-[#130e30] px-6 py-2.5 rounded-full text-xs font-black uppercase tracking-wider shadow-md cursor-pointer active:scale-[0.97] flex items-center space-x-2 focus-visible:ring-2 focus-visible:ring-[#130e30]"
+                        className="bg-[#7248ea] hover:bg-[#6847ff] text-white px-6 py-2.5 rounded-full text-xs font-semibold uppercase tracking-wider shadow-sm cursor-pointer active:scale-[0.98] flex items-center space-x-2 focus-visible:ring-2 focus-visible:ring-[#7248ea]"
                       >
                         <Film className="w-4 h-4" aria-hidden="true" />
                         <span>Preview Video Tab</span>
@@ -454,7 +454,7 @@ export default function NewRunPage() {
 
                       <label
                         htmlFor="replace-file-input"
-                        className="bg-[#ffe228] hover:bg-[#ebd020] text-[#130e30] border-[1.5px] border-[#130e30] px-5 py-2.5 rounded-full text-xs font-black uppercase tracking-wider shadow-xs cursor-pointer active:scale-[0.97] focus-within:ring-2 focus-within:ring-[#130e30]"
+                        className="bg-[#f2eeff] hover:bg-[#e8e0ff] text-[#7248ea] border border-[#bd98ec]/60 px-5 py-2.5 rounded-full text-xs font-semibold uppercase tracking-wider shadow-xs cursor-pointer active:scale-[0.98] focus-within:ring-2 focus-within:ring-[#7248ea]"
                       >
                         <span>Replace Movie File</span>
                         <input
@@ -475,7 +475,7 @@ export default function NewRunPage() {
                           setFile(null);
                           setSampleLoaded(false);
                         }}
-                        className="text-xs font-bold text-[#5f5c6e] hover:text-[#130e30] underline cursor-pointer focus-visible:ring-2 focus-visible:ring-[#130e30] rounded"
+                        className="text-xs font-medium text-[#575268] hover:text-[#b42318] underline cursor-pointer focus-visible:ring-2 focus-visible:ring-[#7248ea] rounded"
                       >
                         Clear Selection
                       </button>
@@ -484,14 +484,14 @@ export default function NewRunPage() {
                 ) : (
                   /* Empty / Awaiting Footage State */
                   <div className="space-y-4 max-w-xl mx-auto">
-                    <div className="w-20 h-20 rounded-3xl bg-[#eff2e5] group-hover:bg-[#ffe228] text-[#130e30] border-[2px] border-[#130e30] flex items-center justify-center mx-auto transition-colors shadow-sm">
-                      <Film className="w-10 h-10 stroke-[2.2] fill-current text-[#130e30]" aria-hidden="true" />
+                    <div className="w-16 h-16 rounded-2xl bg-[#f2eeff] text-[#7248ea] border border-[#bd98ec]/40 flex items-center justify-center mx-auto shadow-sm">
+                      <Film className="w-8 h-8 stroke-[2]" aria-hidden="true" />
                     </div>
                     <div>
-                      <h3 className="text-xl sm:text-2xl font-black text-[#130e30] tracking-tight">
+                      <h3 className="text-xl sm:text-2xl font-bold text-[#1a1a1a] tracking-tight">
                         Drag &amp; Drop Master Movie Footage Here
                       </h3>
-                      <p className="text-xs sm:text-sm text-[#5f5c6e] mt-1.5 font-normal leading-relaxed">
+                      <p className="text-xs sm:text-sm text-[#575268] mt-1.5 font-normal leading-relaxed">
                         Accepts 4K ProRes 422/4444, H.264, H.265 (.mp4, .mov, .mkv) with multitrack 5.1/stereo dialogue &amp; music stems.
                       </p>
                     </div>
@@ -499,7 +499,7 @@ export default function NewRunPage() {
                     <div className="pt-2 flex items-center justify-center gap-4">
                       <label
                         htmlFor="browse-master-input"
-                        className="bg-[#ffe228] hover:bg-[#ebd020] text-[#130e30] border-[2px] border-[#130e30] px-8 py-3.5 rounded-full text-xs sm:text-sm font-black uppercase tracking-wider shadow-[0_4px_12px_rgba(255,226,40,0.4)] cursor-pointer transition-all active:scale-[0.97] focus-within:ring-2 focus-within:ring-[#130e30]"
+                        className="bg-[#7248ea] hover:bg-[#6847ff] text-white px-8 py-3.5 rounded-full text-xs sm:text-sm font-semibold tracking-wider shadow-[0_4px_14px_rgba(114,72,234,0.28)] cursor-pointer transition-all active:scale-[0.98] focus-within:ring-2 focus-within:ring-[#7248ea]"
                       >
                         <span>Browse Master Files</span>
                         <input
@@ -518,10 +518,10 @@ export default function NewRunPage() {
                 )}
               </div>
             ) : (
-              <div className="bg-[#f9fbf2] p-6 rounded-[22px] border-[2px] border-[#130e30] space-y-4">
+              <div className="bg-[#f8f9fa] p-6 rounded-[16px] border border-[#dbd8e8] space-y-4">
                 <label
                   htmlFor="import-disk-path-input"
-                  className="block text-xs sm:text-sm font-black text-[#130e30] uppercase tracking-wider"
+                  className="block text-xs sm:text-sm font-semibold text-[#1a1a1a] uppercase tracking-wider"
                 >
                   Full Movie File Path on Local Disk / SAN
                 </label>
@@ -533,17 +533,17 @@ export default function NewRunPage() {
                   placeholder="e.g. storage/sample_movie.mp4 or C:\path\to\movie.mp4"
                   aria-invalid={Boolean(errorMsg && useImportPath)}
                   aria-describedby="import-path-description"
-                  className="w-full bg-white border-[2px] border-[#130e30]/40 focus:border-[#130e30] rounded-xl px-4 py-3.5 text-xs sm:text-sm text-[#130e30] font-mono focus:outline-none focus:ring-2 focus:ring-[#ffe228]"
+                  className="w-full bg-white border border-[#dbd8e8] focus:border-[#7248ea] rounded-xl px-4 py-3.5 text-xs sm:text-sm text-[#1a1a1a] font-mono focus:outline-none focus:ring-2 focus:ring-[#7248ea]/20"
                 />
                 <div className="flex items-center justify-between flex-wrap gap-2">
-                  <p id="import-path-description" className="text-xs text-[#5f5c6e] font-medium">
+                  <p id="import-path-description" className="text-xs text-[#575268] font-normal">
                     Directly links master cinema footage stored on local NVMe or studio shared drives without uploading over HTTP.
                   </p>
                   {importPath.trim() && (
                     <button
                       type="button"
                       onClick={() => setActiveIngestionTab('preview')}
-                      className="px-4 py-2 bg-[#130e30] hover:bg-[#251d5c] text-[#ffe228] rounded-xl text-xs font-black uppercase tracking-wider border border-[#130e30] transition active:scale-[0.97] cursor-pointer flex items-center space-x-1.5 shadow-xs focus-visible:ring-2 focus-visible:ring-[#130e30]"
+                      className="px-4 py-2 bg-[#7248ea] hover:bg-[#6847ff] text-white rounded-xl text-xs font-semibold uppercase tracking-wider transition active:scale-[0.98] cursor-pointer flex items-center space-x-1.5 shadow-xs focus-visible:ring-2 focus-visible:ring-[#7248ea]"
                     >
                       <Film className="w-3.5 h-3.5" aria-hidden="true" />
                       <span>Preview Footage</span>
@@ -561,14 +561,14 @@ export default function NewRunPage() {
       ========================================================= */}
       <section className="space-y-3">
         <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 rounded-2xl bg-[#130e30] text-[#ffe228] flex items-center justify-center font-black text-base border border-[#130e30] shadow-sm">
+          <div className="w-9 h-9 rounded-full bg-[#7248ea] text-white flex items-center justify-center font-bold text-sm shadow-sm">
             02
           </div>
           <div>
-            <h2 className="text-xl font-black uppercase tracking-tight text-[#130e30]">
+            <h2 className="text-xl font-bold text-[#1a1a1a]">
               Language Pair &amp; Sound Direction
             </h2>
-            <p className="text-xs text-[#5f5c6e] font-medium">
+            <p className="text-xs text-[#575268] font-normal">
               Specify spoken dialogue, target release market, and soundtrack preservation
             </p>
           </div>
@@ -576,16 +576,16 @@ export default function NewRunPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Left Box (7 cols): Spoken & Target Dub Languages */}
-          <div className="lg:col-span-7 bg-white border-[2px] border-[#130e30] rounded-[28px] p-6 sm:p-7 space-y-5 shadow-xs flex flex-col justify-between">
+          <div className="lg:col-span-7 bg-white border border-[#dbd8e8] rounded-[20px] p-6 sm:p-7 space-y-5 shadow-[0_2px_12px_rgba(0,0,0,0.04)] flex flex-col justify-between">
             <div>
-              <div className="flex items-center justify-between pb-3 border-b border-[#130e30]/10 mb-4">
+              <div className="flex items-center justify-between pb-3 border-b border-[#dbd8e8] mb-4">
                 <div className="flex items-center space-x-2">
-                  <Languages className="w-4 h-4 text-[#130e30]" aria-hidden="true" />
-                  <span className="text-sm font-black uppercase tracking-tight text-[#130e30]">
+                  <Languages className="w-4 h-4 text-[#7248ea]" aria-hidden="true" />
+                  <span className="text-sm font-bold text-[#1a1a1a]">
                     Dialogue Language Settings
                   </span>
                 </div>
-                <span className="text-[10px] font-mono font-extrabold px-2.5 py-0.5 rounded-full bg-[#eff2e5] border border-[#130e30]/20 text-[#130e30]">
+                <span className="text-[10px] font-mono font-semibold px-2.5 py-0.5 rounded-full bg-[#f2eeff] border border-[#bd98ec]/30 text-[#7248ea]">
                   Neural VAD
                 </span>
               </div>
@@ -593,7 +593,7 @@ export default function NewRunPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {/* Source Language Selector */}
                 <div className="space-y-1.5">
-                  <label htmlFor="source-lang-select" className="block text-xs font-black uppercase tracking-wider text-[#130e30]">
+                  <label htmlFor="source-lang-select" className="block text-xs font-semibold uppercase tracking-wider text-[#575268]">
                     Original Spoken Dialogue
                   </label>
                   <select
@@ -601,7 +601,7 @@ export default function NewRunPage() {
                     value={sourceLang}
                     onChange={(e) => setSourceLang(e.target.value)}
                     aria-describedby="source-lang-help"
-                    className="w-full bg-[#f9fbf2] border-[1.5px] border-[#130e30]/30 focus:border-[#130e30] rounded-xl px-4 py-3 text-xs sm:text-sm font-bold text-[#130e30] focus:outline-none focus:ring-2 focus:ring-[#ffe228] cursor-pointer shadow-xs"
+                    className="w-full bg-[#fbfbfd] border border-[#dbd8e8] focus:border-[#7248ea] rounded-xl px-4 py-3 text-xs sm:text-sm font-medium text-[#1a1a1a] focus:outline-none focus:ring-2 focus:ring-[#7248ea]/20 cursor-pointer shadow-xs"
                   >
                     <option value="auto">✨ Auto-Detect from Audio</option>
                     <option value="es">Spanish / Latin American (es)</option>
@@ -613,14 +613,14 @@ export default function NewRunPage() {
                     <option value="de">German (de)</option>
                     <option value="ja">Japanese (ja)</option>
                   </select>
-                  <p id="source-lang-help" className="text-[11px] text-[#5f5c6e] font-normal leading-tight pt-1">
+                  <p id="source-lang-help" className="text-[11px] text-[#575268] font-normal leading-tight pt-1">
                     Detects character emotions, dialect idioms, and tone.
                   </p>
                 </div>
 
                 {/* Target Language Selector */}
                 <div className="space-y-1.5">
-                  <label htmlFor="target-lang-select" className="block text-xs font-black uppercase tracking-wider text-[#130e30]">
+                  <label htmlFor="target-lang-select" className="block text-xs font-semibold uppercase tracking-wider text-[#575268]">
                     Dub Into Release Language
                   </label>
                   <select
@@ -628,7 +628,7 @@ export default function NewRunPage() {
                     value={targetLang}
                     onChange={(e) => setTargetLang(e.target.value)}
                     aria-describedby="target-lang-help"
-                    className="w-full bg-[#f9fbf2] border-[1.5px] border-[#130e30]/30 focus:border-[#130e30] rounded-xl px-4 py-3 text-xs sm:text-sm font-bold text-[#130e30] focus:outline-none focus:ring-2 focus:ring-[#ffe228] cursor-pointer shadow-xs"
+                    className="w-full bg-[#fbfbfd] border border-[#dbd8e8] focus:border-[#7248ea] rounded-xl px-4 py-3 text-xs sm:text-sm font-medium text-[#1a1a1a] focus:outline-none focus:ring-2 focus:ring-[#7248ea]/20 cursor-pointer shadow-xs"
                   >
                     <option value="en">English — Theatrical Global (en)</option>
                     <option value="es">Spanish — Latin American (es)</option>
@@ -638,7 +638,7 @@ export default function NewRunPage() {
                     <option value="pt">Portuguese — Brazilian (pt)</option>
                     <option value="ru">Russian (ru)</option>
                   </select>
-                  <p id="target-lang-help" className="text-[11px] text-[#5f5c6e] font-normal leading-tight pt-1">
+                  <p id="target-lang-help" className="text-[11px] text-[#575268] font-normal leading-tight pt-1">
                     Generates culturally adapted scripts and localized speech.
                   </p>
                 </div>
@@ -646,15 +646,15 @@ export default function NewRunPage() {
             </div>
 
             {/* Speech Recognition Quality */}
-            <div className="pt-4 border-t border-[#130e30]/10 space-y-2">
-              <label htmlFor="whisper-model-select" className="block text-xs font-black uppercase tracking-wider text-[#130e30]">
+            <div className="pt-4 border-t border-[#dbd8e8] space-y-2">
+              <label htmlFor="whisper-model-select" className="block text-xs font-semibold uppercase tracking-wider text-[#575268]">
                 Dialogue Transcription Quality
               </label>
               <select
                 id="whisper-model-select"
                 value={whisperModel}
                 onChange={(e) => setWhisperModel(e.target.value)}
-                className="w-full bg-[#f9fbf2] border-[1.5px] border-[#130e30]/30 focus:border-[#130e30] rounded-xl px-4 py-3 text-xs sm:text-sm font-bold text-[#130e30] focus:outline-none focus:ring-2 focus:ring-[#ffe228] cursor-pointer shadow-xs"
+                className="w-full bg-[#fbfbfd] border border-[#dbd8e8] focus:border-[#7248ea] rounded-xl px-4 py-3 text-xs sm:text-sm font-medium text-[#1a1a1a] focus:outline-none focus:ring-2 focus:ring-[#7248ea]/20 cursor-pointer shadow-xs"
               >
                 <option value="large-v3">Master Cinema Precision (Whisper Large v3 • Max Actor Diarization)</option>
                 <option value="turbo">Fast Broadcast Track (Whisper Turbo • Ultra Fast 8x Realtime)</option>
@@ -664,15 +664,15 @@ export default function NewRunPage() {
           </div>
 
           {/* Right Box (5 cols): Soundtrack & Audio Stem Controls */}
-          <div className="lg:col-span-5 bg-white border-[2px] border-[#130e30] rounded-[28px] p-6 sm:p-7 space-y-4 shadow-xs flex flex-col justify-between">
-            <div className="flex items-center justify-between pb-3 border-b border-[#130e30]/10">
+          <div className="lg:col-span-5 bg-white border border-[#dbd8e8] rounded-[20px] p-6 sm:p-7 space-y-4 shadow-[0_2px_12px_rgba(0,0,0,0.04)] flex flex-col justify-between">
+            <div className="flex items-center justify-between pb-3 border-b border-[#dbd8e8]">
               <div className="flex items-center space-x-2">
-                <Volume2 className="w-4 h-4 text-[#130e30]" />
-                <span className="text-sm font-black uppercase tracking-tight text-[#130e30]">
+                <Volume2 className="w-4 h-4 text-[#7248ea]" />
+                <span className="text-sm font-bold text-[#1a1a1a]">
                   Soundtrack &amp; Mixing Options
                 </span>
               </div>
-              <span className="text-[10px] font-mono font-extrabold px-2.5 py-0.5 rounded-full bg-[#59e25d] text-[#130e30] border border-[#130e30]">
+              <span className="text-[10px] font-mono font-semibold px-2.5 py-0.5 rounded-full bg-[#f0f9eb] text-[#14804a] border border-[#c2e7b0]">
                 Stem Ready
               </span>
             </div>
@@ -681,49 +681,49 @@ export default function NewRunPage() {
               {/* Demucs Vocal Split Card */}
               <div
                 onClick={() => setUseDemucs(!useDemucs)}
-                className={`p-4 rounded-2xl border-[2px] transition-all duration-150 cursor-pointer select-none active:scale-[0.97] ${
+                className={`p-4 rounded-xl border transition-all duration-150 cursor-pointer select-none active:scale-[0.98] ${
                   useDemucs
-                    ? 'bg-[#f9fbf2] border-[#130e30] shadow-[0_0_0_2px_#ffe228,0_4px_12px_rgba(19,14,48,0.06)]'
-                    : 'bg-[#eff2e5]/50 border-[#130e30]/20 opacity-75'
+                    ? 'bg-[#f2eeff] border-[#bd98ec] shadow-xs'
+                    : 'bg-[#f8f9fa] border-[#dbd8e8] opacity-75'
                 }`}
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className={`w-3 h-3 rounded-full ${useDemucs ? 'bg-[#59e25d] border border-[#130e30]' : 'bg-[#5f5c6e]'}`} />
-                    <span className="text-sm font-black text-[#130e30] uppercase">
+                    <span className={`w-2.5 h-2.5 rounded-full ${useDemucs ? 'bg-[#00d4aa]' : 'bg-[#9e9e9e]'}`} />
+                    <span className={`text-sm font-semibold ${useDemucs ? 'text-[#7248ea]' : 'text-[#1a1a1a]'}`}>
                       Preserve Original Music &amp; SFX
                     </span>
                   </div>
-                  <span className="text-[10px] font-mono font-black px-2.5 py-0.5 rounded-full bg-[#ffe228] text-[#130e30] border border-[#130e30]">
+                  <span className={`text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full ${useDemucs ? 'bg-[#7248ea] text-white' : 'bg-[#dbd8e8] text-[#575268]'}`}>
                     {useDemucs ? 'ENABLED' : 'OFF'}
                   </span>
                 </div>
-                <p className="text-xs text-[#5f5c6e] mt-2 leading-relaxed font-normal">
-                  Isolates dialogue so the movie's original musical score, ambiance, and explosion sound effects are <strong className="text-[#130e30] font-bold">100% preserved</strong> under the new dubbed voices.
+                <p className="text-xs text-[#575268] mt-2 leading-relaxed font-normal">
+                  Isolates dialogue so the movie's original musical score, ambiance, and explosion sound effects are <strong className="text-[#1a1a1a] font-semibold">100% preserved</strong> under the new dubbed voices.
                 </p>
               </div>
 
               {/* Execution Depth: Full Dub vs Subtitle-Only */}
               <div
                 onClick={() => setSubtitleOnly(!subtitleOnly)}
-                className={`p-4 rounded-2xl border-[2px] transition-all duration-150 cursor-pointer select-none active:scale-[0.97] ${
+                className={`p-4 rounded-xl border transition-all duration-150 cursor-pointer select-none active:scale-[0.98] ${
                   !subtitleOnly
-                    ? 'bg-[#f9fbf2] border-[#130e30] shadow-[0_0_0_2px_#ffe228,0_4px_12px_rgba(19,14,48,0.06)]'
-                    : 'bg-[#eff2e5]/50 border-[#130e30]/20'
+                    ? 'bg-[#f2eeff] border-[#bd98ec] shadow-xs'
+                    : 'bg-[#f8f9fa] border-[#dbd8e8]'
                 }`}
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className={`w-3 h-3 rounded-full ${!subtitleOnly ? 'bg-[#ffe228] border border-[#130e30]' : 'bg-[#59e25d] border border-[#130e30]'}`} />
-                    <span className="text-sm font-black text-[#130e30] uppercase">
+                    <span className={`w-2.5 h-2.5 rounded-full ${!subtitleOnly ? 'bg-[#7248ea]' : 'bg-[#00d4aa]'}`} />
+                    <span className={`text-sm font-semibold ${!subtitleOnly ? 'text-[#7248ea]' : 'text-[#1a1a1a]'}`}>
                       {!subtitleOnly ? 'Full Neural Voice Dubbing' : 'Subtitles Only (No Dub)'}
                     </span>
                   </div>
-                  <span className="text-[10px] font-mono font-extrabold px-2.5 py-0.5 rounded-full bg-[#eff2e5] text-[#130e30] border border-[#130e30]/30">
+                  <span className="text-[10px] font-mono font-semibold px-2.5 py-0.5 rounded-full bg-white text-[#575268] border border-[#dbd8e8]">
                     {!subtitleOnly ? 'VOICE + SYNC' : 'SUBTITLE ONLY'}
                   </span>
                 </div>
-                <p className="text-xs text-[#5f5c6e] mt-2 leading-relaxed font-normal">
+                <p className="text-xs text-[#575268] mt-2 leading-relaxed font-normal">
                   {!subtitleOnly
                     ? 'Casts in-character voice clones, reconciles lip timing with atempo speed adjust, and synchronizes SRT tracks.'
                     : 'Generates timed master subtitle tracks in <35 seconds while keeping 100% original actor audio.'}
@@ -739,14 +739,14 @@ export default function NewRunPage() {
       ========================================================= */}
       <section className="space-y-3">
         <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 rounded-2xl bg-[#130e30] text-[#ffe228] flex items-center justify-center font-black text-base border border-[#130e30] shadow-sm">
+          <div className="w-9 h-9 rounded-full bg-[#7248ea] text-white flex items-center justify-center font-bold text-sm shadow-sm">
             03
           </div>
           <div>
-            <h2 className="text-xl font-black uppercase tracking-tight text-[#130e30]">
+            <h2 className="text-xl font-bold text-[#1a1a1a]">
               Select Dubbing Preset Profile
             </h2>
-            <p className="text-xs text-[#5f5c6e] font-medium">
+            <p className="text-xs text-[#575268] font-normal">
               Choose your post-production workflow speed and release target
             </p>
           </div>
@@ -759,41 +759,41 @@ export default function NewRunPage() {
               <div
                 key={mode.id}
                 onClick={() => handleModeChange(mode.id as any)}
-                className={`border-[2px] p-6 sm:p-7 rounded-[28px] cursor-pointer flex flex-col justify-between transition-all duration-150 select-none active:scale-[0.97] ${
+                className={`border p-6 sm:p-7 rounded-[20px] cursor-pointer flex flex-col justify-between transition-all duration-150 select-none active:scale-[0.98] ${
                   isSelected
-                    ? 'border-[#130e30] shadow-[0_0_0_3px_#ffe228,0_12px_32px_rgba(19,14,48,0.08)] bg-white'
-                    : 'border-[#130e30]/20 bg-[#eff2e5]/60 hover:bg-white hover:border-[#130e30]'
+                    ? 'border-[#7248ea] shadow-[0_4px_16px_rgba(114,72,234,0.15)] bg-white ring-2 ring-[#7248ea]/20'
+                    : 'border-[#dbd8e8] bg-white hover:border-[#bd98ec]'
                 }`}
               >
                 <div>
                   <div className="flex items-center justify-between mb-4">
-                    <span className={`text-[10px] font-mono px-3 py-1 rounded-full font-black uppercase tracking-wider border ${mode.badgeColor}`}>
+                    <span className={`text-[10px] font-mono px-3 py-1 rounded-full font-bold uppercase tracking-wider border ${mode.badgeColor}`}>
                       {mode.category}
                     </span>
                     {isSelected && (
-                      <div className="w-6 h-6 rounded-full bg-[#130e30] text-[#ffe228] flex items-center justify-center border border-[#130e30] shadow-xs">
-                        <Check className="w-4 h-4 stroke-[3]" />
+                      <div className="w-6 h-6 rounded-full bg-[#7248ea] text-white flex items-center justify-center shadow-xs">
+                        <Check className="w-3.5 h-3.5 stroke-[3]" />
                       </div>
                     )}
                   </div>
-                  <h3 className="font-black text-lg text-[#130e30] tracking-tight">{mode.title}</h3>
-                  <p className="text-xs font-mono font-bold text-[#5f5c6e] mt-1">{mode.subtitle}</p>
-                  <p className="text-xs text-[#130e30]/85 mt-3 leading-relaxed font-normal">{mode.desc}</p>
+                  <h3 className="font-bold text-lg text-[#1a1a1a] tracking-tight">{mode.title}</h3>
+                  <p className="text-xs font-mono font-medium text-[#7248ea] mt-1">{mode.subtitle}</p>
+                  <p className="text-xs text-[#575268] mt-3 leading-relaxed font-normal">{mode.desc}</p>
                 </div>
 
                 {/* Structured Operational Metrics */}
-                <div className="space-y-2 pt-5 border-t border-[#130e30]/10 text-xs mt-5">
-                  <div className="flex items-center justify-between p-2.5 rounded-xl bg-[#f9fbf2] border border-[#130e30]/10">
-                    <span className="text-[#5f5c6e] font-medium text-xs">Active Crew:</span>
-                    <span className="font-mono font-bold text-[#130e30] text-xs">{mode.crewCount}</span>
+                <div className="space-y-2 pt-5 border-t border-[#dbd8e8] text-xs mt-5">
+                  <div className="flex items-center justify-between p-2.5 rounded-xl bg-[#f8f9fa] border border-[#dbd8e8]/60">
+                    <span className="text-[#575268] font-medium text-xs">Active Crew:</span>
+                    <span className="font-mono font-semibold text-[#1a1a1a] text-xs">{mode.crewCount}</span>
                   </div>
-                  <div className="flex items-center justify-between p-2.5 rounded-xl bg-[#f9fbf2] border border-[#130e30]/10">
-                    <span className="text-[#5f5c6e] font-medium text-xs">Est. Turnaround:</span>
-                    <span className="font-mono font-bold text-[#130e30] text-xs">{mode.turnaround}</span>
+                  <div className="flex items-center justify-between p-2.5 rounded-xl bg-[#f8f9fa] border border-[#dbd8e8]/60">
+                    <span className="text-[#575268] font-medium text-xs">Est. Turnaround:</span>
+                    <span className="font-mono font-semibold text-[#1a1a1a] text-xs">{mode.turnaround}</span>
                   </div>
-                  <div className="flex items-center justify-between p-2.5 rounded-xl bg-[#f9fbf2] border border-[#130e30]/10">
-                    <span className="text-[#5f5c6e] font-medium text-xs">Deliverables:</span>
-                    <span className="font-mono font-bold text-[#130e30] text-xs">{mode.deliverables}</span>
+                  <div className="flex items-center justify-between p-2.5 rounded-xl bg-[#f8f9fa] border border-[#dbd8e8]/60">
+                    <span className="text-[#575268] font-medium text-xs">Deliverables:</span>
+                    <span className="font-mono font-semibold text-[#1a1a1a] text-xs">{mode.deliverables}</span>
                   </div>
                 </div>
               </div>
@@ -805,18 +805,18 @@ export default function NewRunPage() {
       {/* =========================================================
           STEP 4: Dispatch Autonomous Post-Production Crew
       ========================================================= */}
-      <div className="p-6 sm:p-8 rounded-[28px] bg-white border-[2.5px] border-[#130e30] flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-[0_8px_30px_rgba(19,14,48,0.08)]">
+      <div className="p-6 sm:p-8 rounded-[20px] bg-white border border-[#dbd8e8] flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-[0_4px_20px_rgba(0,0,0,0.04)]">
         <div className="space-y-1.5">
-          <div className="text-base sm:text-lg font-black uppercase tracking-tight text-[#130e30] flex items-center gap-2">
-            <CheckCircle2 className="w-5 h-5 text-[#59e25d] stroke-[3]" />
+          <div className="text-base sm:text-lg font-bold text-[#1a1a1a] flex items-center gap-2">
+            <CheckCircle2 className="w-5 h-5 text-[#14804a] stroke-[2.5]" />
             <span>Ready to Dispatch Post-Production Crew</span>
           </div>
-          <div className="text-xs sm:text-sm text-[#5f5c6e] font-mono flex items-center gap-2 flex-wrap">
-            <span>Preset: <strong className="text-[#130e30] font-black">{selectedMode === 'A' ? 'Theatrical Master' : selectedMode === 'B' ? 'Broadcast Streaming' : 'Festival Subtitles'}</strong></span>
+          <div className="text-xs sm:text-sm text-[#575268] font-mono flex items-center gap-2 flex-wrap">
+            <span>Preset: <strong className="text-[#1a1a1a] font-semibold">{selectedMode === 'A' ? 'Theatrical Master' : selectedMode === 'B' ? 'Broadcast Streaming' : 'Festival Subtitles'}</strong></span>
             <span>•</span>
-            <span>Languages: <strong className="text-[#130e30] font-black">{sourceLang.toUpperCase()} ➔ {targetLang.toUpperCase()}</strong></span>
+            <span>Languages: <strong className="text-[#7248ea] font-semibold">{sourceLang.toUpperCase()} ➔ {targetLang.toUpperCase()}</strong></span>
             <span>•</span>
-            <span>Footage: <strong className="text-[#130e30] font-black truncate max-w-[200px]">{hasVideo ? activeVideoName : 'Default Cinema Sample'}</strong></span>
+            <span>Footage: <strong className="text-[#1a1a1a] font-semibold truncate max-w-[200px]">{hasVideo ? activeVideoName : 'Default Cinema Sample'}</strong></span>
           </div>
         </div>
 
@@ -826,10 +826,10 @@ export default function NewRunPage() {
           disabled={isSubmitting}
           aria-busy={isSubmitting}
           aria-label={isSubmitting ? 'Initializing post-production crew and launching run' : 'Dispatch localize pipeline and start post-production crew'}
-          className="bg-[#ffe228] hover:bg-[#ebd020] text-[#130e30] border-[2px] border-[#130e30] px-8 sm:px-10 py-4 sm:py-5 rounded-full font-black text-sm shadow-[0_4px_16px_rgba(255,226,40,0.4)] flex items-center justify-center space-x-3 transition-all duration-150 active:scale-[0.97] disabled:opacity-50 cursor-pointer flex-shrink-0 focus-visible:ring-2 focus-visible:ring-[#130e30]"
+          className="bg-[#7248ea] hover:bg-[#6847ff] text-white px-8 sm:px-10 py-4 sm:py-4.5 rounded-full font-bold text-sm shadow-[0_4px_16px_rgba(114,72,234,0.3)] flex items-center justify-center space-x-3 transition-all duration-150 active:scale-[0.98] disabled:opacity-50 cursor-pointer flex-shrink-0 focus-visible:ring-2 focus-visible:ring-[#7248ea]"
         >
           <span>{isSubmitting ? 'INITIALIZING POST-PRODUCTION CREW…' : 'DISPATCH LOCALIZE PIPELINE ➔'}</span>
-          <ArrowRight className="w-5 h-5 stroke-[3]" aria-hidden="true" />
+          <ArrowRight className="w-5 h-5 stroke-[2.5]" aria-hidden="true" />
         </button>
 
         <div role="status" aria-live="polite" className="sr-only">

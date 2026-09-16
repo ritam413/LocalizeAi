@@ -34,10 +34,23 @@ export interface StoryAnalystInput {
   clip_duration_s?: number;
 }
 
+export interface SpeakerSegment {
+  segment_id: number | string;
+  speaker_id: string;
+  start_s: number;
+  end_s: number;
+  confidence?: number;
+  gender?: 'male' | 'female' | 'unspecified' | 'neutral';
+  detected_emotion?: string;
+}
+
 export interface StoryAnalystOutput {
   speakers: SpeakerProfile[];
   scenes: SceneBoundary[];
   annotated_segments: AnnotatedSegment[];
+  adapter_used?: string;
+  decision?: string;
+  quality_score?: number;
 }
 
 export function validateStoryAnalystOutput(output: any): output is StoryAnalystOutput {
@@ -75,5 +88,8 @@ export function parseStoryAnalysis(raw: any): StoryAnalystOutput {
       tone_tags: Array.isArray(seg.tone_tags) ? seg.tone_tags.map(String) : [],
       cultural_flags: Array.isArray(seg.cultural_flags) ? seg.cultural_flags.map(String) : [],
     })),
+    adapter_used: raw.adapter_used ? String(raw.adapter_used) : undefined,
+    decision: raw.decision ? String(raw.decision) : undefined,
+    quality_score: typeof raw.quality_score === 'number' ? raw.quality_score : undefined,
   };
 }
