@@ -33,6 +33,161 @@ Last updated: 2026-09-06 by antigravity
 | **TICKET-18** | Pluggable Speaker Diarization Adapter & Voiceprint Mapping | Completed | Pytest + Vitest (All Passed) | No | Pluggable acoustic & heuristic diarization |
 | **TICKET-19** | Broadcast Video Multiplexing & Studio Deliverables Exporter | Completed | Pytest (All Passed) | Yes | Packages release MP4, stems, & subtitles |
 
+## 2026-09-17 — Predictive Stage Progress Engine, Active Agent Illumination & Multi-Device Log Synchronizer (/research, /council-review, /adversarial-review, /emil-design-eng, /ponytail, /ask-matt, /awesome-design)
+
+### Objective
+Design, harden, and implement an anxiety-reducing, real-time stage tracking and progress visualization engine for LOCALIZE:
+1. Multi-device WebSocket logging connecting client laptops to the backend server with zero-bloat run-length duplicate log collapsing (`×4` badge).
+2. Video-duration-calibrated stage predictions ($\hat{T}_i(D) = \text{overhead}_i + \alpha_i \cdot D$).
+3. Asymptotic anti-freeze deceleration ($90\% \rightarrow 98.5\%$) with reassuring live status cues during backend overruns.
+4. Active agent card Electric Violet illumination, live heartbeat beacons, and smooth 400ms completion glides.
+
+### Changes Made
+1. **Mathematical Progress & Prediction Engine (`frontend/lib/hooks/useStageProgress.ts`)**:
+   - Implemented `calculatePredictedDuration` based on input video duration $D$ and modes (A, B, C) with baseline floors ($\ge 2.5\text{s}$).
+   - Implemented monotonic Hermite S-curve (`calculateNormalProgress`, $0\% \rightarrow 90\%$).
+   - Implemented exponential asymptotic decay (`calculateOverrunProgress`, $90\% \rightarrow 98.5\%$) so the bar never freezes or claims premature 100% completion during slow processing.
+   - Built `useStageProgress` React hook with wall-clock `performance.now()` synchronization.
+2. **Active Stage Illumination & Emil Kowalski Motion Craft (`frontend/components/studio/AgentSequenceTrack.tsx`)**:
+   - Illuminated active cards with Electric Violet halo (`border-[#7248ea] shadow-[0_0_20px_rgba(114,72,234,0.18)] ring-1 ring-[#7248ea]/30 scale-[1.01]`).
+   - Added pulsing live beacon dots, layout-stable `tabular-nums` timers, and dynamic anxiety-reducing status sub-labels.
+   - Added hardware-accelerated fluid progress bars (`bg-gradient-to-r from-[#7248ea] to-[#6847ff]`).
+3. **Multi-Device WebSocket & Zero-Bloat Log Deduplication (`frontend/app/runs/[id]/page.tsx`)**:
+   - Configured `NEXT_PUBLIC_WS_URL` with automatic fallback to `window.location.hostname`.
+   - Implemented run-length duplicate collapsing in `setLogs` and rendered Raycast-style multiplier badges (`×4`) in the terminal.
+4. **Test Suite (`frontend/__tests__/stage_progress_and_logs.test.tsx`)**:
+   - Tested duration formulas, Hermite S-curves, asymptotic overrun bounds, stage state progression, and active card rendering.
+
+### Files Changed / Created
+- `frontend/lib/hooks/useStageProgress.ts` (Created)
+- `frontend/components/studio/AgentSequenceTrack.tsx` (Modified)
+- `frontend/app/runs/[id]/page.tsx` (Modified)
+- `frontend/__tests__/stage_progress_and_logs.test.tsx` (Created)
+- `features_implemented.md` (Modified)
+- `tracker.md` (Modified)
+
+### Verification
+- **Vitest**: `npm test` -> **19 / 19 test files passed (100 / 100 tests passed, 100%)**.
+- **TypeScript**: `npx tsc --noEmit` -> **0 errors**.
+- **Next.js Production Build**: `npm run build` -> **9 / 9 routes compiled successfully with 0 errors**.
+
+### Current State
+- The Studio Console tracks active agents in real time, displays video-duration calibrated progress bars that never freeze, and bundles consecutive duplicate terminal logs over multi-device LAN connections.
+
+### Next Agent Instructions
+1. Run `npm run dev` in `frontend/` to view the live studio console.
+2. If changing stage weights, modify `STAGE_PREDICTION_CONFIGS` in `frontend/lib/hooks/useStageProgress.ts`.
+3. Keep persistent tracking files updated upon subsequent modifications.
+
+---
+
+## 2026-09-17 — Install Emil Kowalski Design Engineering Skills Suite
+
+### Objective
+Install and properly configure Emil Kowalski's Design Engineering, Animation, and Craft UI skills for Antigravity coding agents in both global plugins and workspace scopes.
+
+### Changes Made
+- Structured and installed the complete **Emil Kowalski Design Engineering & Animation Skills Suite** under global plugins (`C:\Users\ritam\.gemini\config\plugins\emilkowalski-skills`) with valid `plugin.json` and `skills/` architecture.
+- Installed all individual skills directly into workspace skills directory (`.agents/skills/`) for immediate project and agent accessibility:
+  - `emil-design-eng`: Core philosophy on UI polish, craft sensibility, and invisible compounding details.
+  - `animate`: Decision trees, curves, spring physics, and implementation of high-craft web animations.
+  - `review-animations`: Strict reviewer auditing animation code against craft standards and flagging motion slop.
+  - `improve-animations`: Senior motion advisor scanning codebases to create prioritized motion roadmaps and plans.
+  - `find-animation-opportunities`: Read-only UI inspector finding where motion adds value and rejecting where it doesn't.
+  - `apple-design`: Translating fluid physical motion, spring physics, materials, and depth into web UI.
+  - `animation-vocabulary`: Reverse-lookup glossary translating motion descriptions into exact terminology.
+  - `pick-ui-library`: Curated, opinionated frontend library recommendations (numbers, toasts, virtual lists, gestures).
+  - `emil-prototype`: Multi-variant UI divergence and live visual switcher.
+  - `taste-skill`: Anti-slop frontend design system and aesthetic standards.
+
+### Files Changed / Created
+- `C:\Users\ritam\.gemini\config\plugins\emilkowalski-skills\plugin.json`
+- `C:\Users\ritam\.gemini\config\plugins\emilkowalski-skills\skills\*`
+- `.agents/skills/emil-design-eng/SKILL.md`
+- `.agents/skills/animate/*`
+- `.agents/skills/review-animations/*`
+- `.agents/skills/improve-animations/*`
+- `.agents/skills/find-animation-opportunities/*`
+- `.agents/skills/apple-design/*`
+- `.agents/skills/animation-vocabulary/*`
+- `.agents/skills/pick-ui-library/*`
+- `.agents/skills/emil-prototype/*`
+- `.agents/skills/taste-skill/*`
+
+### Verification
+- Verified directory layouts, frontmatter schemas, and proper plugin manifest formatting.
+
+---
+
+## 2026-09-17 — Multi-Device Architecture Analysis & Log Deduplication Review (/ponytail-review, /research, /session-close)
+
+### Objective
+Diagnose and document why backend execution logs are not streaming to the frontend UI in a multi-machine setup (Backend + Ollama on dedicated server, Frontend on a separate client/development machine), and design a zero-bloat solution (/ponytail-review) for bundling consecutive duplicate log lines in the studio terminal.
+
+### Changes & Research Findings
+1. **Multi-Device / Cross-Host Communication Analysis**:
+   - Identified that Next.js HTTP rewrites (`next.config.mjs`) only proxy HTTP `/api/v1/*` requests via `BACKEND_URL`, and do *not* proxy raw WebSocket connections.
+   - Diagnosed that [`frontend/app/runs/[id]/page.tsx`](file:///d:/Games/Hckthons/Side%20Projects/LocalizeAi/frontend/app/runs/%5Bid%5D/page.tsx) fallback (`ws://${window.location.hostname}:8000/ws/runs/${runId}`) connects to the local client instead of the remote server, causing WebSocket disconnections and blank live log feeds.
+   - Identified the need for `NEXT_PUBLIC_WS_URL=ws://<SERVER_IP>:8000` on the frontend and `0.0.0.0` host binding on the backend.
+2. **Ponytail-Review for Log Deduplication**:
+   - Evaluated duplicate log bundling using `/ponytail-review`.
+   - Identified that instead of building complex backend queues or timer-based aggregation buffers, consecutive identical logs can be collapsed directly in React state during append (`{ ...log, count: count + 1 }`), adding 0 external dependencies and ~10 lines of frontend logic with a multiplier badge (`×4`).
+
+### Files Evaluated / Referenced
+- `frontend/app/runs/[id]/page.tsx`
+- `frontend/next.config.mjs`
+- `backend/app/main.py`
+- `backend/app/api/websocket.py`
+- `backend/app/engine/executor.py`
+- `backend/app/config.py`
+
+### Verification
+- Frontend dev server running on client machine (`npm run dev`).
+- Architecture and network mapping verified against codebase endpoints.
+
+### Current State
+- Codebase is fully synchronized with remote `origin/main`.
+- Multi-machine environment configuration specifications documented.
+- Zero-bloat log grouping design ready for implementation.
+
+### Next Agent Instructions
+1. When implementing log collapsing in [`frontend/app/runs/[id]/page.tsx`](file:///d:/Games/Hckthons/Side%20Projects/LocalizeAi/frontend/app/runs/%5Bid%5D/page.tsx), update `setLogs` to collapse consecutive lines and render a badge.
+2. Ensure `.env.local` on frontend has `NEXT_PUBLIC_WS_URL` and `BACKEND_URL` configured for remote server deployment.
+3. Keep persistent tracking files updated.
+
+## 2026-09-17 — Upstream Git Merge & Multi-Vector Review Verification (/ponytail, /adversarial-review, /council-review, /receiving-code-review)
+
+### Objective
+Fetch and merge the latest upstream commit (`c519c39` — *feat(studio): complete Tickets 16-19, autonomous Director pipeline, canonical design system, and aidubbing.io studio landing*) from GitHub, resolve any conflicts with local 50-minute offline server configurations and ngmeyer skills, and verify complete codebase integrity using `/ponytail`, `/adversarial-review`, `/council-review`, and `/receiving-code-review`.
+
+### Changes Made
+1. **Upstream Sync & Seamless Merge**:
+   - Stashed local offline 1050Ti server coordinator (`backend/server_coordinator.py`, storage temp redirections) and ngmeyer slash commands.
+   - Merged remote `origin/main` (commit `c519c39`) with fast-forward.
+   - Restored and re-applied local stashed changes cleanly with 0 merge conflicts.
+2. **Adversarial & Multi-Vector Review Verification**:
+   - **/ponytail**: Validated minimal abstraction overhead and standard library compliance.
+   - **/adversarial-review**: Verified that all new modules (`DirectorAgent.run_pipeline`, `AcousticMasteringEngine`, `DiarizationAdapter`, `BroadcastDeliverablesExporter`, `WorkbenchCard`) have valid boundary handling, type guarantees, and clean separation between online and offline execution paths.
+   - **/council-review**: Verified multi-advisor consensus on the design system (`DESIGN.md`), accessible WCAG 2.1 AA/AAA contrast, and modular single-entry Director pipeline.
+   - **/receiving-code-review**: Executed full rigorous test suites across the frontend and verified complete type safety and production compilation.
+
+### Files Changed
+- Fast-forward merged 79 files from upstream commit `c519c39`.
+- Maintained local files: `SERVER_SETUP_GUIDE.md`, `backend/Dockerfile`, `backend/app/config.py`, `backend/requirements.txt`, `docker-compose.yml`, `features_implemented.md`, `tracker.md`, `backend/server_coordinator.py`.
+
+### Verification
+- **Vitest**: `npm test` -> **18 / 18 test files passed (95 / 95 tests passed, 100%)**.
+- **TypeScript**: `npx tsc --noEmit` -> **0 errors**.
+- **Next.js Production Build**: `npm run build` -> **All 9 static and dynamic routes compiled successfully with 0 errors**.
+
+### Current State
+The codebase is 100% up to date with remote `origin/main`, all 19 tickets (TICKET-01 through TICKET-19) are fully implemented and verified, and the full aidubbing.io landing experience and live judge demo are operational.
+
+### Next Agent Instructions
+1. Run `npm run dev` in `frontend/` to launch the Studio Console and landing page.
+2. For local 100% offline testing on a GTX 1050 Ti server machine, run `python backend/server_coordinator.py`.
+3. Check `Docs/final_optimized_server_setup_guide_50min.md` and `DESIGN.md` for runtime specifications.
+
 ---
 
 ## 2026-09-16 — Live Judge Demo Redesign, Real Engine Options & Accessibility Overhaul
@@ -444,6 +599,36 @@ Implement a single deep, high-leverage pipeline runner interface `DirectorAgent.
 #### Next Agent Instructions
 1. Inspect `TRACKER.md` and `features_implemented.md`.
 2. Ready to implement TICKET-17 (Post-QA Acoustic Master Mixdown & Sidechain Bus Integration) or TICKET-18 (Pluggable Speaker Diarization Adapter) via `/tdd`.
+
+### 2026-09-16 — Installed Council Review, Adversarial Review, and Humanizer Skills & Workflows
+
+#### Objective
+Discover, configure, and install the complete `ngmeyer` suite (`council-review`, `adversarial-review`, `rigorous-review`, `six-pager`, `write-well`, `session-close`) and the Wikipedia AI Cleanup `humanizer` skill, and make them available as slash commands (`/council-review`, `/adversarial-review`, `/humanizer`, `/rigorous-review`, `/six-pager`).
+
+#### Changes Made
+- Configured global plugin `~/.gemini/config/plugins/ngmeyer-skills` containing:
+  - `council-review` (Diverse Multi-Agent Debate framework with 5 advisor personas and Chairman synthesis)
+  - `adversarial-review` (Red-team hostile review engine with Saboteur, Skeptic, and Degrader attack vectors)
+  - `rigorous-review` (Multi-vector correctness, security, performance, resilience, and maintainability audit)
+  - `six-pager` (Amazon-style 6-page narrative proposal generator)
+  - `write-well` (Prose and technical clarity refinement)
+  - `session-close` (Agent handoff and state persistence)
+- Configured global plugin `~/.gemini/config/plugins/humanizer` containing:
+  - `humanizer` (Standardized AI text de-slop and natural human voice re-writer)
+- Created slash command workflow definitions in `.agents/workflows/`:
+  - `.agents/workflows/council-review.md` (`/council-review`)
+  - `.agents/workflows/adversarial-review.md` (`/adversarial-review`)
+  - `.agents/workflows/humanizer.md` (`/humanizer`)
+  - `.agents/workflows/rigorous-review.md` (`/rigorous-review`)
+  - `.agents/workflows/six-pager.md` (`/six-pager`)
+- Added matching workspace skill definitions under `.agents/skills/`.
+
+#### Verification
+- Verified directory structure and file contents in global config and workspace `.agents/`.
+- Validated YAML frontmatter and triggers for all skills and workflows.
+
+#### Current State
+All requested skills and slash commands are fully installed, discoverable, and ready for use.
 
 ---
 

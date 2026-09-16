@@ -45,10 +45,17 @@ interface RunData {
   };
 }
 
+interface LogEntry {
+  stage: string;
+  level: string;
+  msg: string;
+  count?: number;
+}
+
 export default function RunDashboardPage() {
   const { id: runId } = useParams() as { id: string };
   const [runData, setRunData] = useState<RunData | null>(null);
-  const [logs, setLogs] = useState<{ stage: string; level: string; msg: string }[]>([]);
+  const [logs, setLogs] = useState<LogEntry[]>([]);
   const [activeTab, setActiveTab] = useState<'studio' | 'progress' | 'preview' | 'subtitles' | 'output'>('studio');
   const [telemetryEvents, setTelemetryEvents] = useState<TelemetryEvent[]>([]);
   const [dashboardError, setDashboardError] = useState<string | null>(null);
@@ -70,13 +77,29 @@ export default function RunDashboardPage() {
     }
   };
 
+  const collapseLogs = (rawList: { stage: string; level: string; msg: string }[]): LogEntry[] => {
+    const collapsed: LogEntry[] = [];
+    for (const item of rawList) {
+      if (collapsed.length > 0) {
+        const last = collapsed[collapsed.length - 1];
+        if (last.msg === item.msg && last.stage === item.stage && last.level === item.level) {
+          last.count = (last.count || 1) + 1;
+          continue;
+        }
+      }
+      collapsed.push({ ...item, count: 1 });
+    }
+    return collapsed;
+  };
+
   const fetchHistoricalLogs = async () => {
     try {
       const res = await fetch(`/api/v1/runs/${runId}/logs`);
       if (res.ok) {
         const data: { stage_name: string; level: string; message: string; timestamp: string }[] = await res.json();
         if (Array.isArray(data) && data.length > 0) {
-          setLogs(data.map((e) => ({ stage: e.stage_name, level: e.level, msg: e.message })));
+          const raw = data.map((e) => ({ stage: e.stage_name, level: e.level, msg: e.message }));
+          setLogs(collapseLogs(raw));
         }
       }
     } catch (err) {
@@ -133,6 +156,7 @@ export default function RunDashboardPage() {
         const payload = JSON.parse(event.data);
         if (payload.type === 'stage_status_changed' || payload.type === 'run_completed' || payload.type === 'run_cancelled' || payload.type === 'run_cancelling') {
           fetchRunDetails();
+          fetchTelemetryEvents();
           if (payload.type === 'run_completed') {
             setTimeout(() => {
               setActiveTab('preview');
@@ -149,10 +173,18 @@ export default function RunDashboardPage() {
             return { ...prev, stage_runs: updatedStages };
           });
         } else if (payload.type === 'log_line') {
-          setLogs((prev) => [
-            ...prev,
-            { stage: payload.stage_name, level: payload.level, msg: payload.message }
-          ]);
+          const newEntry = { stage: payload.stage_name, level: payload.level, msg: payload.message };
+          setLogs((prev) => {
+            if (prev.length === 0) return [{ ...newEntry, count: 1 }];
+            const last = prev[prev.length - 1];
+            if (last.msg === newEntry.msg && last.stage === newEntry.stage && last.level === newEntry.level) {
+              return [
+                ...prev.slice(0, -1),
+                { ...last, count: (last.count || 1) + 1 }
+              ];
+            }
+            return [...prev, { ...newEntry, count: 1 }];
+          });
           logEndRef.current?.scrollIntoView({ behavior: 'smooth' });
         }
       } catch (err) {
@@ -410,6 +442,8 @@ export default function RunDashboardPage() {
             }}
             telemetryEvents={telemetryEvents}
             runStatus={runData.status}
+            videoDurationSeconds={runData.clip?.duration_s || 35.0}
+            projectMode={runData.project_mode || 'A'}
           />
 
           {/* Secondary Grid: Readiness & Producer Board alongside Self-Repair and Audio Comparison */}
@@ -620,19 +654,24 @@ export default function RunDashboardPage() {
                 <div className="text-white/40 italic">Listening for pipeline stage logs…</div>
               ) : (
                 logs.map((log, i) => (
-                  <div key={i} className="flex space-x-3">
-                    <span className="text-white/40">[{log.stage}]</span>
+                  <div key={i} className="flex items-center space-x-2.5">
+                    <span className="text-white/40 shrink-0">[{log.stage}]</span>
                     <span
-                      className={
+                      className={`break-words ${
                         log.level === 'WARNING'
-                          ? 'text-[#7248ea]'
+                          ? 'text-[#f59e0b]'
                           : log.level === 'ERROR'
-                          ? 'text-[#7248ea]'
+                          ? 'text-[#f43f5e]'
                           : 'text-[#14804a]'
-                      }
+                      }`}
                     >
                       [{log.level}] {log.msg}
                     </span>
+                    {log.count && log.count > 1 ? (
+                      <span className="shrink-0 text-[10px] font-bold font-mono px-1.5 py-0.5 rounded-full bg-[#7248ea]/25 text-[#bd98ec] border border-[#7248ea]/40">
+                        ×{log.count}
+                      </span>
+                    ) : null}
                   </div>
                 ))
               )}

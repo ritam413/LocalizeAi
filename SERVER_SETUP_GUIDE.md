@@ -80,34 +80,35 @@ Get-NetIPAddress -AddressFamily IPv4 | Where-Object {$_.InterfaceAlias -match 'E
 
 ---
 
-### Step 3: Start the Docker Compute Stack
-From the project root on the desktop, launch the backend and Ollama containers with GPU support:
+### Step 3: Run the Automated D:\ Drive Setup Script
+From PowerShell on this desktop machine, execute the automated runner:
 
-```bash
-# Standard Docker launch with GPU acceleration
-docker compose -f docker-compose.yml -f docker-compose.gpu.yml up -d backend ollama
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\setup-server-d-drive.ps1
 ```
 
-Check container status:
-```bash
-docker compose ps
-```
+This automatically:
+1. Creates dedicated storage, cache, and model directories on `D:\` (`docker_data/ollama`, `storage/tmp`, `storage/models`).
+2. Opens Windows Firewall inbound rules for ports `8000` and `11434`.
+3. Detects and displays your desktop's local network IP for the laptop client.
+4. Builds and launches the GPU compute stack with all data directly mounted to `D:\`.
+5. Pulls `llama3.2:3b` directly into `D:\Games\Hckthons\Side Projects\LocalizeAi\docker_data\ollama`.
 
 ---
 
-### Step 4: Pull the Llama Model into Ollama
-Download the Llama model directly into the persistent Ollama volume:
-
-```bash
-# Pull Llama 3.2 3B (Fast & fits cleanly in 4GB VRAM)
-docker exec -it localize-ollama ollama pull llama3.2:3b
-
-# Optional: Pull Llama 3.1 8B (Higher reasoning capacity)
-docker exec -it localize-ollama ollama pull llama3.1:8b
+### Step 4: Verify Docker Services & GPU
+Check container status:
+```powershell
+docker compose ps
 ```
 
-Verify model availability:
-```bash
+Verify GPU acceleration inside container:
+```powershell
+docker exec -it localize-backend python -c "import torch; print('CUDA available:', torch.cuda.is_available(), '| GPU:', torch.cuda.get_device_name(0))"
+```
+
+Verify model availability in Ollama:
+```powershell
 docker exec -it localize-ollama ollama list
 ```
 
