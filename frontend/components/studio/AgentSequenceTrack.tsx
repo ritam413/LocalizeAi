@@ -147,6 +147,8 @@ export function getOrganicProgress(u: number): number {
   return 1;
 }
 
+import { useStageProgress, calculatePredictedDuration } from '../../lib/hooks/useStageProgress';
+
 export interface StageProgressInfo {
   elapsedSeconds: number;
   targetDuration: number;
@@ -160,11 +162,13 @@ export interface AgentSequenceTrackProps {
   selectedAgent?: AgentName | null;
   runStatus?: string;
   stageProgressMap?: Partial<Record<AgentName, StageProgressInfo>>;
+  videoDurationSeconds?: number;
+  projectMode?: string;
 }
 
 /**
- * Individual Agent Node Card with dynamic 0.00s -> targetDuration counter
- * and organic progress bar with speedups and bumps.
+ * Individual Agent Node Card with dynamic 0.00s -> targetDuration counter,
+ * video duration prediction, active card illumination, and asymptotic anti-freeze progress bar.
  */
 interface AgentCardProps {
   node: AgentNodeConfig;
@@ -173,6 +177,8 @@ interface AgentCardProps {
   retryCount: number;
   latencyMs: number;
   progressInfo?: StageProgressInfo;
+  videoDurationSec?: number;
+  projectMode?: string;
   onClick: () => void;
 }
 
@@ -183,63 +189,33 @@ const AgentCard: React.FC<AgentCardProps> = ({
   retryCount,
   latencyMs,
   progressInfo,
+  videoDurationSec = 35.0,
+  projectMode = 'A',
   onClick,
 }) => {
-  // Local fallback timer for running state when no external master clock is passed
-  const [localElapsedMs, setLocalElapsedMs] = useState<number>(0);
-  const startTimeRef = useRef<number | null>(null);
+  // Use our predictive progress hook for active running / retrying stages
+  const {
+    elapsedSec: hookElapsedSec,
+    predictedDurationSec: hookPredictedDurationSec,
+    progressPct: hookProgressPct,
+    isOverrun,
+    statusMessage,
+  } = useStageProgress(
+    node.id,
+    status,
+    videoDurationSec,
+    projectMode,
+    latencyMs !== node.defaultLatency ? latencyMs : undefined
+  );
 
-  useEffect(() => {
-    if (progressInfo) return; // Controlled externally
+  // If externally controlled via progressInfo, respect it; otherwise use hook
+  const targetSeconds = progressInfo ? progressInfo.targetDuration : hookPredictedDurationSec;
+  const displayedSeconds = progressInfo ? progressInfo.elapsedSeconds : hookElapsedSec;
+  const progressPct = progressInfo
+    ? Math.min(100, (progressInfo.elapsedSeconds / (progressInfo.targetDuration || 1)) * 100)
+    : hookProgressPct;
 
-    if (status === 'running' || status === 'retrying') {
-      startTimeRef.current = performance.now();
-      let animId: number;
-
-      const tick = (now: number) => {
-        if (!startTimeRef.current) startTimeRef.current = now;
-        const elapsed = now - startTimeRef.current;
-        setLocalElapsedMs(elapsed);
-        if (elapsed < latencyMs) {
-          animId = requestAnimationFrame(tick);
-        }
-      };
-
-      animId = requestAnimationFrame(tick);
-      return () => cancelAnimationFrame(animId);
-    } else if (status === 'completed') {
-      setLocalElapsedMs(latencyMs);
-    } else {
-      setLocalElapsedMs(0);
-      startTimeRef.current = null;
-    }
-  }, [status, latencyMs, progressInfo]);
-
-  // Compute normalized progress and displayed linear timer
-  const targetSeconds = (progressInfo ? progressInfo.targetDuration : latencyMs / 1000) || 5.0;
-  let currentElapsedSeconds = 0;
-
-  if (progressInfo) {
-    currentElapsedSeconds = progressInfo.elapsedSeconds;
-  } else {
-    currentElapsedSeconds = localElapsedMs / 1000;
-  }
-
-  let displayedSeconds = 0;
-  let progressPct = 0;
-
-  if (status === 'completed') {
-    displayedSeconds = targetSeconds;
-    progressPct = 100;
-  } else if (status === 'running' || status === 'retrying') {
-    const clampedElapsed = Math.min(targetSeconds, Math.max(0, currentElapsedSeconds));
-    displayedSeconds = clampedElapsed;
-    const u = targetSeconds > 0 ? Math.min(1, clampedElapsed / targetSeconds) : 0;
-    progressPct = getOrganicProgress(u) * 100;
-  } else {
-    displayedSeconds = 0;
-    progressPct = 0;
-  }
+  const isActive = status === 'running' || status === 'retrying';
 
   return (
     <div
@@ -254,8 +230,10 @@ const AgentCard: React.FC<AgentCardProps> = ({
           onClick();
         }
       }}
-      className={`bg-white border rounded-2xl p-4 flex flex-col gap-2.5 cursor-pointer transition-all duration-200 select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7248ea] focus-visible:ring-offset-2 ${
-        isSelected
+      className={`bg-white border rounded-2xl p-4 flex flex-col gap-2.5 cursor-pointer transition-all duration-300 select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7248ea] focus-visible:ring-offset-2 ${
+        isActive
+          ? 'border-[#7248ea] shadow-[0_0_20px_rgba(114,72,234,0.18)] ring-1 ring-[#7248ea]/30 scale-[1.01]'
+          : isSelected
           ? 'border-[#7248ea] shadow-[0_4px_16px_rgba(114,72,234,0.14)]'
           : 'border-[#dbd8e8] hover:border-[#bd98ec] hover:-translate-y-0.5 shadow-2xs'
       } ${
@@ -266,11 +244,12 @@ const AgentCard: React.FC<AgentCardProps> = ({
     >
       {/* Top Header Step & Status Pill */}
       <div className="flex items-center justify-between">
-        <span className="font-mono text-[10px] font-bold text-[#575268]">
+        <span className="font-mono text-[10px] font-bold text-[#575268] flex items-center gap-1.5">
+          {isActive && <span className="w-1.5 h-1.5 rounded-full bg-[#7248ea] animate-pulse" />}
           STEP {node.stepNumber} {node.id === 'qa_agent' ? '(FINAL)' : ''}
         </span>
         <span
-          className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full uppercase tracking-wider transition-colors duration-150 ${
+          className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full uppercase tracking-wider transition-colors duration-150 flex items-center gap-1 ${
             status === 'completed'
               ? 'bg-[#f0f9eb] text-[#14804a] border border-[#c2e7b0]'
               : status === 'running'
@@ -290,6 +269,10 @@ const AgentCard: React.FC<AgentCardProps> = ({
               : '✓ Ready'
             : status === 'retrying'
             ? '⚡ Atempo Fix'
+            : status === 'running'
+            ? isOverrun
+              ? '⚡ Refining…'
+              : 'Active'
             : status}
         </span>
       </div>
@@ -297,15 +280,22 @@ const AgentCard: React.FC<AgentCardProps> = ({
       {/* Role and Label */}
       <div className="flex flex-col">
         <h3 className="text-sm font-extrabold text-[#1a1a1a] truncate">{node.stepLabel}</h3>
-        <p className="text-[11px] text-[#575268] truncate">{node.role}</p>
+        <p className="text-[11px] text-[#575268] truncate" title={statusMessage}>
+          {isActive ? statusMessage : node.role}
+        </p>
       </div>
 
-      {/* Dynamic Linear Counter (starts from 0.00s and linearly reaches target duration) */}
+      {/* Dynamic Linear / Asymptotic Counter */}
       <div className="font-mono text-base font-extrabold text-[#1a1a1a] flex items-baseline justify-between tabular-nums pt-1">
-        <span className="tabular-nums tracking-tight font-black">{displayedSeconds.toFixed(2)}s</span>
+        <div className="flex items-baseline gap-1">
+          <span className="tabular-nums tracking-tight font-black">{displayedSeconds.toFixed(2)}s</span>
+          <span className="text-[10px] text-[#575268]/70 font-medium">/ ~{targetSeconds.toFixed(1)}s</span>
+        </div>
         <span className="text-[9px] font-bold uppercase text-[#575268] font-sans">
           {status === 'running'
-            ? 'Active'
+            ? isOverrun
+              ? 'Deep Pass'
+              : 'Active'
             : status === 'retrying'
             ? 'Self-Repair'
             : status === 'completed'
@@ -320,7 +310,7 @@ const AgentCard: React.FC<AgentCardProps> = ({
         </span>
       </div>
 
-      {/* Organic Micro Progress Bar with Bumps & Speedups */}
+      {/* Predictive Asymptotic Progress Bar */}
       <div
         role="progressbar"
         aria-valuenow={Math.round(progressPct)}
@@ -329,11 +319,11 @@ const AgentCard: React.FC<AgentCardProps> = ({
         className="h-1.5 w-full bg-[#f2f0f8] rounded-full overflow-hidden relative"
       >
         <div
-          className={`h-full rounded-full transition-all duration-75 ease-out relative ${
+          className={`h-full rounded-full transition-all duration-300 ease-out relative ${
             status === 'completed'
               ? 'bg-[#14804a]'
               : status === 'running'
-              ? 'bg-[#7248ea]'
+              ? 'bg-gradient-to-r from-[#7248ea] to-[#6847ff]'
               : status === 'retrying'
               ? 'bg-[#f59e0b]'
               : 'bg-[#dbd8e8]'
@@ -382,6 +372,8 @@ export const AgentSequenceTrack: React.FC<AgentSequenceTrackProps> = ({
   selectedAgent: controlledSelectedAgent,
   runStatus = 'running',
   stageProgressMap,
+  videoDurationSeconds = 35.0,
+  projectMode = 'A',
 }) => {
   const [internalSelectedAgent, setInternalSelectedAgent] = useState<AgentName>('story_analyst');
   const activeAgent = controlledSelectedAgent || internalSelectedAgent;
@@ -471,6 +463,8 @@ export const AgentSequenceTrack: React.FC<AgentSequenceTrackProps> = ({
                   retryCount={retryCount}
                   latencyMs={latency}
                   progressInfo={progressInfo}
+                  videoDurationSec={videoDurationSeconds}
+                  projectMode={projectMode}
                   onClick={() => handleSelect(node.id)}
                 />
 
@@ -522,6 +516,8 @@ export const AgentSequenceTrack: React.FC<AgentSequenceTrackProps> = ({
             retryCount={retries.qa_agent || 0}
             latencyMs={getAgentLatency(step06Node)}
             progressInfo={stageProgressMap?.qa_agent}
+            videoDurationSec={videoDurationSeconds}
+            projectMode={projectMode}
             onClick={() => handleSelect('qa_agent')}
           />
 
@@ -538,6 +534,8 @@ export const AgentSequenceTrack: React.FC<AgentSequenceTrackProps> = ({
             retryCount={retries.subtitle_director || 0}
             latencyMs={getAgentLatency(step05Node)}
             progressInfo={stageProgressMap?.subtitle_director}
+            videoDurationSec={videoDurationSeconds}
+            projectMode={projectMode}
             onClick={() => handleSelect('subtitle_director')}
           />
 
@@ -554,6 +552,8 @@ export const AgentSequenceTrack: React.FC<AgentSequenceTrackProps> = ({
             retryCount={retries.sync_engineer || 0}
             latencyMs={getAgentLatency(step04Node)}
             progressInfo={stageProgressMap?.sync_engineer}
+            videoDurationSec={videoDurationSeconds}
+            projectMode={projectMode}
             onClick={() => handleSelect('sync_engineer')}
           />
         </div>

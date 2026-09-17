@@ -61,31 +61,46 @@ class TranslationStage(BaseStage):
                 else:
                     compute_type = "int8"
 
-                model = WhisperModel(model_name, device=device, compute_type=compute_type)
-                segments, info = model.transcribe(
-                    audio_path,
-                    task="translate",
-                    beam_size=5,
-                    no_speech_threshold=0.6,
-                    compression_ratio_threshold=2.4,
-                    condition_on_previous_text=False,
-                    vad_filter=True,
-                    vad_parameters=dict(
-                        min_speech_duration_ms=250,
-                        min_silence_duration_ms=500,
-                        speech_pad_ms=100,
-                    ),
-                )
-                res = []
-                for s in segments:
-                    res.append({
-                        "start_s": round(s.start, 3),
-                        "end_s": round(s.end, 3),
-                        "source_text": s.text.strip(),
-                        "translated_text": s.text.strip(),
-                        "target_language": "en"
-                    })
-                return res
+                def _run_pass(dev: str, comp: str):
+                    model = WhisperModel(model_name, device=dev, compute_type=comp)
+                    segments, info = model.transcribe(
+                        audio_path,
+                        task="translate",
+                        beam_size=5,
+                        no_speech_threshold=0.6,
+                        compression_ratio_threshold=2.4,
+                        condition_on_previous_text=False,
+                        vad_filter=True,
+                        vad_parameters=dict(
+                            min_speech_duration_ms=250,
+                            min_silence_duration_ms=500,
+                            speech_pad_ms=100,
+                        ),
+                    )
+                    res = []
+                    for s in segments:
+                        res.append({
+                            "start_s": round(s.start, 3),
+                            "end_s": round(s.end, 3),
+                            "source_text": s.text.strip(),
+                            "translated_text": s.text.strip(),
+                            "target_language": "en"
+                        })
+                    del model
+                    return res
+
+                if device == "cuda":
+                    try:
+                        return _run_pass(dev="cuda", comp=compute_type)
+                    except Exception as cuda_err:
+                        import logging
+                        logging.warning(
+                            f"[TranslationStage] CUDA Whisper execution failed ({cuda_err}). "
+                            f"Falling back to CPU (int8) translation."
+                        )
+                        return _run_pass(dev="cpu", comp="int8")
+                else:
+                    return _run_pass(dev="cpu", comp="int8")
 
             try:
                 loop = asyncio.get_running_loop()

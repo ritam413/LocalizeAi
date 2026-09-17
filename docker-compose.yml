@@ -17,10 +17,16 @@ services:
       - GEMINI_API_KEY=${GEMINI_API_KEY:-}
       - LLM_PROVIDER=${LLM_PROVIDER:-ollama}
       - OLLAMA_BASE_URL=${OLLAMA_BASE_URL:-http://ollama:11434}
-      - OLLAMA_MODEL=${OLLAMA_MODEL:-llama3.2:3b}
+      - OLLAMA_MODEL=${OLLAMA_MODEL:-qwen2.5:3b}
       - DB_PATH=/app/storage/dubforge.db
       - STORAGE_DIR=/app/storage
       - SHARED_FOLDER_PATH=/app/shared
+      - TMPDIR=/app/storage/tmp
+      - TEMP=/app/storage/tmp
+      - TMP=/app/storage/tmp
+      - TORCH_HOME=/app/storage/models/torch
+      - HF_HOME=/app/storage/models/huggingface
+      - HUGGINGFACE_HUB_CACHE=/app/storage/models/huggingface
     volumes:
       - ./storage:/app/storage
       - ./shared:/app/shared
@@ -43,10 +49,11 @@ services:
     ports:
       - "11434:11434"
     volumes:
-      - ollama_data:/root/.ollama
+      - ./docker_data/ollama:/root/.ollama
     environment:
       - OLLAMA_KEEP_ALIVE=${OLLAMA_KEEP_ALIVE:-0}
       - OLLAMA_HOST=0.0.0.0:11434
+      - OLLAMA_MODELS=/root/.ollama/models
     networks:
       - localize-net
 
@@ -68,9 +75,6 @@ services:
         condition: service_healthy
     networks:
       - localize-net
-
-volumes:
-  ollama_data:
 
 networks:
   localize-net:

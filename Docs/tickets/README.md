@@ -25,5 +25,9 @@ This directory contains individual specification and execution tickets for the L
 | [TICKET-17](./TICKET-17-post-qa-acoustic-mixdown.md) | Post-QA Acoustic Master Mixdown & Sidechain Bus Integration | Completed | `backend/app/agents/director.py` | Pytest | TICKET-08, TICKET-13, TICKET-14 |
 | [TICKET-18](./TICKET-18-pluggable-diarization-adapter.md) | Pluggable Speaker Diarization Adapter & Voiceprint Mapping | Completed | `backend/app/agents/story_analyst.py` | Pytest + Vitest | TICKET-02 |
 | [TICKET-19](./TICKET-19-broadcast-deliverables-exporter.md) | Broadcast Video Multiplexing & Studio Deliverables Exporter | Completed | `backend/app/engine/stages/exporter.py` | Pytest | TICKET-06, TICKET-13, TICKET-16, TICKET-17 |
+| [TICKET-20](./TICKET-20-windowed-demucs-splicer.md) | Windowed Demucs Splicer & Equal-Power Crossfade DSP Engine | Planned | `backend/app/engine/stages/chunked_demucs.py` | Pytest | None |
+| [TICKET-21](./TICKET-21-hybrid-demucs-window-planner.md) | Hybrid Speech Clustering & VAD-Guided Macro-Window Generator | Planned | `backend/app/engine/stages/demucs_window_planner.py` | Pytest | TICKET-20 |
+| [TICKET-22](./TICKET-22-director-demucs-pipeline-integration.md) | Director Pipeline Integration & Telemetry Savings Exporter | Planned | `backend/app/agents/director.py` | Pytest | TICKET-20, TICKET-21 |
+| [TICKET-23](./TICKET-23-studio-demucs-timeline-selector-ui.md) | Studio Console Advanced Timeline Marker & Compute Savings HUD | Planned | `frontend/components/studio/WorkbenchCard.tsx` | Vitest | TICKET-22 |
 
 

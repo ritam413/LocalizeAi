@@ -5,6 +5,32 @@ This document tracks the current functionality and implementation status of LOCA
 
 ---
 
+## Agent Deliberation, Review & Editorial Skills
+- **Council Review (`/council-review`)**: 5-advisor Diverse Multi-Agent Debate (DMAD) system (Architect, Security, Minimalist, DX, Contrarian) + Chairman synthesis for architectural and plan validation.
+- **Adversarial Review (`/adversarial-review`)**: Hostile Red-Team stress-testing across Saboteur (malicious/chaos inputs), Concurrency (races/locks), Resource Scaling (exhaustion/leaks), and Assumptions.
+- **Humanizer (`/humanizer`)**: Wikipedia AI-Cleanup standard text de-slopper to eliminate robotic patterns, staging, forced triads, and chatbot residue.
+- **Rigorous Review (`/rigorous-review`)**: Behavior-preserving multi-vector audit (Correctness, Security, Performance, Observability, Maintainability).
+- **Six-Pager (`/six-pager`)**: Amazon-style 6-page narrative memo generator for complex proposals.
+- **Emil Kowalski Design Engineering & Animation Suite**:
+  - `emil-design-eng`: UI polish, interaction craft, spring physics, and invisible compounding details.
+  - `animate`: Motion implementation from scratch (spring curves, durations, interruptible transitions, GPU performance).
+  - `review-animations`: Strict auditor for motion code against craft standards and easing slop.
+  - `improve-animations`: Full-codebase motion audit and prioritized execution plans.
+  - `find-animation-opportunities`: Read-only UI analysis for natural motion injection opportunities.
+  - `apple-design`: Fluid physical motion, spring dynamics, materials, depth, and spatial consistency.
+  - `animation-vocabulary`: Reverse glossary translating motion descriptions into exact terminology.
+  - `pick-ui-library`: Opinionated UI library selection for specialized interactive components.
+  - `emil-prototype`: Multi-variant UI divergence with a live visual switcher.
+  - `taste-skill`: Anti-slop frontend design system and aesthetic standards.
+
+### Predictive Duration Engine & Multi-Device Log Synchronizer
+- **Status**: Implemented
+- **Details**: Dynamically calibrates expected pipeline stage durations based on input video length ($D$) and engine mode (Mode A, B, C). Emits Hermite S-curve progress ($0\% \rightarrow 90\%$) and asymptotic deceleration ($90\% \rightarrow 98.5\%$) during processing overruns with anxiety-reducing contextual status text. Integrates zero-bloat run-length duplicate log bundling with Raycast-style multiplier badges (`×4`) and multi-device WebSocket connectivity (`NEXT_PUBLIC_WS_URL`).
+- **Modules**: `frontend/lib/hooks/useStageProgress.ts`, `frontend/components/studio/AgentSequenceTrack.tsx`, `frontend/app/runs/[id]/page.tsx`
+- **Verification**: `frontend/__tests__/stage_progress_and_logs.test.tsx` (100% passed).
+
+---
+
 ## 1. Execution Layer (Inherited Scaffold)
 
 ### Audio Extraction
@@ -21,14 +47,20 @@ This document tracks the current functionality and implementation status of LOCA
 
 ### ASR Speech Transcription
 - **Status**: Implemented
-- **Details**: Uses `faster-whisper` (CTranslate2) with Silero VAD filtering to generate timestamped speech segments.
-- **Modules**: `backend/app/engine/stages/transcription.py`
-- **Verification**: Manual runs & SQLite segment persistence.
+- **Details**: Uses `faster-whisper` (CTranslate2) with Silero VAD filtering to generate timestamped speech segments. Features CUDA 12 dynamic library loading support via `LD_LIBRARY_PATH` (`nvidia-cublas-cu12`, `nvidia-cudnn-cu12`) with automatic self-healing fallback to CPU (`int8`) inference upon missing `.so` libraries or VRAM exhaustion.
+- **Modules**: `backend/app/engine/stages/transcription.py`, `backend/Dockerfile`
+- **Verification**: `backend/tests/test_cuda_fallback_and_preview.py`
 
 ### Subtitle Formatting & QA Sanity Rules
-- **Status**: Implemented
-- **Details**: Deduplication, minimum gap enforcement (100ms), minimum duration (1.0s), max characters per second (17.0 CPS), and SRT/VTT file formatting.
-- **Modules**: `backend/app/engine/subtitle_formatter.py`
+- **Status**: Implemented & Verified
+- **Details**: End-to-end subtitle generation verified on full-length media files (audio extraction -> HTDemucs separation -> Faster-Whisper ASR -> Translation -> Subtitle Director .srt/.vtt formatting). Includes deduplication, minimum gap enforcement (100ms), minimum duration (1.0s), max characters per second (17.0 CPS), and live log streaming to the frontend console.
+- **Modules**: `backend/app/engine/subtitle_formatter.py`, `backend/app/engine/stages/translation.py`, `backend/app/agents/subtitle_director.py`
+- **Verification**: Verified end-to-end with real video runs producing synchronized `.srt` and `.vtt` deliverables.
+
+### Full Voice Dubbing Pipeline (Mode A & Mode B)
+- **Status**: Core Agents Implemented (Pending API RunExecutor wiring)
+- **Details**: `VoiceDirectorAgent` (Edge-TTS 300+ Microsoft neural voices), `SyncEngineerAgent` (atempo speed reconciliation), and `AcousticMasteringEngine` (sidechain ducking & EBU R128 mastering) are tested in isolation; ready to be hooked into the API runner `RunExecutor` to produce final dubbed MP4 releases.
+- **Modules**: `backend/app/agents/voice_director.py`, `backend/app/agents/sync_engineer.py`, `backend/app/engine/stages/mixer.py`, `backend/app/agents/director.py`
 
 ### Acoustic Mastering Engine (TICKET-13)
 - **Status**: Implemented
