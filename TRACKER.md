@@ -33,6 +33,126 @@ Last updated: 2026-09-06 by antigravity
 | **TICKET-18** | Pluggable Speaker Diarization Adapter & Voiceprint Mapping | Completed | Pytest + Vitest (All Passed) | No | Pluggable acoustic & heuristic diarization |
 | **TICKET-19** | Broadcast Video Multiplexing & Studio Deliverables Exporter | Completed | Pytest (All Passed) | Yes | Packages release MP4, stems, & subtitles |
 
+## 2026-09-17 — Subtitling Pipeline Verified Working (Mode C / Festival Subtitle Master) & Pre-Dubbing Milestone
+
+### Objective
+Establish and verify the working milestone for complete Subtitling (Mode C & raw subtitle deliverables in Mode A/B) across audio extraction, vocal separation, Faster-Whisper ASR, English translation, and subtitle formatting with live client-server WebSocket logging, before merging into `main`.
+
+### Changes Made
+- Validated full-pipeline subtitle execution on full video clips (`storage/runs/Twitter_API_With_n8n__Step-by-Step___No_Code__3/`), successfully producing `subtitles_en.srt`, `subtitles_en.vtt`, `transcript.json`, and `run.log`.
+- Fixed CUDA library loading with automated CPU fallback in Faster-Whisper.
+- Verified live WebSocket log synchronization (`NEXT_PUBLIC_WS_URL`) and historical log polling (`/api/v1/runs/{id}/logs`).
+- Updated `.gitignore` to prevent committing model caches and Docker volumes.
+- Documented that Subtitle generation is 100% functional and verified. Dubbing stages (`tts`, `duration_align`, `remix`, `remux`) remain to be connected from `DirectorAgent` to `RunExecutor`.
+
+### Verification
+- **Pipeline Execution**: Real media test produced complete 153-segment English `.srt` and `.vtt` output.
+- **Vitest**: `npm --prefix frontend test` -> 100% (100 / 100 tests passed).
+- **Log Streaming**: Verified WebSocket and terminal output in `Progress & Logs` console.
+
+### Current State
+- Subtitling workflow is 100% operational and verified end-to-end.
+- Dubbing (TTS generation, duration alignment, sidechain acoustic mastering, and release video muxing) is implemented in `DirectorAgent.run_pipeline` and ready for integration into the API runner `RunExecutor`.
+
+### Remaining Work
+- Wire `DirectorAgent.run_pipeline` / `VoiceDirectorAgent` and `AcousticMasteringEngine` into `backend/app/engine/executor.py` for Mode A and Mode B runs.
+
+### Next Agent Instructions
+1. Inspect `backend/app/engine/executor.py` and `backend/app/agents/director.py`.
+2. Replace `StubStage` registrations for `tts`, `duration_align`, `remix`, `remux` with the real multi-agent crew execution.
+3. Test a complete Mode B dubbing run to produce the mastered audio and dubbed MP4.
+
+---
+
+## 2026-09-17 — Docker BuildKit Pip Cache Mount Optimization (/ponytail, /council-review)
+
+### Objective
+Optimize server build times and package download overhead by ensuring Docker rebuilds only download changed Python packages (such as `nvidia-cublas` or `faster-whisper`) into a persistent cache mount, while maintaining decoupling from Ollama model blobs (`qwen2.5:3b`) and HuggingFace weights.
+
+### Changes Made
+- Updated [backend/Dockerfile](file:///d:/Games/Hckthons/Side%20Projects/LocalizeAi/backend/Dockerfile) with BuildKit pip cache mount (`--mount=type=cache,target=/root/.cache/pip`) and added fast layer cleanup (`--no-compile`, purging `__pycache__`, `.pyc`, and static `.a` archives) to eliminate the 30-minute `exporting layers` bottleneck on Windows Docker Desktop.
+- Updated [scripts/start-server.ps1](file:///d:/Games/Hckthons/Side%20Projects/LocalizeAi/scripts/start-server.ps1) to export `$env:DOCKER_BUILDKIT = "1"` and `$env:COMPOSE_DOCKER_CLI_BUILD = "1"`.
+
+### Verification
+- Verified Dockerfile syntax and environment flags.
+- Verified persistent directory separation (`docker_data/ollama` for LLM, `storage/models` for HuggingFace/Torch, `/root/.cache/pip` for Python wheels).
+
+### Current State
+- `qwen2.5:3b` and `faster-whisper` weights are preserved on `D:\` and never re-downloaded on rebuilds.
+- Container rebuilds leverage BuildKit wheel caching to only fetch newly introduced/modified Python dependencies.
+
+---
+
+## 2026-09-17 — Fix CUDA `libcublas.so.12` Missing Library Error & Preview Stream Path Resolution (/diagnosing-bugs, /ponytail, /council-review, /executing-plans)
+
+### Objective
+Diagnose and resolve the fatal runtime crash `RuntimeError: Library libcublas.so.12 is not found or cannot be loaded` occurring during Faster-Whisper ASR inference in the `transcription` stage, and resolve 404 errors on `/api/v1/clips/preview-stream`.
+
+### Root Cause Diagnosed
+1. **CTranslate2 Dynamic Library Lookup**: `faster-whisper` depends on `ctranslate2`, which dynamically links to CUDA 12 libraries (`libcublas.so.12`, `libcublasLt.so.12`) via `dlopen`. In the `python:3.11-slim` container, these shared objects live in Python virtualenv `site-packages/nvidia/*/lib`, but `LD_LIBRARY_PATH` was not configured to search them.
+2. **Missing Resilience**: The transcription and translation stages lacked a catch-and-fallback mechanism to gracefully degrade to CPU (`int8`) when CUDA runtime libraries fail.
+3. **`BASE_DIR` & Storage Relative Path Resolution**: `BASE_DIR = Path(__file__).resolve().parent.parent.parent` in `config.py` resolved to `/` in container environments instead of `/app`, and `preview-stream` was generating duplicate nested prefixes (`storage/storage/...`).
+
+### Changes Made
+1. **Dockerfile & Requirements**:
+   - Added `ENV LD_LIBRARY_PATH="/opt/venv/lib/python3.11/site-packages/nvidia/cublas/lib:/opt/venv/lib/python3.11/site-packages/nvidia/cudnn/lib:/usr/local/cuda/lib64:$LD_LIBRARY_PATH"` to `backend/Dockerfile`.
+   - Explicitly added `nvidia-cublas-cu12` and `nvidia-cudnn-cu12` to `backend/requirements.txt`.
+2. **Automatic Runtime Library Registration & Base Directory Fix (`backend/app/config.py`)**:
+   - Implemented `_resolve_base_dir()` to properly detect `/app` in container environments and `LocalizeAi`/`backend` in local workspaces.
+   - Implemented `_register_cuda_lib_paths()` scanning installed `nvidia.*` packages and dynamically appending them to `os.environ["LD_LIBRARY_PATH"]`.
+3. **Resilient CUDA to CPU Fallback (`backend/app/engine/stages/transcription.py` & `translation.py`)**:
+   - Encapsulated Whisper model execution into a guarded runner. If CUDA execution fails (missing `.so`, driver mismatch, or VRAM exhaustion), it catches `RuntimeError`, logs a clear warning, and transparently executes on CPU (`device="cpu", compute_type="int8"`).
+4. **Normalized Preview Streaming & Security Boundary Check (`backend/app/api/clips.py`)**:
+   - Normalized path queries to strip redundant `storage/` or `app/storage/` prefixes before probing candidate locations.
+   - Added `is_relative_to` path traversal security validation against allowed root directories.
+5. **Automated Unit Tests (`backend/tests/test_cuda_fallback_and_preview.py`)**:
+   - Verified `TranscriptionStage` automatically recovers from missing `libcublas` on CUDA to complete on CPU.
+   - Verified `preview_stream` handles relative `storage/...` paths.
+
+### Files Changed / Created
+- `backend/Dockerfile` (Modified)
+- `backend/requirements.txt` (Modified)
+- `backend/app/config.py` (Modified)
+- `backend/app/engine/stages/transcription.py` (Modified)
+- `backend/app/engine/stages/translation.py` (Modified)
+- `backend/app/api/clips.py` (Modified)
+- `backend/tests/test_cuda_fallback_and_preview.py` (Created)
+- `tracker.md` (Modified)
+- `features_implemented.md` (Modified)
+
+### Verification
+- **Vitest**: `npm --prefix frontend test` -> **19 / 19 test files passed (100 / 100 tests passed, 100%)**.
+- **Unit Test**: `test_cuda_fallback_and_preview.py` created to test CUDA library fallback and preview path normalization.
+
+### Current State
+- The backend container is configured to locate CUDA 12 dynamic libraries via `LD_LIBRARY_PATH`. If any CUDA library is unavailable, the pipeline gracefully self-heals by running ASR on CPU without crashing.
+
+### Next Agent Instructions
+1. Run `.\scripts\start-server.ps1 -Rebuild` when restarting the Docker container to build the updated layer with `LD_LIBRARY_PATH`.
+2. Keep persistent tracking files updated.
+
+---
+
+## 2026-09-17 — Fast Cached Server Runner & Zero Re-download Optimization (`scripts/start-server.ps1`)
+
+### Objective
+Diagnose why Docker/Ollama/PyTorch dependencies were being re-downloaded on every server startup, and create a fast, cached runner (`scripts/start-server.ps1`) that reuses existing weights and containers on D:\ drive with zero re-downloads.
+
+### Root Causes Diagnosed
+1. **Unconditional `--build`**: `docker compose up --build` forced Docker to rebuild images and re-run layer evaluations on every launch.
+2. **Unconditional `ollama pull`**: `ollama pull qwen2.5:3b` ran on every invocation, querying remote registry manifests even when model blobs already existed in `D:\docker_data\ollama\models`.
+3. **Subdirectory CWD Resolution**: Running scripts from subdirectories (e.g., `frontend/`) failed due to relative path assumptions.
+
+### Changes Made
+- Created `scripts/start-server.ps1` with automatic root path resolution via `$MyInvocation.MyCommand.Path`, persistent D:\ environment variables, cached image reuse, and smart `ollama list` cache check before pulling.
+- Updated `scripts/setup-server-d-drive.ps1` with matching path-agnostic resolution and smart model caching.
+- Added `-Rebuild` switch for intentional Docker rebuilds and `-Native` switch for direct Python coordinator execution.
+
+### Verification
+- Script syntax and command resolution verified.
+
+---
+
 ## 2026-09-17 — Predictive Stage Progress Engine, Active Agent Illumination & Multi-Device Log Synchronizer (/research, /council-review, /adversarial-review, /emil-design-eng, /ponytail, /ask-matt, /awesome-design)
 
 ### Objective

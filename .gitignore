@@ -61,9 +61,12 @@ generate_pdf.py
 latest_10_videos_detailed.json
 
 # Storage Directories (Preserve directory structure via .gitkeep)
+docker_data/
 storage/*
 !storage/.gitkeep
 !storage/*/
+storage/models/*
+storage/tmp/*
 
 storage/uploads/*
 !storage/uploads/.gitkeep

@@ -149,25 +149,39 @@ async def preview_stream(path: str = Query(..., description="File path to previe
     if not path_str:
         raise HTTPException(status_code=400, detail="Path string cannot be empty")
 
-    path_obj = Path(path_str)
-    if not path_obj.is_absolute():
-        candidates = [
-            settings.BASE_DIR / path_str,
-            settings.STORAGE_DIR / path_str,
-            settings.STORAGE_DIR / "uploads" / path_str,
-            settings.STORAGE_DIR / "uploads" / Path(path_str).name,
-        ]
-        found = False
-        for candidate in candidates:
-            if candidate.exists() and candidate.is_file():
-                path_obj = candidate
-                found = True
-                break
-        
-        if not found and not path_obj.exists():
-            raise HTTPException(status_code=404, detail=f"File does not exist: {path_str}")
-    elif not path_obj.exists():
+    clean_path = path_str.replace("\\", "/").lstrip("/")
+    rel_storage = clean_path
+    if clean_path.startswith("storage/"):
+        rel_storage = clean_path[len("storage/"):]
+    elif clean_path.startswith("app/storage/"):
+        rel_storage = clean_path[len("app/storage/"):]
+
+    resolved_path: Optional[Path] = None
+    
+    # Test candidates in order of specificity
+    candidates = [
+        Path(path_str),
+        settings.STORAGE_DIR / rel_storage,
+        settings.STORAGE_DIR / clean_path,
+        settings.BASE_DIR / clean_path,
+        settings.STORAGE_DIR / "uploads" / Path(clean_path).name,
+        Path.cwd() / clean_path,
+    ]
+
+    for cand in candidates:
+        if cand.is_file():
+            resolved_path = cand.resolve()
+            break
+
+    if not resolved_path or not resolved_path.exists():
         raise HTTPException(status_code=404, detail=f"File does not exist: {path_str}")
+
+    # Security check: ensure file is within BASE_DIR, STORAGE_DIR, or CWD
+    allowed_roots = [settings.BASE_DIR.resolve(), settings.STORAGE_DIR.resolve(), Path.cwd().resolve()]
+    if not any(resolved_path.is_relative_to(root) for root in allowed_roots if root.exists()):
+        raise HTTPException(status_code=403, detail="Access to file path is restricted")
+
+    path_obj = resolved_path
 
     media_type = "video/mp4"
     ext = path_obj.suffix.lower()

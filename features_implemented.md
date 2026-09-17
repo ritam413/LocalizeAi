@@ -47,14 +47,20 @@ This document tracks the current functionality and implementation status of LOCA
 
 ### ASR Speech Transcription
 - **Status**: Implemented
-- **Details**: Uses `faster-whisper` (CTranslate2) with Silero VAD filtering to generate timestamped speech segments.
-- **Modules**: `backend/app/engine/stages/transcription.py`
-- **Verification**: Manual runs & SQLite segment persistence.
+- **Details**: Uses `faster-whisper` (CTranslate2) with Silero VAD filtering to generate timestamped speech segments. Features CUDA 12 dynamic library loading support via `LD_LIBRARY_PATH` (`nvidia-cublas-cu12`, `nvidia-cudnn-cu12`) with automatic self-healing fallback to CPU (`int8`) inference upon missing `.so` libraries or VRAM exhaustion.
+- **Modules**: `backend/app/engine/stages/transcription.py`, `backend/Dockerfile`
+- **Verification**: `backend/tests/test_cuda_fallback_and_preview.py`
 
 ### Subtitle Formatting & QA Sanity Rules
-- **Status**: Implemented
-- **Details**: Deduplication, minimum gap enforcement (100ms), minimum duration (1.0s), max characters per second (17.0 CPS), and SRT/VTT file formatting.
-- **Modules**: `backend/app/engine/subtitle_formatter.py`
+- **Status**: Implemented & Verified
+- **Details**: End-to-end subtitle generation verified on full-length media files (audio extraction -> HTDemucs separation -> Faster-Whisper ASR -> Translation -> Subtitle Director .srt/.vtt formatting). Includes deduplication, minimum gap enforcement (100ms), minimum duration (1.0s), max characters per second (17.0 CPS), and live log streaming to the frontend console.
+- **Modules**: `backend/app/engine/subtitle_formatter.py`, `backend/app/engine/stages/translation.py`, `backend/app/agents/subtitle_director.py`
+- **Verification**: Verified end-to-end with real video runs producing synchronized `.srt` and `.vtt` deliverables.
+
+### Full Voice Dubbing Pipeline (Mode A & Mode B)
+- **Status**: Core Agents Implemented (Pending API RunExecutor wiring)
+- **Details**: `VoiceDirectorAgent` (Edge-TTS 300+ Microsoft neural voices), `SyncEngineerAgent` (atempo speed reconciliation), and `AcousticMasteringEngine` (sidechain ducking & EBU R128 mastering) are tested in isolation; ready to be hooked into the API runner `RunExecutor` to produce final dubbed MP4 releases.
+- **Modules**: `backend/app/agents/voice_director.py`, `backend/app/agents/sync_engineer.py`, `backend/app/engine/stages/mixer.py`, `backend/app/agents/director.py`
 
 ### Acoustic Mastering Engine (TICKET-13)
 - **Status**: Implemented

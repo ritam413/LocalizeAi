@@ -149,51 +149,64 @@ class TranscriptionStage(BaseStage):
             else:
                 compute_type = "int8"
 
-            model = WhisperModel(
-                model_name,
-                device=device,
-                compute_type=compute_type,
-            )
+            def _transcribe_with_model(dev: str, comp: str):
+                model = WhisperModel(
+                    model_name,
+                    device=dev,
+                    compute_type=comp,
+                )
 
-            segments_iter, info = model.transcribe(
-                audio_path,
-                language=source_lang,
-                task="transcribe",
-                beam_size=5,
-                # ── Anti-hallucination ───────────────────────────────── #
-                no_speech_threshold=0.6,
-                compression_ratio_threshold=2.4,
-                condition_on_previous_text=False,
-                # ── Silero VAD — ignores non-speech bursts (ADR 0001) ── #
-                vad_filter=True,
-                vad_parameters=dict(
-                    min_speech_duration_ms=250,
-                    min_silence_duration_ms=500,
-                    speech_pad_ms=100,
-                ),
-                word_timestamps=True,
-            )
+                segments_iter, info = model.transcribe(
+                    audio_path,
+                    language=source_lang,
+                    task="transcribe",
+                    beam_size=5,
+                    # ── Anti-hallucination ───────────────────────────────── #
+                    no_speech_threshold=0.6,
+                    compression_ratio_threshold=2.4,
+                    condition_on_previous_text=False,
+                    # ── Silero VAD — ignores non-speech bursts (ADR 0001) ── #
+                    vad_filter=True,
+                    vad_parameters=dict(
+                        min_speech_duration_ms=250,
+                        min_silence_duration_ms=500,
+                        speech_pad_ms=100,
+                    ),
+                    word_timestamps=True,
+                )
 
-            result: List[Dict[str, Any]] = []
-            for seg in segments_iter:
-                # Snap to first/last spoken word boundaries for tight timing.
-                if seg.words and len(seg.words) > 0:
-                    start_time = seg.words[0].start
-                    end_time = seg.words[-1].end
-                else:
-                    start_time = seg.start
-                    end_time = seg.end
+                result: List[Dict[str, Any]] = []
+                for seg in segments_iter:
+                    # Snap to first/last spoken word boundaries for tight timing.
+                    if seg.words and len(seg.words) > 0:
+                        start_time = seg.words[0].start
+                        end_time = seg.words[-1].end
+                    else:
+                        start_time = seg.start
+                        end_time = seg.end
 
-                result.append({
-                    "start_s": round(start_time, 3),
-                    "end_s": round(end_time, 3),
-                    "source_text": seg.text.strip(),
-                })
+                    result.append({
+                        "start_s": round(start_time, 3),
+                        "end_s": round(end_time, 3),
+                        "source_text": seg.text.strip(),
+                    })
 
-            # ── Release ctranslate2 model from memory before next GPU stage ── #
-            del model
+                # Release ctranslate2 model from memory
+                del model
+                return result, info.language
 
-            return result, info.language
+            if device == "cuda":
+                try:
+                    return _transcribe_with_model(dev="cuda", comp=compute_type)
+                except Exception as cuda_err:
+                    import logging
+                    logging.warning(
+                        f"[TranscriptionStage] CUDA Whisper execution failed ({cuda_err}). "
+                        f"Transparently falling back to CPU (int8) inference."
+                    )
+                    return _transcribe_with_model(dev="cpu", comp="int8")
+            else:
+                return _transcribe_with_model(dev="cpu", comp="int8")
 
         try:
             loop = asyncio.get_running_loop()
