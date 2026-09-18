@@ -1,19 +1,30 @@
 # 🚀 Localize AI — Agent Session Handoff & Startup Protocol
 
 **Last Updated:** 2026-09-18  
-**Session Objective:** Next-agent startup instructions and local GTX 1050 Ti GPU acceleration guide.
+**Top Priority Task:** Implement Kokoro-82M TTS Adapter (`KokoroTTSAdapter`) into `backend/app/agents/voice_director.py` and register it in `TTSStage`.
 
 ---
 
-## 📌 Startup Action Trigger
-> **When the user opens this repository and says `start` (or starts a new chat):**
-> 1. Read this `HANDOFF.md` and `TRACKER.md`.
-> 2. Immediately ask the user if they want to activate local GPU acceleration for **Qwen 2.5:3B** on their **GTX 1050 Ti (4GB VRAM)** via **Option A (Native Windows Ollama)** or **Option B (Native llama-server)**.
-> 3. Guide them through the 2-step setup to test and verify GPU offloading in `nvidia-smi`.
+## 🚨 PRIORITY 1: IMPLEMENT THIS FIRST BEFORE ANYTHING ELSE 🚨
+
+> **CRITICAL AGENT INSTRUCTION (STARTUP DIRECTIVE):**  
+> When you pull this repository on your PC or start a new agent session, **the very first implementation task you must complete is adding `KokoroTTSAdapter` to the speech synthesis pipeline**.  
+> Read [`Docs/KOKORO_TTS_INTEGRATION_ARCHITECTURAL_REPORT.md`](file:///Docs/KOKORO_TTS_INTEGRATION_ARCHITECTURAL_REPORT.md) and execute the steps below immediately:
+
+### Step-by-Step Implementation Action Plan:
+1. **Edit `backend/app/agents/voice_director.py`**:
+   - Implement `KokoroTTSAdapter(SpeechSynthesisAdapter)` wrapping `kokoro.KPipeline` with 24kHz PCM float32 output and automatic fallback to `EdgeTTSAdapter`.
+   - Update `VoiceDirectorAgent.__init__` to instantiate `KokoroTTSAdapter` when `adapter_type == "kokoro"`.
+2. **Edit `backend/app/engine/stages/tts.py`**:
+   - Pass `adapter_type = config.get("tts_adapter", "kokoro")` so Mode A runs default to Kokoro-82M.
+3. **Verify with Pytest**:
+   - Run unit tests: `pytest backend/tests/test_voice_director.py backend/tests/test_dubbing_stages_chain.py`
+4. **Update Tracking Files**:
+   - Log the completed implementation in `TRACKER.md` and update `features_implemented.md`.
 
 ---
 
-## 🛠️ GPU Setup Guide for GTX 1050 Ti
+## 📌 Secondary Action: Local GPU Acceleration (Qwen 2.5:3B & Faster-Whisper)
 
 ### Why GPU Setup is Needed:
 The official Linux Docker container for Ollama skips CUDA on Pascal GPUs (`Compute Capability 6.1` / `610`). Running Ollama or `llama-server` natively on Windows directly offloads all 36 transformer layers into the 1050 Ti's 4GB VRAM at ~40–60 tokens/sec.
@@ -53,13 +64,14 @@ All 148 dialogue segments for `Twitter_API_With_n8n__Step-by-Step___No_Code__3` 
 ### 2. Pipeline Features Wired
 - **Parallel Translation Streaming**: Concurrent workers flush to disk immediately after each segment.
 - **Devanagari Verification (`is_hindi()`)**: Ensures no raw English fallback strings can slip into the subtitle files.
-- **Edge TTS Synthesis**: `hi-IN-MadhurNeural` neural voice stems generated in parallel.
 - **Duration Alignment**: FFmpeg `atempo` reconciles dialogue length to original video speech windows.
 - **Sidechain Acoustic Mastering**: `-6 dB` dynamic background ducking and EBU R128 (`-24.0 LUFS`) loudness normalization.
 - **Video Multiplexing**: Stream-copy multiplexing without re-encoding video.
 
 ---
 
-## 🔮 Next Immediate Steps for the Agent
-1. When user prompts `start`, greet them and offer to verify/configure **Native Windows Ollama** on their **GTX 1050 Ti**.
-2. Run `nvidia-smi` and test `http://localhost:11434/api/generate` to confirm full GPU utilization.
+## 🔮 Summary Checklist for Next Agent
+- [ ] Implement `KokoroTTSAdapter` in `backend/app/agents/voice_director.py`.
+- [ ] Connect Kokoro in `backend/app/engine/stages/tts.py`.
+- [ ] Run Pytest and Vitest test suites.
+- [ ] Update `TRACKER.md` and `features_implemented.md`.
