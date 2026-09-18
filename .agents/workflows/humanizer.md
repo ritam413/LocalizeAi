@@ -1,12 +1,10 @@
 ---
-description: Rewrite AI-sounding text to remove chatbot residue, staging, forced triads, and artificial tells using Wikipedia AI Cleanup standards.
+description: "Rewrite AI-sounding text so it reads naturally without changing what it says."
 ---
 
-# Humanizer Workflow
+# /humanizer
 
-Execute the **Humanizer** skill on the specified text or file.
+Execute the **humanizer** skill workflow.
 
-1. **Activate Skill:** Load and apply `humanizer` principles.
-2. **Scan for Tells:** Identify not-X-but-Y formulas, dramatic one-line closers, staged run-ups ("Let's dive in"), decorative bolding, forced triads, and chatbot residue.
-3. **Rewrite & Preserve:** Retain 100% of factual accuracy, metrics, and core intent while rewriting in authentic, natural human cadence with varied sentence rhythm.
-4. **Deliver Result:** Output the polished prose directly.
+1. **Activate Skill:** Load and view the skill instructions from `skills/humanizer/SKILL.md`.
+2. **Execute Instructions:** Adhere strictly to the domain guidelines, heuristics, and procedural steps defined in `humanizer`.

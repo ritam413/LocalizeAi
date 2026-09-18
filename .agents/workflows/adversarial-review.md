@@ -1,15 +1,10 @@
 ---
-description: Execute a red-team adversarial review to stress-test code, PRs, or architecture and expose critical failure modes.
+description: "Single-critic adversarial stress test of a known artifact — a PR, draft, spec, plan, code file, or argument. The reviewer actively tries to break it: edge cases, hidden assumptions, failure modes, logical inconsistencies, security gaps, scalability cliffs."
 ---
 
-# Adversarial Review Workflow
+# /adversarial-review
 
-Execute the **Adversarial Review** (Red Team) skill on the specified subject.
+Execute the **adversarial-review** skill workflow.
 
-1. **Activate Skill:** Load and apply `adversarial-review` principles.
-2. **Execute Attacks:**
-   - **Chaos & Hostile Inputs:** Malformed data, boundary checks, state mutations.
-   - **Concurrency & Races:** Parallel requests, atomic safety, deadlock potential.
-   - **Scaling & Leaks:** Resource exhaustion, O(n²) bottlenecks, memory retention.
-   - **Hidden Assumptions:** Flawed environmental or runtime assumptions.
-3. **Verdict & Hardening:** Deliver an unambiguous verdict (`BLOCK`, `FLAGGED RISK`, `CLEARED`) and concrete remediation diffs.
+1. **Activate Skill:** Load and view the skill instructions from `skills/adversarial-review/SKILL.md`.
+2. **Execute Instructions:** Adhere strictly to the domain guidelines, heuristics, and procedural steps defined in `adversarial-review`.

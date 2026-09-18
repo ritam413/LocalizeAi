@@ -17,6 +17,10 @@ from app.engine.stages.extraction import ExtractionStage
 from app.engine.stages.denoise import DenoiseStage
 from app.engine.stages.transcription import TranscriptionStage
 from app.engine.stages.translation import TranslationStage
+from app.engine.stages.tts import TTSStage
+from app.engine.stages.duration_align import DurationAlignStage
+from app.engine.stages.mixer import MasteringStage
+from app.engine.stages.exporter import RemuxStage
 from app.engine.stages.stub import StubStage
 
 logger = logging.getLogger("dubforge.executor")
@@ -26,7 +30,11 @@ STAGE_CLASSES = {
     "extraction": ExtractionStage,
     "denoise": DenoiseStage,
     "transcription": TranscriptionStage,
-    "translation": TranslationStage
+    "translation": TranslationStage,
+    "tts": TTSStage,
+    "duration_align": DurationAlignStage,
+    "remix": MasteringStage,
+    "remux": RemuxStage,
 }
 
 class RunExecutor:
@@ -104,6 +112,11 @@ class RunExecutor:
                         current_artifacts["segments"] = json.load(fh)
                 except Exception:
                     pass
+            if (run_dir / "dialogue_bus.wav").exists():
+                current_artifacts["dialogue_bus_path"] = str(run_dir / "dialogue_bus.wav")
+            if (run_dir / "mastered_audio.wav").exists():
+                current_artifacts["mastered_audio_path"] = str(run_dir / "mastered_audio.wav")
+
 
             for stage_name in stage_names:
                 # ── Cancellation check between stages ─────────────────── #

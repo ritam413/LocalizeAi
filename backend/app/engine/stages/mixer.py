@@ -271,3 +271,81 @@ class AcousticMasteringEngine:
         finally:
             if temp_dir.exists():
                 shutil.rmtree(temp_dir, ignore_errors=True)
+
+
+from app.engine.stage import BaseStage, ProgressCallback, LogCallback
+
+
+class MasteringStage(BaseStage):
+    """
+    Stage wrapper for acoustic mastering, sidechain ducking, and EBU R128 loudness normalization.
+    """
+
+    def __init__(self):
+        super().__init__("remix", gpu_required=False)
+        self.engine = AcousticMasteringEngine()
+
+    @staticmethod
+    def _build_dialogue_segment_inputs(stems: List[Dict[str, Any]]) -> List[DialogueSegmentInput]:
+        """Maps stem dictionaries to strongly-typed DialogueSegmentInput instances."""
+        inputs = []
+        for s in stems:
+            path = s.get("aligned_path") or s.get("audio_path")
+            start_s = float(s.get("start_s", 0.0))
+            duration_s = float(s.get("final_duration_s", s.get("synthesized_duration_s", 1.0)))
+            end_s = float(s.get("end_s", start_s + duration_s))
+            inputs.append(DialogueSegmentInput(
+                audio_path=path,
+                start_s=start_s,
+                end_s=end_s,
+                duration_s=duration_s
+            ))
+        return inputs
+
+    async def execute(
+        self,
+        input_artifacts: Dict[str, Any],
+        config: Dict[str, Any],
+        progress_cb: ProgressCallback,
+        log_cb: LogCallback
+    ) -> Dict[str, Any]:
+        run_dir = Path(config.get("run_dir", "./storage/runs/default"))
+        stems = input_artifacts.get("aligned_stems") or input_artifacts.get("synthesized_stems", [])
+        bg_audio = input_artifacts.get("background_path")
+        ducking_db = float(config.get("ducking_db", -6.0))
+        target_lufs = float(config.get("target_lufs", -24.0))
+
+        await log_cb("INFO", f"Compositing dialogue bus for {len(stems)} stems...")
+        await progress_cb(20.0, "Compositing dialogue stems")
+
+        dialogue_bus = run_dir / "dialogue_bus.wav"
+        segments_input = self._build_dialogue_segment_inputs(stems)
+        await self.engine.composite_dialogue_bus(segments_input, dialogue_bus)
+
+        mixed_unmastered = run_dir / "mixed_unmastered.wav"
+        has_background = bool(bg_audio and Path(bg_audio).exists() and Path(bg_audio).stat().st_size > 0)
+
+        if has_background:
+            await log_cb("INFO", f"Applying sidechain ducking ({ducking_db}dB) to background M&E...")
+            await progress_cb(50.0, "Applying dynamic ducking")
+            await self.engine.apply_sidechain_ducking(bg_audio, dialogue_bus, mixed_unmastered, ducking_db=ducking_db)
+        else:
+            shutil.copyfile(str(dialogue_bus), str(mixed_unmastered))
+
+        mastered_audio = run_dir / "mastered_audio.wav"
+        await log_cb("INFO", f"Mastering final mixdown to EBU R128 ({target_lufs} LUFS)...")
+        await progress_cb(80.0, "Mastering loudness")
+        await self.engine.master_ebu_r128(mixed_unmastered, mastered_audio, target_lufs=target_lufs)
+
+        await progress_cb(100.0, "Acoustic mastering complete")
+        return {
+            "status": "success",
+            "mastered_audio_path": str(mastered_audio),
+            "dialogue_bus_path": str(dialogue_bus),
+            "artifacts": [
+                {"type": "audio", "label": "Dialogue Bus (WAV)", "path": str(dialogue_bus)},
+                {"type": "audio", "label": "Mastered Soundtrack (WAV)", "path": str(mastered_audio)}
+            ]
+        }
+
+

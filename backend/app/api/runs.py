@@ -28,8 +28,8 @@ async def create_run(
     project_mode = payload.get("project_mode", "C")
     source_language = payload.get("source_language", "es")
     target_languages = payload.get("target_languages", ["en"])
-    subtitle_only = payload.get("subtitle_only", True)
-    use_demucs = payload.get("use_demucs", True)
+    subtitle_only = payload.get("subtitle_only", project_mode == "C")
+    use_demucs = payload.get("use_demucs", project_mode != "C")
     whisper_model = payload.get("whisper_model") or payload.get("asr_model")
 
     if not whisper_model:
@@ -63,12 +63,14 @@ async def create_run(
     run_id = candidate_id
 
     frozen_stage_config = {
-        "stages": ["extraction", "denoise", "transcription", "translation"] if subtitle_only else ["extraction", "denoise", "separation", "vad", "diarization", "transcription", "translation", "tts", "duration_align", "remix", "remux"],
+        "stages": ["extraction", "denoise", "transcription", "translation"] if subtitle_only else ["extraction", "denoise", "transcription", "translation", "tts", "duration_align", "remix", "remux"],
         "subtitle_only": subtitle_only,
         "use_demucs": use_demucs,
         "whisper_model": whisper_model,
         "asr_model": whisper_model,
+        "tts_adapter": payload.get("tts_adapter", "edge_tts"),
     }
+
 
     if payload.get("stage_config_override"):
         frozen_stage_config.update(payload["stage_config_override"])

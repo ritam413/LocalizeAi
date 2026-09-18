@@ -103,6 +103,11 @@ async def chat_completions(request: Request):
         unload_whisper()
         payload = await request.json()
         payload["keep_alive"] = "0s"  # Flush immediately after response
+        
+        # Enforce GPU offload for 1050 Ti
+        if "options" not in payload:
+            payload["options"] = {}
+        payload["options"]["num_gpu"] = 99
 
         async with httpx.AsyncClient(timeout=300.0) as client:
             res = await client.post("http://127.0.0.1:11434/v1/chat/completions", json=payload)

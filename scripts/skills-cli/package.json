@@ -1,0 +1,23 @@
+{
+  "name": "skills-compass",
+  "version": "1.0.0",
+  "description": "Modern interactive Clack CLI for 413 Multi-Agent Skills and Workflow Pipelines",
+  "type": "module",
+  "bin": {
+    "skills": "./dist/index.js",
+    "skills-compass": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsup",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "@clack/prompts": "^0.8.2",
+    "picocolors": "^1.1.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.17.19",
+    "tsup": "^8.3.6",
+    "typescript": "^5.7.3"
+  }
+}

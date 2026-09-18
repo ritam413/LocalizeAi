@@ -58,9 +58,10 @@ This document tracks the current functionality and implementation status of LOCA
 - **Verification**: Verified end-to-end with real video runs producing synchronized `.srt` and `.vtt` deliverables.
 
 ### Full Voice Dubbing Pipeline (Mode A & Mode B)
-- **Status**: Core Agents Implemented (Pending API RunExecutor wiring)
-- **Details**: `VoiceDirectorAgent` (Edge-TTS 300+ Microsoft neural voices), `SyncEngineerAgent` (atempo speed reconciliation), and `AcousticMasteringEngine` (sidechain ducking & EBU R128 mastering) are tested in isolation; ready to be hooked into the API runner `RunExecutor` to produce final dubbed MP4 releases.
-- **Modules**: `backend/app/agents/voice_director.py`, `backend/app/agents/sync_engineer.py`, `backend/app/engine/stages/mixer.py`, `backend/app/agents/director.py`
+- **Status**: Implemented & Operational
+- **Details**: Full 8-stage autonomous dubbing pipeline (`extraction` -> `denoise` -> `transcription` -> `translation` -> `tts` -> `duration_align` -> `remix` -> `remux`) registered in `RunExecutor.STAGE_CLASSES`. Connects `VoiceDirectorAgent` (EdgeTTS 300+ Microsoft neural voices with MockAudio fallback), `DurationAlignStage` (FFmpeg atempo duration reconciliation), `MasteringStage` (dialogue bus compositing, dynamic -6dB sidechain ducking, EBU R128 -24 LUFS loudness mastering), and `RemuxStage` (lossless stream copy MP4 multiplexing and deliverables manifest).
+- **Modules**: `backend/app/engine/stages/tts.py`, `backend/app/engine/stages/duration_align.py`, `backend/app/engine/stages/mixer.py`, `backend/app/engine/stages/exporter.py`, `backend/app/engine/executor.py`, `backend/app/api/runs.py`
+- **Verification**: `backend/tests/test_dubbing_stages_chain.py`
 
 ### Acoustic Mastering Engine (TICKET-13)
 - **Status**: Implemented

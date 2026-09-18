@@ -243,3 +243,93 @@ class BroadcastDeliverablesExporter:
             metadata=manifest_payload["metadata"],
             created_at=now_iso,
         )
+
+
+from app.engine.stage import BaseStage, ProgressCallback, LogCallback
+
+
+class RemuxStage(BaseStage):
+    """
+    Stage wrapper for broadcast deliverables packaging, stream-copy MP4 multiplexing, and manifest generation.
+    """
+
+    def __init__(self):
+        super().__init__("remux", gpu_required=False)
+        self.exporter = BroadcastDeliverablesExporter()
+
+    @staticmethod
+    def _resolve_subtitle_path(run_dir: Path, target_lang: str, extension: str) -> Optional[Path]:
+        """Resolves existing localized or default subtitle file on disk."""
+        candidate = run_dir / f"subtitles_{target_lang}.{extension}"
+        if candidate.exists():
+            return candidate
+        default_candidate = run_dir / f"subtitles.{extension}"
+        return default_candidate if default_candidate.exists() else None
+
+    @staticmethod
+    def _build_artifacts_list(manifest_path: Path, rc_video: Path, mastered_audio: Path) -> List[Dict[str, str]]:
+        """Constructs list of output artifacts for database registration."""
+        artifacts = [
+            {"type": "json", "label": "Deliverables Manifest", "path": str(manifest_path)}
+        ]
+        if rc_video.exists():
+            artifacts.append({"type": "video", "label": "Release Candidate (MP4)", "path": str(rc_video)})
+        if mastered_audio.exists():
+            artifacts.append({"type": "audio", "label": "Mastered Soundtrack (WAV)", "path": str(mastered_audio)})
+        return artifacts
+
+    async def execute(
+        self,
+        input_artifacts: Dict[str, Any],
+        config: Dict[str, Any],
+        progress_cb: ProgressCallback,
+        log_cb: LogCallback
+    ) -> Dict[str, Any]:
+        run_dir = Path(config.get("run_dir", "./storage/runs/default"))
+        source_video = input_artifacts.get("source_path")
+        mastered_audio = Path(input_artifacts.get("mastered_audio_path") or (run_dir / "mastered_audio.wav"))
+        dialogue_bus = Path(input_artifacts.get("dialogue_bus_path") or (run_dir / "dialogue_bus.wav"))
+        target_lang = config.get("target_language", "en")
+
+        srt_path = self._resolve_subtitle_path(run_dir, target_lang, "srt")
+        vtt_path = self._resolve_subtitle_path(run_dir, target_lang, "vtt")
+        rc_video = run_dir / "release_candidate.mp4"
+
+        await log_cb("INFO", "Multiplexing video and audio into broadcast Release Candidate MP4...")
+        await progress_cb(30.0, "Remuxing container")
+
+        can_remux_video = bool(source_video and Path(source_video).exists() and mastered_audio.exists())
+        if can_remux_video:
+            await self.exporter._remux_video(
+                source_video_path=Path(source_video),
+                mastered_audio_path=mastered_audio,
+                subtitles_srt_path=srt_path,
+                output_mp4_path=rc_video,
+                target_language=target_lang
+            )
+        else:
+            await log_cb("WARNING", "Source video or mastered audio not found; skipping video multiplexing.")
+
+        await progress_cb(70.0, "Generating deliverables manifest")
+        manifest = await self.exporter.package_deliverables(
+            job_id=run_dir.name,
+            output_dir=run_dir,
+            release_video_mp4=rc_video if rc_video.exists() else None,
+            mastered_soundtrack_wav=mastered_audio if mastered_audio.exists() else None,
+            dialogue_bus_wav=dialogue_bus if dialogue_bus.exists() else None,
+            subtitles_srt=srt_path,
+            subtitles_vtt=vtt_path,
+            metadata={"target_language": target_lang}
+        )
+
+        artifacts = self._build_artifacts_list(manifest.manifest_path, rc_video, mastered_audio)
+        await progress_cb(100.0, "Broadcast packaging complete")
+
+        return {
+            "status": "success",
+            "release_candidate_video": str(rc_video) if rc_video.exists() else None,
+            "manifest_path": str(manifest.manifest_path),
+            "artifacts": artifacts
+        }
+
+

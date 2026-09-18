@@ -1,0 +1,735 @@
+<!doctype html>
+<html lang="en" data-resolution="landscape">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <title>LOCALIZE — Autonomous AI Post-Production Crew</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: #07060c;
+        color: #ffffff;
+        font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+      }
+      #root {
+        position: relative;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: radial-gradient(circle at 50% 40%, #150f28 0%, #07060c 80%);
+      }
+
+      /* Background FX */
+      .bg-grid {
+        position: absolute;
+        inset: 0;
+        background-size: 60px 60px;
+        background-image: 
+          linear-gradient(to right, rgba(114, 72, 234, 0.08) 1px, transparent 1px),
+          linear-gradient(to bottom, rgba(114, 72, 234, 0.08) 1px, transparent 1px);
+        mask-image: radial-gradient(circle at 50% 50%, black 30%, transparent 80%);
+        pointer-events: none;
+        z-index: 1;
+      }
+      .bg-glow-orb {
+        position: absolute;
+        width: 800px;
+        height: 800px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(114, 72, 234, 0.28) 0%, rgba(106, 51, 233, 0.08) 50%, transparent 70%);
+        filter: blur(60px);
+        pointer-events: none;
+        z-index: 1;
+      }
+      .vignette {
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(circle at 50% 50%, transparent 50%, rgba(7,6,12,0.8) 100%);
+        pointer-events: none;
+        z-index: 2;
+      }
+
+      /* Widescreen Cinema Bars */
+      .cinema-bar-top {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 48px;
+        background: #07060c;
+        z-index: 90;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 40px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 13px;
+        color: #d4d4d8;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        border-bottom: 1px solid rgba(255,255,255,0.12);
+      }
+      .cinema-bar-bottom {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 48px;
+        background: #07060c;
+        z-index: 90;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 40px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 13px;
+        color: #d4d4d8;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        border-top: 1px solid rgba(255,255,255,0.12);
+      }
+
+      /* Scene Common Styles */
+      .scene {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 80px 100px;
+        opacity: 0;
+        z-index: 10;
+      }
+
+      /* Scene 1: Hook */
+      .hook-tag {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 15px;
+        font-weight: 700;
+        color: #fca5a5;
+        background: rgba(220, 38, 38, 0.25);
+        border: 1px solid #f87171;
+        padding: 6px 18px;
+        border-radius: 6px;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        margin-bottom: 24px;
+        box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
+      }
+      .hook-title {
+        font-size: 76px;
+        font-weight: 900;
+        letter-spacing: -0.04em;
+        line-height: 1.05;
+        text-align: center;
+        color: #ffffff;
+        margin-bottom: 24px;
+        text-shadow: 0 10px 40px rgba(0,0,0,0.8);
+      }
+      .hook-sub {
+        font-size: 24px;
+        font-weight: 400;
+        color: #e2e8f0;
+        text-align: center;
+        max-width: 900px;
+        line-height: 1.5;
+      }
+      .hook-critique-grid {
+        display: flex;
+        gap: 20px;
+        margin-top: 40px;
+      }
+      .critique-card {
+        background: #171126;
+        border: 1px solid #f87171;
+        padding: 18px 28px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 16px;
+        color: #fecaca;
+        font-weight: 600;
+      }
+
+      /* Scene 2: The 7 Agents */
+      .studio-badge {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 14px;
+        font-weight: 700;
+        color: #00f5c4;
+        background: rgba(0, 212, 170, 0.18);
+        border: 1px solid #00d4aa;
+        padding: 6px 16px;
+        border-radius: 6px;
+        letter-spacing: 0.15em;
+        margin-bottom: 18px;
+      }
+      .agents-title {
+        font-size: 52px;
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        text-align: center;
+        margin-bottom: 40px;
+        color: #ffffff;
+      }
+      .agents-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 16px;
+        width: 100%;
+        max-width: 1720px;
+      }
+      .agent-card {
+        background: #151028;
+        border: 1px solid #9065f6;
+        border-radius: 14px;
+        padding: 24px 16px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        position: relative;
+        overflow: hidden;
+      }
+      .agent-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 3px;
+        background: linear-gradient(90deg, #9065f6, #00f5c4);
+      }
+      .agent-num {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 12px;
+        font-weight: 700;
+        color: #c4b5fd;
+        margin-bottom: 12px;
+        letter-spacing: 0.1em;
+      }
+      .agent-icon {
+        width: 52px;
+        height: 52px;
+        border-radius: 12px;
+        background: rgba(144, 101, 246, 0.25);
+        border: 1px solid #9065f6;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        margin-bottom: 14px;
+      }
+      .agent-name {
+        font-size: 16px;
+        font-weight: 700;
+        color: #ffffff;
+        margin-bottom: 6px;
+        line-height: 1.2;
+      }
+      .agent-role {
+        font-size: 12px;
+        color: #d1d5db;
+        line-height: 1.3;
+        margin-bottom: 12px;
+      }
+      .agent-tag {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 10px;
+        color: #00f5c4;
+        background: rgba(0, 245, 196, 0.15);
+        border: 1px solid #00d4aa;
+        padding: 3px 8px;
+        border-radius: 4px;
+        font-weight: 700;
+      }
+
+      /* Scene 3: Millisecond Precision Sync */
+      .sync-container {
+        width: 100%;
+        max-width: 1300px;
+        background: #140f26;
+        border: 1px solid #9065f6;
+        border-radius: 20px;
+        padding: 40px;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+      }
+      .sync-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+      }
+      .sync-title {
+        font-size: 32px;
+        font-weight: 800;
+        color: #ffffff;
+      }
+      .sync-delta-badge {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 20px;
+        font-weight: 700;
+        color: #00f5c4;
+        background: rgba(0, 212, 170, 0.2);
+        border: 1px solid #00d4aa;
+        padding: 8px 24px;
+        border-radius: 8px;
+        box-shadow: 0 0 20px rgba(0, 212, 170, 0.35);
+      }
+      .waveform-row {
+        margin-bottom: 24px;
+      }
+      .waveform-label {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 13px;
+        color: #e2e8f0;
+        margin-bottom: 8px;
+        display: flex;
+        justify-content: space-between;
+        font-weight: 600;
+      }
+      .waveform-track {
+        height: 60px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 8px;
+        position: relative;
+        display: flex;
+        align-items: center;
+        padding: 0 10px;
+        overflow: hidden;
+      }
+      .speech-window-box {
+        position: absolute;
+        left: 200px;
+        width: 700px;
+        height: 44px;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 16px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 13px;
+        font-weight: 700;
+      }
+      .original-box {
+        background: rgba(144, 101, 246, 0.35);
+        border: 1px solid #a78bfa;
+        color: #f5f3ff;
+      }
+      .dubbed-box {
+        background: rgba(0, 212, 170, 0.35);
+        border: 1px solid #00f5c4;
+        color: #f0fdfa;
+      }
+      .atempo-callout {
+        display: flex;
+        gap: 30px;
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 1px solid rgba(255,255,255,0.12);
+      }
+      .atempo-stat {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 14px;
+        color: #cbd5e1;
+        font-weight: 500;
+      }
+      .atempo-val {
+        color: #ffffff;
+        font-weight: 700;
+        font-size: 18px;
+      }
+
+      /* Scene 4: QA Self-Repair */
+      .qa-container {
+        width: 100%;
+        max-width: 1300px;
+        background: #140f26;
+        border: 1px solid #9065f6;
+        border-radius: 20px;
+        padding: 40px;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+      }
+      .qa-step-box {
+        border-radius: 12px;
+        padding: 24px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .qa-step-info {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+      }
+      .qa-icon-bubble {
+        width: 48px;
+        height: 48px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+      }
+      .qa-warning-box {
+        border: 1px solid #f87171;
+        background: rgba(220, 38, 38, 0.18);
+      }
+      .qa-success-box {
+        border: 1px solid #00d4aa;
+        background: rgba(0, 212, 170, 0.18);
+      }
+
+      /* Scene 5: Outro Climax */
+      .outro-badge {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 14px;
+        font-weight: 700;
+        color: #00f5c4;
+        background: rgba(0, 212, 170, 0.18);
+        border: 1px solid #00d4aa;
+        padding: 6px 20px;
+        border-radius: 6px;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        margin-bottom: 24px;
+      }
+      .master-brand-title {
+        font-family: 'Cinzel', 'Inter', serif;
+        font-size: 120px;
+        font-weight: 900;
+        letter-spacing: 0.15em;
+        line-height: 1;
+        color: #ffffff;
+        text-shadow: 0 0 60px rgba(144, 101, 246, 0.7);
+        margin-bottom: 16px;
+      }
+      .outro-tagline {
+        font-size: 26px;
+        font-weight: 500;
+        color: #f1f5f9;
+        text-align: center;
+        max-width: 1000px;
+        margin-bottom: 40px;
+      }
+      .pill-features {
+        display: flex;
+        gap: 16px;
+        margin-bottom: 40px;
+      }
+      .pill-feat {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 14px;
+        font-weight: 700;
+        color: #ffffff;
+        background: rgba(255, 255, 255, 0.12);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        padding: 10px 22px;
+        border-radius: 100px;
+      }
+      .github-link-box {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 18px;
+        font-weight: 700;
+        color: #6a33e9;
+        background: #ffffff;
+        padding: 14px 34px;
+        border-radius: 8px;
+        letter-spacing: 0.05em;
+        box-shadow: 0 10px 30px rgba(114, 72, 234, 0.4);
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-duration="20"
+      data-width="1920"
+      data-height="1080"
+    >
+      <!-- Background Grid and Orbs (Behind Scenes) -->
+      <div class="bg-grid"></div>
+      <div id="orb-1" class="bg-glow-orb" style="top: 10%; left: 20%;"></div>
+      <div id="orb-2" class="bg-glow-orb" style="bottom: 10%; right: 20%; background: radial-gradient(circle, rgba(0, 212, 170, 0.22) 0%, transparent 70%);"></div>
+      <div class="vignette" data-layout-allow-occlusion></div>
+
+      <!-- Cinematic Top and Bottom Aspect Frames -->
+      <div class="cinema-bar-top">
+        <span>LOCALIZE // AUTONOMOUS AI POST-PRODUCTION CREW</span>
+        <span>REC ● [4K CINEMA] 24FPS</span>
+        <span>STAGE: DUAL-MONITOR STUDIO</span>
+      </div>
+      <div class="cinema-bar-bottom">
+        <span>AUDIO: 7-AGENT MULTI-STEM ENGINE</span>
+        <span>SPEECH SYNC: ATEMPO LOCK 0.00MS</span>
+        <span>QA STATUS: AUTOMATED SELF-REPAIR</span>
+      </div>
+
+      <!-- Audio Track -->
+      <audio id="bgm" class="clip" data-start="0" data-duration="20" data-volume="0.85" data-track-index="0" src="assets/music/trailer_music.mp3"></audio>
+
+      <!-- ================= SCENE 1: THE HOOK ================= -->
+      <div id="scene-1" class="scene clip" data-start="0" data-duration="4" data-track-index="1">
+        <div id="s1-tag" class="hook-tag">INDUSTRY PROBLEM</div>
+        <h1 id="s1-title" class="hook-title">MOST AI DUBBING<br>IS COMPLETELY BROKEN.</h1>
+        <p id="s1-sub" class="hook-sub">Assembly-line translation strips away emotion, desyncs mouth timing, and butchers cultural idioms.</p>
+        <div id="s1-grid" class="hook-critique-grid">
+          <div class="critique-card">✕ Robotic Monotone Voice</div>
+          <div class="critique-card">✕ +400ms Syllable Overflows</div>
+          <div class="critique-card">✕ Zero Post-Production QA</div>
+        </div>
+      </div>
+
+      <!-- ================= SCENE 2: THE 7 AGENTS ================= -->
+      <div id="scene-2" class="scene clip" data-start="3.8" data-duration="4.6" data-track-index="2">
+        <div id="s2-badge" class="studio-badge">THE ARCHITECTURE</div>
+        <h2 id="s2-title" class="agents-title">7 Specialized Autonomous Agents. One Virtual Post Room.</h2>
+        <div class="agents-grid">
+          <div class="agent-card agent-c1">
+            <div class="agent-num">01 / STORY</div>
+            <div class="agent-icon">🎭</div>
+            <div class="agent-name">Story Analyst</div>
+            <div class="agent-role">Scene Boundaries & Emotional Tone</div>
+            <div class="agent-tag">GEMINI 2.5 PRO</div>
+          </div>
+          <div class="agent-card agent-c2">
+            <div class="agent-num">02 / SCRIPT</div>
+            <div class="agent-icon">✍️</div>
+            <div class="agent-name">Localization Dir.</div>
+            <div class="agent-role">Idioms, Humor & Cultural Adaptation</div>
+            <div class="agent-tag">RATIONALE LOGS</div>
+          </div>
+          <div class="agent-card agent-c3">
+            <div class="agent-num">03 / CASTING</div>
+            <div class="agent-icon">🎙️</div>
+            <div class="agent-name">Voice Director</div>
+            <div class="agent-role">Character-Consistent Neural Voice Cloning</div>
+            <div class="agent-tag">MULTI-STEM TTS</div>
+          </div>
+          <div class="agent-card agent-c4">
+            <div class="agent-num">04 / TIMING</div>
+            <div class="agent-icon">⏱️</div>
+            <div class="agent-name">Sync Engineer</div>
+            <div class="agent-role">Dynamic Atempo & Speech Window Fitting</div>
+            <div class="agent-tag">FFMPEG CALIBRATION</div>
+          </div>
+          <div class="agent-card agent-c5">
+            <div class="agent-num">05 / TEXT</div>
+            <div class="agent-icon">💬</div>
+            <div class="agent-name">Subtitle Dir.</div>
+            <div class="agent-role">Frame-Accurate SRT & WebVTT Sync</div>
+            <div class="agent-tag">WORD-LEVEL TIMING</div>
+          </div>
+          <div class="agent-card agent-c6">
+            <div class="agent-num">06 / QA</div>
+            <div class="agent-icon">🛡️</div>
+            <div class="agent-name">QA Continuity</div>
+            <div class="agent-role">Defect Audits & Targeted Upstream Retries</div>
+            <div class="agent-tag">SELF-REPAIR LOOP</div>
+          </div>
+          <div class="agent-card agent-c7">
+            <div class="agent-num">07 / MASTER</div>
+            <div class="agent-icon">🎬</div>
+            <div class="agent-name">Director Agent</div>
+            <div class="agent-role">Master Multi-Track Video Assembly</div>
+            <div class="agent-tag">STUDIO RELEASE</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= SCENE 3: MILLISECOND SYNC ================= -->
+      <div id="scene-3" class="scene clip" data-start="8.2" data-duration="4.2" data-track-index="3">
+        <div id="s3-badge" class="studio-badge">AUDIO ENGINE</div>
+        <div class="sync-container">
+          <div class="sync-header">
+            <div>
+              <div class="sync-title">MILLISECOND SPEECH WINDOW ALIGNMENT</div>
+              <div style="color: #cbd5e1; font-size: 15px; margin-top: 4px; font-weight: 500;">Dynamic Atempo Speed Calibration & Vocal Window Locking</div>
+            </div>
+            <div id="s3-delta" class="sync-delta-badge">DELTA: 0.00ms (LOCKED)</div>
+          </div>
+
+          <div class="waveform-row">
+            <div class="waveform-label">
+              <span>ORIGINAL DIALOGUE STEM (ENGLISH)</span>
+              <span>WINDOW: 00:04.120 - 00:06.340 (2220ms)</span>
+            </div>
+            <div class="waveform-track">
+              <div class="speech-window-box original-box">
+                <span>"We have to stop the launch right now!"</span>
+                <span style="opacity: 0.9;">2220ms</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="waveform-row">
+            <div class="waveform-label">
+              <span>LOCALIZED DUB STEM (SPANISH) — ATEMPO CALIBRATED</span>
+              <span>WINDOW: 00:04.120 - 00:06.340 (MATCHED)</span>
+            </div>
+            <div class="waveform-track">
+              <div id="s3-dubbed-box" class="speech-window-box dubbed-box">
+                <span>"¡Tenemos que detener el lanzamiento ahora mismo!"</span>
+                <span style="font-weight: 800;">CALIBRATED 1.08x</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="atempo-callout">
+            <div class="atempo-stat">Syllabic Expansion: <span class="atempo-val">+24%</span></div>
+            <div class="atempo-stat">Atempo Filter: <span class="atempo-val">atempo=1.0824</span></div>
+            <div class="atempo-stat">Pitch Distortion: <span class="atempo-val">0.00% (Preserved)</span></div>
+            <div class="atempo-stat">Lip-Sync Deviation: <span class="atempo-val" style="color: #00f5c4;">±1.2ms</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= SCENE 4: QA SELF-REPAIR ================= -->
+      <div id="scene-4" class="scene clip" data-start="12.2" data-duration="4.2" data-track-index="4">
+        <div id="s4-badge" class="studio-badge" style="color:#fde047; border-color: #facc15; background: rgba(250, 204, 21, 0.2);">CONTINUITY ENGINE</div>
+        <div class="qa-container">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+            <div>
+              <div style="font-size: 32px; font-weight: 800; color: #ffffff;">CLOSED-LOOP QA SELF-REPAIR</div>
+              <div style="color: #cbd5e1; font-size: 15px; margin-top: 4px; font-weight: 500;">Automated defect correction without re-running the entire film</div>
+            </div>
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 14px; color: #c4b5fd; background: rgba(144,101,246,0.25); border: 1px solid #9065f6; padding: 6px 16px; border-radius: 6px; font-weight: 700;">
+              TARGETED SEGMENT REPAIR
+            </div>
+          </div>
+
+          <!-- Step 1: Defect Detected -->
+          <div id="qa-step-1" class="qa-step-box qa-warning-box">
+            <div class="qa-step-info">
+              <div class="qa-icon-bubble" style="background: rgba(239,68,68,0.3); color: #fca5a5;">⚠️</div>
+              <div>
+                <div style="font-family: 'JetBrains Mono', monospace; font-weight: 700; color: #fca5a5; font-size: 16px;">
+                  DEFECT DETECTED // SEGMENT #04 (00:14.200 - 00:16.800)
+                </div>
+                <div style="color: #f1f5f9; font-size: 14px; margin-top: 2px;">
+                  Syllabic expansion causes +240ms speech window overflow. Exceeds actor mouth closure.
+                </div>
+              </div>
+            </div>
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #fca5a5; font-weight: 700;">
+              AUTO-TRIGGERING SCRIPT REWRITE
+            </div>
+          </div>
+
+          <!-- Step 2: Targeted Re-write & Resolution -->
+          <div id="qa-step-2" class="qa-step-box qa-success-box">
+            <div class="qa-step-info">
+              <div class="qa-icon-bubble" style="background: rgba(0,212,170,0.3); color: #5eead4;">✓</div>
+              <div>
+                <div style="font-family: 'JetBrains Mono', monospace; font-weight: 700; color: #5eead4; font-size: 16px;">
+                  SURGICALLY REPAIRED // 140ms RE-GENERATION
+                </div>
+                <div style="color: #f1f5f9; font-size: 14px; margin-top: 2px;">
+                  Localization Director concised idiom phrasing. Speech window locked at exact 0.00ms delta.
+                </div>
+              </div>
+            </div>
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #5eead4; font-weight: 700;">
+              STATUS: CONTINUITY PASS
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= SCENE 5: OUTRO / MASTER LOCKUP ================= -->
+      <div id="scene-5" class="scene clip" data-start="16.2" data-duration="3.8" data-track-index="5">
+        <div id="s5-badge" class="outro-badge">AUTONOMOUS CINEMA LOCALIZATION</div>
+        <h1 id="s5-brand" class="master-brand-title">LOCALIZE</h1>
+        <p id="s5-tagline" class="outro-tagline">
+          The autonomous multi-agent post-production crew turning raw video into release-ready cinema dubs.
+        </p>
+
+        <div id="s5-pills" class="pill-features">
+          <div class="pill-feat">🎭 7-Agent AI Crew</div>
+          <div class="pill-feat">🎙️ Character Voice Cloning</div>
+          <div class="pill-feat">⏱️ Millisecond Atempo Sync</div>
+          <div class="pill-feat">🛡️ Closed-Loop QA Self-Repair</div>
+        </div>
+
+        <div id="s5-cta" class="github-link-box">
+          github.com/ritam413/LocalizeAi
+        </div>
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      // SCENE 1: THE HOOK (0s -> 3.8s)
+      tl.set("#scene-1", { opacity: 1 }, 0);
+      tl.fromTo("#s1-tag", { opacity: 0, y: -20, scale: 0.9 }, { opacity: 1, y: 0, scale: 1, duration: 0.5, ease: "power3.out" }, 0.2);
+      tl.fromTo("#s1-title", { opacity: 0, y: 30, scale: 0.95 }, { opacity: 1, y: 0, scale: 1, duration: 0.7, ease: "power4.out" }, 0.5);
+      tl.fromTo("#s1-sub", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" }, 1.0);
+      tl.fromTo("#s1-grid .critique-card", { opacity: 0, y: 20, scale: 0.9 }, { opacity: 1, y: 0, scale: 1, duration: 0.4, stagger: 0.15, ease: "back.out(1.5)" }, 1.5);
+      tl.to("#scene-1", { opacity: 0, scale: 1.05, duration: 0.4, ease: "power2.in" }, 3.5);
+
+      // SCENE 2: THE 7 AGENTS (3.8s -> 8.0s)
+      tl.set("#scene-2", { opacity: 1 }, 3.8);
+      tl.fromTo("#s2-badge", { opacity: 0, scale: 0.8 }, { opacity: 1, scale: 1, duration: 0.4, ease: "back.out(2)" }, 3.9);
+      tl.fromTo("#s2-title", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, 4.1);
+      tl.fromTo(".agents-grid .agent-card", 
+        { opacity: 0, y: 40, scale: 0.85 }, 
+        { opacity: 1, y: 0, scale: 1, duration: 0.5, stagger: 0.12, ease: "power3.out" }, 
+        4.3
+      );
+      tl.to("#scene-2", { opacity: 0, scale: 0.95, duration: 0.4, ease: "power2.in" }, 7.8);
+
+      // SCENE 3: MILLISECOND SYNC (8.0s -> 12.0s)
+      tl.set("#scene-3", { opacity: 1 }, 8.0);
+      tl.fromTo("#scene-3 .sync-container", { opacity: 0, scale: 0.9, y: 30 }, { opacity: 1, scale: 1, y: 0, duration: 0.6, ease: "power3.out" }, 8.1);
+      tl.fromTo("#s3-delta", { opacity: 0, scale: 0.5 }, { opacity: 1, scale: 1, duration: 0.4, ease: "back.out(2.5)" }, 8.7);
+      tl.fromTo("#s3-dubbed-box", { width: "880px", background: "rgba(220,38,38,0.35)", borderColor: "#f87171" }, { width: "700px", background: "rgba(0, 212, 170, 0.35)", borderColor: "#00f5c4", duration: 1.2, ease: "power3.inOut" }, 9.2);
+      tl.to("#scene-3", { opacity: 0, scale: 1.05, duration: 0.4, ease: "power2.in" }, 11.8);
+
+      // SCENE 4: QA SELF-REPAIR (12.0s -> 16.0s)
+      tl.set("#scene-4", { opacity: 1 }, 12.0);
+      tl.fromTo("#scene-4 .qa-container", { opacity: 0, scale: 0.9, y: 30 }, { opacity: 1, scale: 1, y: 0, duration: 0.5, ease: "power3.out" }, 12.1);
+      tl.fromTo("#qa-step-1", { opacity: 0, x: -30 }, { opacity: 1, x: 0, duration: 0.5, ease: "power3.out" }, 12.4);
+      tl.fromTo("#qa-step-2", { opacity: 0, y: 30, scale: 0.95 }, { opacity: 1, y: 0, scale: 1, duration: 0.6, ease: "back.out(1.5)" }, 13.5);
+      tl.to("#scene-4", { opacity: 0, scale: 0.95, duration: 0.4, ease: "power2.in" }, 15.8);
+
+      // SCENE 5: OUTRO & BRAND (16.0s -> 20.0s)
+      tl.set("#scene-5", { opacity: 1 }, 16.0);
+      tl.fromTo("#s5-badge", { opacity: 0, scale: 0.8 }, { opacity: 1, scale: 1, duration: 0.4, ease: "back.out(2)" }, 16.1);
+      tl.fromTo("#s5-brand", { opacity: 0, scale: 0.8 }, { opacity: 1, scale: 1, duration: 0.8, ease: "power4.out" }, 16.3);
+      tl.fromTo("#s5-tagline", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" }, 16.8);
+      tl.fromTo("#s5-pills .pill-feat", { opacity: 0, y: 20, scale: 0.9 }, { opacity: 1, y: 0, scale: 1, duration: 0.4, stagger: 0.1, ease: "back.out(1.4)" }, 17.2);
+      tl.fromTo("#s5-cta", { opacity: 0, scale: 0.9 }, { opacity: 1, scale: 1, duration: 0.5, ease: "back.out(2)" }, 17.8);
+
+      // Background pulse
+      tl.to("#orb-1", { scale: 1.25, duration: 10, repeat: 1, yoyo: true, ease: "sine.inOut" }, 0);
+      tl.to("#orb-2", { scale: 1.35, duration: 8, repeat: 2, yoyo: true, ease: "sine.inOut" }, 0);
+
+      window.__timelines["main"] = tl;
+      tl.seek(0);
+    </script>
+  </body>
+</html>
