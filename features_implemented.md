@@ -47,7 +47,7 @@ This document tracks the current functionality and implementation status of LOCA
 
 ### ASR Speech Transcription
 - **Status**: Implemented
-- **Details**: Uses `faster-whisper` (CTranslate2) with Silero VAD filtering to generate timestamped speech segments. Features CUDA 12 dynamic library loading support via `LD_LIBRARY_PATH` (`nvidia-cublas-cu12`, `nvidia-cudnn-cu12`) with automatic self-healing fallback to CPU (`int8`) inference upon missing `.so` libraries or VRAM exhaustion.
+- **Details**: Standardized on `faster-whisper` `medium` (int8 CTranslate2) with Silero VAD filtering to generate accurate timestamped speech segments within a strict 4GB VRAM GPU footprint. Features CUDA 12 dynamic library loading support via `LD_LIBRARY_PATH` (`nvidia-cublas-cu12`, `nvidia-cudnn-cu12`) with automatic self-healing fallback to CPU (`int8`) inference upon missing `.so` libraries or VRAM exhaustion.
 - **Modules**: `backend/app/engine/stages/transcription.py`, `backend/Dockerfile`
 - **Verification**: `backend/tests/test_cuda_fallback_and_preview.py`
 

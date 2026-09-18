@@ -33,7 +33,7 @@ export default function NewRunPage() {
   const [useImportPath, setUseImportPath] = useState(false);
   const [activeIngestionTab, setActiveIngestionTab] = useState<'setup' | 'preview'>('setup');
   const [selectedMode, setSelectedMode] = useState<'A' | 'B' | 'C'>('A');
-  const [whisperModel, setWhisperModel] = useState<string>('large-v3');
+  const [whisperModel, setWhisperModel] = useState<string>('medium');
   const [subtitleOnly, setSubtitleOnly] = useState(false);
   const [useDemucs, setUseDemucs] = useState(true);
   const [sourceLang, setSourceLang] = useState('es');
@@ -80,15 +80,15 @@ export default function NewRunPage() {
   const handleModeChange = (modeId: 'A' | 'B' | 'C') => {
     setSelectedMode(modeId);
     if (modeId === 'A') {
-      setWhisperModel('large-v3');
+      setWhisperModel('medium');
       setSubtitleOnly(false);
       setUseDemucs(true);
     } else if (modeId === 'B') {
-      setWhisperModel('turbo');
+      setWhisperModel('medium');
       setSubtitleOnly(false);
       setUseDemucs(true);
     } else if (modeId === 'C') {
-      setWhisperModel('turbo');
+      setWhisperModel('medium');
       setSubtitleOnly(true);
       setUseDemucs(false);
     }

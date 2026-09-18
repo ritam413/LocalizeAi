@@ -126,7 +126,7 @@ export function WorkbenchCard({ onRunLaunched }: WorkbenchCardProps) {
           target_languages: [targetLang],
           subtitle_only: !addSubtitles && projectMode === 'C',
           use_demucs: projectMode !== 'C',
-          whisper_model: projectMode === 'A' ? 'large-v3' : 'turbo',
+          whisper_model: projectMode === 'A' ? 'medium' : 'medium',
         }),
       });
 

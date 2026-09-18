@@ -61,4 +61,5 @@ The complete LOCALIZE autonomous post-production crew architecture is fully impl
 - **ADR-004**: Vitest for frontend & contract tests, Pytest for backend unit/integration tests (`/tdd`).
 - **ADR-005**: Multi-stage standalone Next.js container build and Python 3.11 slim backend container with FFmpeg & PyTorch for production reproducibility.
 - **ADR-006**: High-contrast, WCAG 2.1 AA/AAA compliant color pairings for all UI status indicators, eliminating unreadable dark-on-vibrant text and stabilizing layout counters with `tabular-nums`.
+- **ADR-007**: Standardize Speech Recognition on Faster-Whisper `medium` (int8) across all runs and UI modes instead of Whisper Large to ensure strict 4GB VRAM hardware safety, fast inference speeds, and reliable local processing without CUDA OOM crashes.
 

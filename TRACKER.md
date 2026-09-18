@@ -32,6 +32,59 @@ Last updated: 2026-09-06 by antigravity
 | **TICKET-17** | Post-QA Acoustic Master Mixdown & Sidechain Bus Integration | Completed | Pytest (4/4 Passed) | Yes | Wires AcousticMasteringEngine post-QA |
 | **TICKET-18** | Pluggable Speaker Diarization Adapter & Voiceprint Mapping | Completed | Pytest + Vitest (All Passed) | No | Pluggable acoustic & heuristic diarization |
 | **TICKET-19** | Broadcast Video Multiplexing & Studio Deliverables Exporter | Completed | Pytest (All Passed) | Yes | Packages release MP4, stems, & subtitles |
+## 2026-09-18 — Standardize Speech Recognition on Faster-Whisper Medium
+
+### Objective
+Deprecate Whisper Large across all runs and UI ingestion modes in favor of Faster-Whisper `medium` (int8) to ensure predictable latency, lower memory pressure, and strict 4GB VRAM safety on Pascal GPUs (GTX 1050 Ti) and local execution without CUDA OOM crashes.
+
+### Changes Made
+- Updated `backend/app/engine/stages/transcription.py` setting default `MODEL_SIZE = "medium"` and normalizing fallback requests to `medium`.
+- Updated `frontend/app/runs/new/page.tsx` setting default `whisperModel` state to `'medium'` and mode selection handlers to use `'medium'`.
+- Updated `frontend/components/studio/WorkbenchCard.tsx` to launch runs with `whisper_model: 'medium'`.
+- Updated `CONTEXT.md` / `context.md` adding **ADR-007** (Whisper Medium standardization).
+- Updated `features_implemented.md` reflecting `faster-whisper medium (int8)` as the project's standard ASR engine.
+
+### Files Changed
+- `backend/app/engine/stages/transcription.py`
+- `frontend/app/runs/new/page.tsx`
+- `frontend/components/studio/WorkbenchCard.tsx`
+- `CONTEXT.md` & `context.md`
+- `features_implemented.md`
+- `TRACKER.md`
+
+### Verification
+- Code inspected and validated for default resolution paths across backend and frontend.
+
+### Next Agent Instructions
+1. When configuring new pipeline presets or test mocks, use `whisper_model: 'medium'`.
+2. Do not reintroduce `large-v3` as a default without checking GPU memory headroom.
+
+---
+
+## 2026-09-18 — Repository Synchronization & Repomix Global Index Generation
+
+### Objective
+Pull latest commits from remote `origin/main`, synchronize local working branches, and generate the global Repomix codebase index (`repomix-output.xml`).
+
+### Changes Made
+- Fetched and merged latest upstream commits from `origin/main` (`88d0770`), bringing in all latest server setup guides, subtitle quality enhancement documentation, and stage pipelines.
+- Executed `npx --yes repomix --style xml --output repomix-output.xml` to pack all 1,126 repository files into a unified, token-counted XML global index (3,739,065 tokens).
+- Maintained tracking database files (`CONTEXT.md`, `features_implemented.md`, `TRACKER.md`).
+
+### Files Changed / Generated
+- `repomix-output.xml` (Generated / Updated)
+- `TRACKER.md` (Updated)
+
+### Verification
+- `git pull` & `git merge origin/main`: Clean merge with exit code 0.
+- `repomix`: Successfully packed 1,126 files with 0 security warnings.
+- Working tree clean.
+
+### Next Agent Instructions
+1. Use `repomix-output.xml` for full LLM repository context injection and global cross-module audits.
+2. Refer to `Docs/improve_quality_of_sub.md` and `Docs/changes_in_server_setup.md` for the upcoming subtitle post-processing stage work.
+
+---
 
 ## 2026-09-18 — Subtitle Quality Enhancement Pipeline & Native Mode Server Setup
 

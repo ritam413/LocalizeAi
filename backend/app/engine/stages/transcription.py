@@ -25,12 +25,12 @@ class TranscriptionStage(BaseStage):
       next GPU stage (e.g. TTS) can load without OOM on a 4 GB GTX 1050 Ti.
     """
 
-    MODEL_SIZE = "small"
+    MODEL_SIZE = "medium"
 
     @staticmethod
     def _normalize_model_name(raw_name: Optional[str]) -> str:
         if not raw_name:
-            return "small"
+            return "medium"
         name = str(raw_name).strip().lower()
         if "turbo" in name:
             return "turbo"
