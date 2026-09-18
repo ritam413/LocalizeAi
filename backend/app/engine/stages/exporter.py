@@ -16,6 +16,7 @@ import hashlib
 import json
 import os
 import shutil
+import subprocess
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Dict, Optional, Union
@@ -95,13 +96,10 @@ class BroadcastDeliverablesExporter:
         cmd_copy.extend(["-shortest", str(output_mp4_path)])
 
         try:
-            proc = await asyncio.create_subprocess_exec(
-                *cmd_copy,
-                stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE,
-            )
-            _, _ = await proc.communicate()
-            if proc.returncode == 0 and output_mp4_path.exists() and output_mp4_path.stat().st_size > 0:
+            def _mux_copy():
+                return subprocess.run(cmd_copy, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            res = await asyncio.to_thread(_mux_copy)
+            if res.returncode == 0 and output_mp4_path.exists() and output_mp4_path.stat().st_size > 0:
                 return output_mp4_path
         except Exception:
             pass
@@ -122,13 +120,10 @@ class BroadcastDeliverablesExporter:
             str(output_mp4_path),
         ]
         try:
-            proc = await asyncio.create_subprocess_exec(
-                *cmd_transcode,
-                stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE,
-            )
-            _, _ = await proc.communicate()
-            if proc.returncode == 0 and output_mp4_path.exists() and output_mp4_path.stat().st_size > 0:
+            def _mux_trans():
+                return subprocess.run(cmd_transcode, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            res = await asyncio.to_thread(_mux_trans)
+            if res.returncode == 0 and output_mp4_path.exists() and output_mp4_path.stat().st_size > 0:
                 return output_mp4_path
         except Exception:
             pass
@@ -311,15 +306,15 @@ class RemuxStage(BaseStage):
             await log_cb("WARNING", "Source video or mastered audio not found; skipping video multiplexing.")
 
         await progress_cb(70.0, "Generating deliverables manifest")
-        manifest = await self.exporter.package_deliverables(
+        manifest = await self.exporter.package_release(
             job_id=run_dir.name,
+            source_video_path=source_video,
+            mastered_audio_path=mastered_audio if mastered_audio.exists() else None,
+            dialogue_bus_path=dialogue_bus if dialogue_bus.exists() else None,
+            subtitles_srt_path=srt_path,
+            subtitles_vtt_path=vtt_path,
             output_dir=run_dir,
-            release_video_mp4=rc_video if rc_video.exists() else None,
-            mastered_soundtrack_wav=mastered_audio if mastered_audio.exists() else None,
-            dialogue_bus_wav=dialogue_bus if dialogue_bus.exists() else None,
-            subtitles_srt=srt_path,
-            subtitles_vtt=vtt_path,
-            metadata={"target_language": target_lang}
+            target_language=target_lang
         )
 
         artifacts = self._build_artifacts_list(manifest.manifest_path, rc_video, mastered_audio)

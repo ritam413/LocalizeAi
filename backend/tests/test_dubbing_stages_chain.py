@@ -241,7 +241,9 @@ async def test_end_to_end_dubbing_executor_mode_b(tmp_path):
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 
-    run_dir = Path("./storage/runs/test_dub_mode_b")
+    import uuid
+    test_id = f"test_dub_mode_b_{uuid.uuid4().hex[:8]}"
+    run_dir = Path(f"./storage/runs/{test_id}")
     run_dir.mkdir(parents=True, exist_ok=True)
 
     # Seed mock extracted audio & denoise artifacts
@@ -272,7 +274,7 @@ async def test_end_to_end_dubbing_executor_mode_b(tmp_path):
         await session.commit()
 
         run = Run(
-            id="test_dub_mode_b",
+            id=test_id,
             clip_id=clip.id,
             preset_id=preset.id,
             project_mode="B",
@@ -289,10 +291,10 @@ async def test_end_to_end_dubbing_executor_mode_b(tmp_path):
         await session.commit()
 
     executor = RunExecutor()
-    await executor.execute_run(run_id="test_dub_mode_b", force_resume=True)
+    await executor.execute_run(run_id=test_id, force_resume=True)
 
     async with AsyncSessionLocal() as session:
-        res = await session.execute(select(Run).where(Run.id == "test_dub_mode_b"))
+        res = await session.execute(select(Run).where(Run.id == test_id))
         completed_run = res.scalar_one_or_none()
         assert completed_run is not None
         assert completed_run.status == "completed"
@@ -302,4 +304,4 @@ async def test_end_to_end_dubbing_executor_mode_b(tmp_path):
     assert (run_dir / "aligned" / "aligned_seg_1.wav").exists()
     assert (run_dir / "dialogue_bus.wav").exists()
     assert (run_dir / "mastered_audio.wav").exists()
-    assert (run_dir / "deliverables.json").exists()
+    assert (run_dir / "deliverables" / "deliverables.json").exists() or (run_dir / "deliverables.json").exists()

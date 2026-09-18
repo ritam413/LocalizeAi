@@ -28,18 +28,21 @@ class ExtractionStage(BaseStage):
             import shutil
             ffmpeg_bin = shutil.which("ffmpeg") or "ffmpeg"
             cmd = [ffmpeg_bin, "-y", "-i", str(source_path), "-vn", "-acodec", "pcm_s16le", "-ar", "16000", "-ac", "1", str(output_wav)]
-            try:
-                proc = await asyncio.create_subprocess_exec(
-                    *cmd,
-                    stdout=asyncio.subprocess.PIPE,
-                    stderr=asyncio.subprocess.PIPE
+            def _run_ffmpeg_extract():
+                return subprocess.run(
+                    cmd,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    text=True
                 )
-                stdout, stderr = await proc.communicate()
-                if proc.returncode == 0:
+
+            try:
+                res = await asyncio.to_thread(_run_ffmpeg_extract)
+                if res.returncode == 0:
                     await log_cb("INFO", f"ffmpeg extraction successful -> {output_wav}")
                 else:
-                    err_msg = stderr.decode(errors="replace")[-400:].strip()
-                    await log_cb("WARNING", f"ffmpeg exited with code {proc.returncode}: {err_msg}")
+                    err_msg = (res.stderr or "")[-400:].strip()
+                    await log_cb("WARNING", f"ffmpeg exited with code {res.returncode}: {err_msg}")
                     self._generate_dummy_wav(output_wav)
             except Exception as e:
                 await log_cb("WARNING", f"ffmpeg exec error: {e}. Generating audio stub.")

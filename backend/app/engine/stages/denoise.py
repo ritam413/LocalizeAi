@@ -5,6 +5,7 @@ import sys
 import re
 import json
 import wave
+import subprocess
 from pathlib import Path
 from typing import Dict, Any, List, Optional, Tuple
 
@@ -252,103 +253,56 @@ class DenoiseStage(BaseStage):
 
         DEMUCS_TIMEOUT_S = 7200
 
+        loop = asyncio.get_running_loop()
+
         try:
-            proc = await asyncio.create_subprocess_exec(
-                *cmd,
-                stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE,
-            )
-            register_process(run_id, proc)
-
-            await log_cb(
-                "INFO",
-                "Demucs started — streaming output. First run downloads model weights (~320 MB), please wait…"
-            )
-
-            stderr_lines: list[str] = []
-
-            async def _stream_stderr() -> None:
-                assert proc.stderr is not None
+            def _run_demucs_thread():
+                proc = subprocess.Popen(
+                    cmd,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    text=True,
+                    bufsize=1,
+                )
+                register_process(run_id, proc)
+                stderr_lines = []
                 buffer = ""
-                last_reported_pct = -1
-                is_downloading = False
+                last_pct = -1
 
                 while True:
-                    chunk = await proc.stderr.read(256)
-                    if not chunk:
+                    char = proc.stderr.read(1)
+                    if not char and proc.poll() is not None:
                         break
-                    text = chunk.decode("utf-8", errors="replace")
-                    buffer += text
+                    if char in ('\r', '\n'):
+                        line = buffer.strip()
+                        buffer = ""
+                        if line:
+                            stderr_lines.append(line)
+                            match = re.search(r'(\d+)%\|', line)
+                            if match and progress_cb:
+                                pct = int(match.group(1))
+                                if pct != last_pct:
+                                    last_pct = pct
+                                    stage_pct = progress_base + (pct / 100.0 * progress_range)
+                                    asyncio.run_coroutine_threadsafe(
+                                        progress_cb(round(stage_pct, 1), f"HTDemucs ({device_flag.upper()}): {pct}%"),
+                                        loop
+                                    )
+                                    if pct % 25 == 0:
+                                        asyncio.run_coroutine_threadsafe(
+                                            log_cb("INFO", f"[demucs] {line}"),
+                                            loop
+                                        )
+                    else:
+                        buffer += char
 
-                    lines = re.split(r'[\r\n]+', buffer)
-                    buffer = lines.pop() if lines else ""
+                proc.wait(timeout=DEMUCS_TIMEOUT_S)
+                return proc.returncode, "\n".join(stderr_lines[-20:])
 
-                    for line in lines:
-                        line_str = line.strip()
-                        if not line_str:
-                            continue
+            returncode, tail_err = await asyncio.to_thread(_run_demucs_thread)
 
-                        stderr_lines.append(line_str)
-                        line_lower = line_str.lower()
-                        if "download" in line_lower or "downloading" in line_lower:
-                            is_downloading = True
-                        elif "separating" in line_lower or "it/s" in line_lower or "selected track" in line_lower:
-                            is_downloading = False
-
-                        match = re.search(r'(\d+)%\|', line_str)
-                        if match and progress_cb:
-                            pct = int(match.group(1))
-                            if is_downloading and ("mb/s" in line_lower or "320m" in line_lower or "download" in line_lower):
-                                stage_pct = progress_base + (pct * 0.05)
-                                if pct != last_reported_pct:
-                                    last_reported_pct = pct
-                                    await progress_cb(round(stage_pct, 1), f"Downloading HTDemucs model ({pct}%)")
-                            else:
-                                stage_pct = progress_base + (pct / 100.0 * progress_range)
-                                if pct != last_reported_pct:
-                                    last_reported_pct = pct
-                                    await progress_cb(round(stage_pct, 1), f"Running HTDemucs on {device_flag.upper()} ({pct}%)")
-
-                        level = "INFO" if any(
-                            kw in line_lower for kw in ("download", "%|", "separating", "model", "loading", "track")
-                        ) else "DEBUG"
-                        await log_cb(level, f"[demucs] {line_str}")
-
-                if buffer.strip():
-                    line_str = buffer.strip()
-                    stderr_lines.append(line_str)
-                    line_lower = line_str.lower()
-                    level = "INFO" if any(
-                        kw in line_lower for kw in ("download", "%|", "separating", "model", "loading", "track")
-                    ) else "DEBUG"
-                    await log_cb(level, f"[demucs] {line_str}")
-
-            async def _stream_stdout() -> None:
-                assert proc.stdout is not None
-                async for raw in proc.stdout:
-                    line = raw.decode(errors="replace").rstrip()
-                    if line:
-                        await log_cb("DEBUG", f"[demucs stdout] {line}")
-
-            try:
-                await asyncio.wait_for(
-                    asyncio.gather(_stream_stderr(), _stream_stdout()),
-                    timeout=DEMUCS_TIMEOUT_S,
-                )
-            except asyncio.TimeoutError:
-                proc.kill()
-                await log_cb(
-                    "INFO",
-                    f"Demucs process reached {DEMUCS_TIMEOUT_S // 3600}-hour timeout. "
-                    "Terminating and switching to ffmpeg fallback."
-                )
-                return False
-
-            await proc.wait()
-
-            if proc.returncode != 0:
-                tail = "\n".join(stderr_lines[-10:])
-                await log_cb("INFO", f"Demucs exit code {proc.returncode}:\n{tail}")
+            if returncode != 0:
+                await log_cb("INFO", f"Demucs exit code {returncode}:\n{tail_err}")
                 return False
 
             if progress_cb:
@@ -408,14 +362,12 @@ class DenoiseStage(BaseStage):
             "-f", "null", "-",
         ]
 
+        def _run_silence():
+            return subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, text=True)
+
         try:
-            proc = await asyncio.create_subprocess_exec(
-                *cmd,
-                stdout=asyncio.subprocess.DEVNULL,
-                stderr=asyncio.subprocess.PIPE,
-            )
-            _, stderr = await asyncio.wait_for(proc.communicate(), timeout=120)
-            output = stderr.decode("utf-8", errors="replace")
+            res = await asyncio.to_thread(_run_silence)
+            output = res.stderr or ""
         except Exception as exc:
             await log_cb("WARNING", f"silencedetect failed ({exc}), falling back to fixed chunk cuts.")
             return self._fixed_split_points(duration)
@@ -477,14 +429,13 @@ class DenoiseStage(BaseStage):
             "-ac", "2",
             str(out_path),
         ]
-        proc = await asyncio.create_subprocess_exec(
-            *cmd,
-            stdout=asyncio.subprocess.DEVNULL,
-            stderr=asyncio.subprocess.PIPE,
-        )
-        _, stderr = await proc.communicate()
-        if proc.returncode != 0:
-            await log_cb("WARNING", f"ffmpeg segment cut error: {stderr.decode(errors='replace')[-200:]}")
+        def _cut():
+            return subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, text=True)
+
+        res = await asyncio.to_thread(_cut)
+        if res.returncode != 0:
+            err_text = (res.stderr or "")[-200:]
+            await log_cb("WARNING", f"ffmpeg segment cut error: {err_text}")
 
     async def _ffmpeg_concat_wavs(
         self,
@@ -518,19 +469,18 @@ class DenoiseStage(BaseStage):
             str(abs_out),
         ]
 
-        proc = await asyncio.create_subprocess_exec(
-            *cmd,
-            stdout=asyncio.subprocess.DEVNULL,
-            stderr=asyncio.subprocess.PIPE,
-        )
-        _, stderr = await proc.communicate()
+        def _concat():
+            return subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, text=True)
+
+        res = await asyncio.to_thread(_concat)
         try:
             list_file.unlink()
         except Exception:
             pass
 
-        if proc.returncode != 0:
-            await log_cb("WARNING", f"ffmpeg concat error: {stderr.decode(errors='replace')[-200:]}")
+        if res.returncode != 0:
+            err_text = (res.stderr or "")[-200:]
+            await log_cb("WARNING", f"ffmpeg concat error: {err_text}")
             return False
         return True
 
@@ -569,22 +519,19 @@ class DenoiseStage(BaseStage):
         await log_cb("INFO", f"ffmpeg fallback filter: {af_filter}")
         await progress_cb(30.0, "Applying ffmpeg speech-formant enhancement")
 
-        try:
-            proc = await asyncio.create_subprocess_exec(
-                *cmd,
-                stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE,
-            )
-            _, stderr = await proc.communicate()
+        def _fallback():
+            return subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
 
-            if proc.returncode == 0:
+        try:
+            res = await asyncio.to_thread(_fallback)
+            if res.returncode == 0:
                 shutil.copy(vocals_wav, background_wav)
                 await log_cb("INFO", f"ffmpeg fallback complete → {vocals_wav}")
                 await progress_cb(90.0, "ffmpeg denoising complete")
                 return True
 
-            err_text = stderr.decode(errors="replace")[-400:]
-            await log_cb("WARNING", f"ffmpeg returned code {proc.returncode}: {err_text}")
+            err_text = (res.stderr or "")[-400:]
+            await log_cb("WARNING", f"ffmpeg returned code {res.returncode}: {err_text}")
             return False
 
         except Exception as exc:
@@ -601,51 +548,43 @@ class DenoiseStage(BaseStage):
         Return audio duration in seconds via ffprobe.
         Falls back to reading WAV header directly if ffprobe is unavailable.
         """
-        try:
-            proc = await asyncio.create_subprocess_exec(
-                "ffprobe", "-v", "quiet",
-                "-print_format", "json",
-                "-show_format",
-                str(audio_path),
-                stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.DEVNULL,
-            )
-            stdout, _ = await proc.communicate()
-            if proc.returncode == 0:
-                info = json.loads(stdout.decode())
-                return float(info["format"]["duration"])
-        except Exception:
-            pass
+        def _probe():
+            try:
+                res = subprocess.run(
+                    ["ffprobe", "-v", "quiet", "-print_format", "json", "-show_format", str(audio_path)],
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.DEVNULL,
+                    text=True
+                )
+                if res.returncode == 0:
+                    info = json.loads(res.stdout)
+                    return float(info["format"]["duration"])
+            except Exception:
+                pass
 
-        # Fallback: read WAV header
-        try:
-            with wave.open(str(audio_path), "rb") as wf:
-                return wf.getnframes() / float(wf.getframerate())
-        except Exception:
-            return 0.0
+            try:
+                with wave.open(str(audio_path), "rb") as wf:
+                    return wf.getnframes() / float(wf.getframerate())
+            except Exception:
+                return 0.0
+
+        return await asyncio.to_thread(_probe)
 
     @staticmethod
     async def _detect_device(log_cb: LogCallback) -> str:
         """
         Returns 'cuda' if a CUDA-capable GPU is visible to PyTorch, otherwise 'cpu'.
-        Uses a tiny subprocess so we don't import torch in the main process before Whisper.
         """
-        try:
-            proc = await asyncio.create_subprocess_exec(
-                sys.executable, "-c",
-                "import torch; print('cuda' if torch.cuda.is_available() else 'cpu')",
-                stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE,
-            )
-            stdout, _ = await proc.communicate()
-            device = stdout.decode().strip()
-            if device in ("cuda", "cpu"):
-                await log_cb("INFO", f"Demucs device selected: {device}")
-                return device
-        except Exception:
-            pass
-        await log_cb("INFO", "Could not detect CUDA — defaulting to cpu for Demucs")
-        return "cpu"
+        def _check():
+            try:
+                import torch
+                return "cuda" if torch.cuda.is_available() else "cpu"
+            except Exception:
+                return "cpu"
+
+        device = await asyncio.to_thread(_check)
+        await log_cb("INFO", f"Demucs device selected: {device}")
+        return device
 
     @staticmethod
     def _build_result(vocals_wav: Path, background_wav: Path) -> Dict[str, Any]:
