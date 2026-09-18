@@ -33,21 +33,19 @@ Last updated: 2026-09-06 by antigravity
 | **TICKET-18** | Pluggable Speaker Diarization Adapter & Voiceprint Mapping | Completed | Pytest + Vitest (All Passed) | No | Pluggable acoustic & heuristic diarization |
 | **TICKET-19** | Broadcast Video Multiplexing & Studio Deliverables Exporter | Completed | Pytest (All Passed) | Yes | Packages release MP4, stems, & subtitles |
 
-## 2026-09-18 — Subtitle Quality Enhancement Pipeline (Faster-Whisper + Qwen2.5-3B + Vector DB RAG)
+## 2026-09-18 — Subtitle Quality Enhancement Pipeline & Native Mode Server Setup
 
 ### Objective
-Document hardware-optimized LLM post-processing strategy to clean, correct, and format Faster-Whisper ASR subtitles before translation and dubbing on consumer GPUs (GTX 1050 Ti 4GB VRAM), addressing 3B repetition loops and hallucination via Vector DB RAG grounding.
+Document hardware-optimized LLM post-processing strategy (Faster-Whisper + Qwen2.5-3B + Vector DB RAG + QLoRA Fine-Tuning) and establish Native Mode execution specifications for both Backend (`:8000`) and Ollama (`:11434`) on the host machine with direct GTX 1050 Ti GPU access.
 
 ### Changes Made
 - Conducted model evaluation and adversarial review of ~3B uncensored LLM options.
-- Created and updated `Docs/improve_quality_of_sub.md` with:
-  1. Full ASR $\rightarrow$ RAG/Vector DB $\rightarrow$ Qwen2.5-3B $\rightarrow$ TTS pipeline architecture.
-  2. Anti-hallucination and anti-repetition configuration (Modelfile with `repeat_penalty 1.22`, `temperature 0.70`, `repeat_last_n 128`).
-  3. Vector DB grounding architecture (domain glossary injection, scene memory, dynamic few-shot retrieval).
-  4. Sliding-window batch processing protocol (8–12 segments/batch).
+- Updated `Docs/improve_quality_of_sub.md` with full architecture, RAG grounding, and QLoRA fine-tuning guide.
+- Created `Docs/changes_in_server_setup.md` outlining Native Mode server setup, client endpoint readiness, and sequential VRAM safety protocols.
 
 ### Files Changed
 - `Docs/improve_quality_of_sub.md` (Updated)
+- `Docs/changes_in_server_setup.md` (Created)
 - `TRACKER.md` (Updated)
 
 ### Implementation Details

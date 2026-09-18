@@ -9,7 +9,7 @@ In media translation and automated dubbing pipelines (such as **LocalizeAi**), r
 4. **Sub-optimal Translation Quality:** Standard word-for-word machine translation sounds robotic, lacks idiomatic tone, and ignores timing constraints.
 
 ### The Solution
-Implement a post-processing stage using **Qwen2.5-3B** (specifically `qwen2.5-3b-instruct-abliterated` or `dphn/dolphin-qwen2.5:3b`) reinforced by **Vector DB (RAG) Grounding** and **Anti-Hallucination Sampling Parameters** running locally via Ollama / GGUF to refine, format, and translate Whisper-generated subtitles prior to TTS synthesis and dubbing.
+Implement a post-processing stage using **Qwen2.5-3B** (specifically `qwen2.5-3b-instruct-abliterated` or custom fine-tuned `qwen2.5-3b-cinematic`) reinforced by **Vector DB (RAG) Grounding** and **Anti-Hallucination Sampling Parameters** running locally via Ollama / GGUF to refine, format, and translate Whisper-generated subtitles prior to TTS synthesis and dubbing.
 
 ---
 
@@ -185,3 +185,100 @@ ollama run richardyoung/qwen2.5-3b-instruct-abliterated
 ollama create qwen-sub-cleaner -f Modelfile
 ollama run qwen-sub-cleaner
 ```
+
+---
+
+## 10. Fine-Tuning Qwen2.5-3B for Cinematic Subtitles & Story Translation (QLoRA)
+
+Fine-tuning permanently bakes cinematic phrasing, context awareness, and zero-hallucination output directly into the model's neural weights.
+
+### A. Dataset Sourcing & Preparation
+You can build a high-performance training dataset by combining:
+1. **Your existing 8,000-line Japanese $\rightarrow$ English dialogue dataset** (with scene/story context).
+2. **Scraped/downloaded subtitles from popular fanfiction, anime, drama, and movies** (e.g. `.srt` and `.ass` dialogue pairs).
+
+#### Optimal JSONL Training Schema (`dataset.jsonl`):
+Group lines into 3–6 turn mini-scenes so the model learns dialogue continuity:
+
+```json
+{
+  "conversations": [
+    {
+      "role": "system",
+      "content": "You are a professional cinematic localization engine. Translate the source subtitle dialogue into natural, expressive English matching character tone."
+    },
+    {
+      "role": "user",
+      "content": "Scene Context: Hiroshi is cooking breakfast in the kitchen while Yuri just woke up.\n[\n  {\"id\": 1, \"speaker\": \"Hiroshi\", \"text\": \"おい、朝飯できたぞ。\"},\n  {\"id\": 2, \"speaker\": \"Yuri\", \"text\": \"ん…今行く。今日大事な日なんでしょ？\"}\n]"
+    },
+    {
+      "role": "assistant",
+      "content": "[\n  {\"id\": 1, \"speaker\": \"Hiroshi\", \"text\": \"Hey, breakfast is ready.\"},\n  {\"id\": 2, \"speaker\": \"Yuri\", \"text\": \"Mmm... coming. Big day ahead, right?\"}\n]"
+    }
+  ]
+}
+```
+
+### B. Unsloth Fine-Tuning Script (Google Colab / Cloud GPU)
+
+```python
+# 1. Install Unsloth
+!pip install --no-deps "xformers<0.0.29" "trl<0.9.0" peft accelerate bitsandbytes
+!pip install "unsloth[colab-new] @ git+https://github.com/unslothai/unsloth.git"
+
+# 2. Load Model & Setup 4-bit QLoRA
+from unsloth import FastLanguageModel
+import torch
+
+model, tokenizer = FastLanguageModel.from_pretrained(
+    model_name = "unsloth/Qwen2.5-3B-Instruct",
+    max_seq_length = 2048,
+    load_in_4bit = True,
+)
+
+model = FastLanguageModel.get_peft_model(
+    model,
+    r = 16,
+    target_modules = ["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"],
+    lora_alpha = 16,
+    lora_dropout = 0,
+    bias = "none",
+)
+
+# 3. Load JSONL & Train
+from datasets import load_dataset
+from trl import SFTTrainer
+from transformers import TrainingArguments
+
+dataset = load_dataset("json", data_files="dataset.jsonl", split="train")
+
+trainer = SFTTrainer(
+    model = model,
+    tokenizer = tokenizer,
+    train_dataset = dataset,
+    dataset_text_field = "text",
+    max_seq_length = 2048,
+    args = TrainingArguments(
+        per_device_train_batch_size = 2,
+        gradient_accumulation_steps = 4,
+        warmup_steps = 10,
+        max_steps = 300,
+        learning_rate = 2e-4,
+        logging_steps = 10,
+        optim = "adamw_8bit",
+        output_dir = "outputs",
+    ),
+)
+trainer.train()
+
+# 4. Export Directly to GGUF (for GTX 1050 Ti)
+model.save_pretrained_gguf("qwen2.5-3b-cinematic", tokenizer, quantization_method = "q4_k_m")
+```
+
+### C. Training Privacy & Platform Comparison
+
+| Platform | Cost | Privacy / Safety Filters | Training Time (8,000 lines) |
+| :--- | :--- | :--- | :--- |
+| **Google Colab (T4 GPU)** | **100% Free** | Automated backend scans (malware/CSAM only). No human reads files. Ephemeral disk deleted upon disconnect. | **~15–20 minutes** |
+| **RunPod / Vast.ai (RTX 3090)** | **~$0.10** ($0.20/hr) | **100% Private root SSH.** Zero scans or content filters. Ideal for uncensored/NSFW datasets. | **~8–10 minutes** |
+| **Local PC (CPU + RAM)** | **Free** | **100% Offline.** Zero bytes leave your physical machine. | **~2–3 hours** |
