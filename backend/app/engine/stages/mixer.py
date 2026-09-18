@@ -10,6 +10,7 @@ from __future__ import annotations
 import asyncio
 import os
 import shutil
+import subprocess
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
@@ -35,15 +36,13 @@ class AcousticMasteringEngine:
 
     async def _run_command(self, cmd: List[str]) -> None:
         """Run an async subprocess command."""
-        proc = await asyncio.create_subprocess_exec(
-            *cmd,
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE,
-        )
-        stdout, stderr = await proc.communicate()
-        if proc.returncode != 0:
-            err_msg = stderr.decode(errors="replace") if stderr else "Unknown error"
-            raise RuntimeError(f"FFmpeg execution failed (exit code {proc.returncode}): {err_msg}")
+        def _exec():
+            return subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+
+        res = await asyncio.to_thread(_exec)
+        if res.returncode != 0:
+            err_msg = res.stderr or "Unknown error"
+            raise RuntimeError(f"FFmpeg execution failed (exit code {res.returncode}): {err_msg}")
 
     def build_composite_dialogue_filtergraph(
         self,

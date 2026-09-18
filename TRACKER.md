@@ -33,6 +33,35 @@ Last updated: 2026-09-06 by antigravity
 | **TICKET-18** | Pluggable Speaker Diarization Adapter & Voiceprint Mapping | Completed | Pytest + Vitest (All Passed) | No | Pluggable acoustic & heuristic diarization |
 | **TICKET-19** | Broadcast Video Multiplexing & Studio Deliverables Exporter | Completed | Pytest (All Passed) | Yes | Packages release MP4, stems, & subtitles |
 
+## 2026-09-18 — Windows FFmpeg/Demucs Subprocess & Real-time Progress Streaming Fix
+
+### Objective
+Resolve the issue where stages failed on Windows due to `asyncio.create_subprocess_exec` event loop incompatibilities and provide real-time percentage streaming during long Demucs neural separation tasks.
+
+### Changes Made
+1. **ExtractionStage Windows Fix** (`backend/app/engine/stages/extraction.py`):
+   - Replaced `asyncio.create_subprocess_exec` with `asyncio.to_thread(subprocess.run)` to ensure Windows FFmpeg processes execute reliably.
+2. **DenoiseStage Thread-safe Execution & Real-time Streaming** (`backend/app/engine/stages/denoise.py`):
+   - Replaced all `asyncio.create_subprocess_exec` calls with `asyncio.to_thread(subprocess.Popen/run)`.
+   - Added character-by-character `stderr` streaming with `asyncio.run_coroutine_threadsafe` so Demucs progress bar percentages are pushed live to the UI WebSocket instead of stalling at 5%.
+3. **Mixer, Exporter, and DurationAlign Stages** (`mixer.py`, `exporter.py`, `duration_align.py`):
+   - Updated all subprocess execution pipelines to use `asyncio.to_thread(subprocess.run)`.
+   - Fixed `RemuxStage.execute` in `exporter.py` to invoke `package_release` with exact keyword signatures.
+4. **Absolute Run Directory Resolution** (`backend/app/engine/executor.py`):
+   - Fixed `run_dir` to always resolve to `settings.STORAGE_DIR / "runs" / run_id`.
+5. **Frontend Dynamic Stage Timeline Resolution** (`frontend/app/runs/[id]/page.tsx`):
+   - Replaced static 4-element `stagesList` with dynamic `useMemo` resolving `frozen_stage_config_json.stages` (renders all 8 stages for dubbing runs and 4 stages for subtitle-only runs).
+6. **Manual Stage Pause Action** (`frontend/app/runs/[id]/page.tsx`):
+   - Added interactive `[Pause]` button to running stage cards, reusing existing `handleCancel` cancellation endpoint while preserving single-stage and completed `[Rerun]` actions.
+
+### Verification
+- Full test suite run (`.\.venv\Scripts\python -m pytest backend/tests/ -v`): **82 / 82 tests passed** (0 failures).
+- Verified Demucs chunk splitting and progress streaming on Windows.
+- Verified end-to-end Mode B dubbing pipeline execution (`test_end_to_end_dubbing_executor_mode_b` passed).
+- Verified dynamic stage array resolution across Mode A, B, and C runs.
+
+---
+
 ## 2026-09-18 — Subtitle Quality Enhancement Pipeline & Native Mode Server Setup
 
 ### Objective

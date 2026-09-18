@@ -1,5 +1,6 @@
 import asyncio
 import shutil
+import subprocess
 from pathlib import Path
 from typing import Dict, Any, List, Tuple
 from app.engine.stage import BaseStage, ProgressCallback, LogCallback
@@ -24,12 +25,9 @@ class DurationAlignStage(BaseStage):
             "-c:a", "pcm_s16le",
             str(dest_path)
         ]
-        proc = await asyncio.create_subprocess_exec(
-            *cmd,
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE
-        )
-        await proc.communicate()
+        def _run():
+            return subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        await asyncio.to_thread(_run)
 
     async def _align_single_stem(
         self,

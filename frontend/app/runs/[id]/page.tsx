@@ -3,7 +3,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { Play, CheckCircle2, AlertCircle, RefreshCw, Terminal, Subtitles, Download, Clock, Cpu, XCircle, Sparkles, Film } from 'lucide-react';
+import { Play, Pause, CheckCircle2, AlertCircle, RefreshCw, Terminal, Subtitles, Download, Clock, Cpu, XCircle, Sparkles, Film } from 'lucide-react';
 import { CrewStatus } from '../../../components/studio/CrewStatus';
 import { AgentSequenceTrack } from '../../../components/studio/AgentSequenceTrack';
 import { ProducerBoard } from '../../../components/studio/ProducerBoard';
@@ -260,7 +260,20 @@ export default function RunDashboardPage() {
   };
 
 
-  const stagesList = ['extraction', 'denoise', 'transcription', 'translation'];
+  const stagesList: string[] = React.useMemo(() => {
+    if (!runData) return ['extraction', 'denoise', 'transcription', 'translation'];
+    try {
+      if (runData.frozen_stage_config_json) {
+        const cfg = JSON.parse(runData.frozen_stage_config_json);
+        if (Array.isArray(cfg.stages) && cfg.stages.length > 0) return cfg.stages;
+      }
+    } catch {
+      // fallback
+    }
+    return runData.subtitle_only
+      ? ['extraction', 'denoise', 'transcription', 'translation']
+      : ['extraction', 'denoise', 'transcription', 'translation', 'tts', 'duration_align', 'remix', 'remux'];
+  }, [runData]);
 
   if (!runData) {
     return <StudioConsoleSkeleton />;
@@ -547,7 +560,7 @@ export default function RunDashboardPage() {
               {stagesList.map((stageName, index) => {
                 const status = getStageStatus(stageName);
                 const pct = getStageProgress(stageName);
-                const isGpu = stageName === 'transcription' || stageName === 'translation';
+                const isGpu = stageName === 'denoise' || stageName === 'transcription' || stageName === 'translation';
 
                 return (
                   <div
@@ -609,10 +622,20 @@ export default function RunDashboardPage() {
                       </span>
 
                       {status === 'running' ? (
-                        <span className="flex items-center space-x-1 text-[#1a1a1a] text-[11px] font-bold">
-                          <RefreshCw className="w-3 h-3 animate-spin" />
-                          <span>Running</span>
-                        </span>
+                        <div className="flex items-center space-x-2">
+                          <span className="flex items-center space-x-1 text-[#1a1a1a] text-[11px] font-bold">
+                            <RefreshCw className="w-3 h-3 animate-spin" />
+                            <span>Running</span>
+                          </span>
+                          <button
+                            onClick={handleCancel}
+                            className="flex items-center space-x-1 px-2 py-0.5 rounded-full bg-[#fdf3fe] hover:bg-[#fbd0f5] text-[#7248ea] border border-[#e261e5] text-[10.5px] font-bold transition-all active:scale-[0.97] cursor-pointer"
+                            title={`Pause running ${stageName} stage`}
+                          >
+                            <Pause className="w-3 h-3 fill-current" />
+                            <span>Pause</span>
+                          </button>
+                        </div>
                       ) : (status === 'pending' || status === 'cancelled') ? (
                         <button
                           onClick={() => handleRunSingleStage(stageName)}

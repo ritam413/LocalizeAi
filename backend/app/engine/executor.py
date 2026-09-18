@@ -9,6 +9,7 @@ from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload
 from sqlalchemy.future import select
 
+from app.config import settings
 from app.db.database import AsyncSessionLocal
 from app.db.models import Run, StageRun, Artifact, Segment
 from app.engine.gpu_lock import gpu_lock
@@ -91,7 +92,7 @@ class RunExecutor:
             stage_names = [single_stage] if single_stage else all_stage_names
 
             # Setup working directory for artifacts
-            run_dir = Path(f"./storage/runs/{run_id}")
+            run_dir = settings.STORAGE_DIR / "runs" / run_id
             run_dir.mkdir(parents=True, exist_ok=True)
 
             current_artifacts: Dict[str, Any] = {
