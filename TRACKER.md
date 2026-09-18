@@ -32,7 +32,32 @@ Last updated: 2026-09-06 by antigravity
 | **TICKET-17** | Post-QA Acoustic Master Mixdown & Sidechain Bus Integration | Completed | Pytest (4/4 Passed) | Yes | Wires AcousticMasteringEngine post-QA |
 | **TICKET-18** | Pluggable Speaker Diarization Adapter & Voiceprint Mapping | Completed | Pytest + Vitest (All Passed) | No | Pluggable acoustic & heuristic diarization |
 | **TICKET-19** | Broadcast Video Multiplexing & Studio Deliverables Exporter | Completed | Pytest (All Passed) | Yes | Packages release MP4, stems, & subtitles |
-## 2026-09-18 — Standardize Speech Recognition on Faster-Whisper Medium
+
+## 2026-09-18 — GitHub Upstream Pull, Ort Merge & Automated Verification
+
+### Objective
+Pull latest commits from GitHub (`origin/main`), merge upstream improvements with our codebase using the `/resolving-merge-conflicts` protocol, and verify end-to-end test and build health.
+
+### Changes Made
+- Fetched and merged `origin/main` commit `4caf25f` into current branch `feat/predictive-stage-progress-and-log-sync`.
+- Integrated Windows asyncio subprocess fixes (`asyncio.to_thread(subprocess.run/Popen)` in `denoise.py`, `extraction.py`, `mixer.py`, `exporter.py`), dynamic stage timeline frontend rendering, and stage pause controls.
+- Synchronized Whisper `medium` normalization expectation in `backend/tests/test_demucs_silence_chunking.py`.
+- Verified all backend unit/integration tests and frontend build.
+
+### Files Changed / Merged
+- `backend/tests/test_demucs_silence_chunking.py`
+- `TRACKER.md`
+- Merged upstream changes: `Docs/RESEARCH_FRONTEND_BACKEND_DUBBING_INTEGRATION.md`, `backend/app/engine/executor.py`, `backend/app/engine/stages/denoise.py`, `backend/app/engine/stages/duration_align.py`, `backend/app/engine/stages/exporter.py`, `backend/app/engine/stages/extraction.py`, `backend/app/engine/stages/mixer.py`, `backend/tests/test_dubbing_stages_chain.py`, `frontend/app/runs/[id]/page.tsx`.
+
+### Verification
+- **Backend Pytest Suite**: 82/82 tests passed (`82 passed in 20.44s`).
+- **Frontend Next.js Build**: Completed with 0 errors (`npm --prefix frontend run build` exited with code 0).
+
+### Next Agent Instructions
+1. Run status and logs can be tested on `http://localhost:3000` and `http://localhost:8000`.
+2. Keep `whisper_model: 'medium'` as default across test fixtures and runs.
+
+---
 
 ### Objective
 Deprecate Whisper Large across all runs and UI ingestion modes in favor of Faster-Whisper `medium` (int8) to ensure predictable latency, lower memory pressure, and strict 4GB VRAM safety on Pascal GPUs (GTX 1050 Ti) and local execution without CUDA OOM crashes.

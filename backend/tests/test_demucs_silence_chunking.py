@@ -193,7 +193,7 @@ async def test_whisper_model_normalization_and_fight_scene_dedup():
     assert TranscriptionStage._normalize_model_name("medium") == "medium"
     assert TranscriptionStage._normalize_model_name("small") == "small"
     assert TranscriptionStage._normalize_model_name("whisper-large-v3") == "large-v3"
-    assert TranscriptionStage._normalize_model_name(None) == "small"
+    assert TranscriptionStage._normalize_model_name(None) == "medium"
 
     # Fight scene duplicate loop checks (10 identical segments during action noise)
     repeated_segments = [
