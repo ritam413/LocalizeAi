@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-[#0B0E14]">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LOCALIZE AI — Cinema Soundstage (Variant 2 with Spring Physics)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    :root {
+      --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+      --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+      --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+    }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+    .font-mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .tabular-nums {
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Hardware-Accelerated Tactile Button Spring Physics */
+    .btn-spring {
+      transition: transform 160ms var(--ease-out), background-color 160ms var(--ease-out), border-color 160ms var(--ease-out), color 160ms var(--ease-out), box-shadow 160ms var(--ease-out);
+      will-change: transform;
+    }
+    .btn-spring:active {
+      transform: scale(0.97);
+    }
+    @media (hover: hover) and (pointer: fine) {
+      .btn-spring:hover {
+        transform: translateY(-1px);
+      }
+    }
+
+    /* Sliding Active Segmented Control with GPU Transform */
+    .segmented-slider {
+      transition: transform 220ms var(--ease-out), width 220ms var(--ease-out);
+      will-change: transform, width;
+    }
+
+    /* Hardware-Accelerated Waveform Stem Transform */
+    .stem-bar {
+      transform-origin: left center;
+      transition: transform 250ms var(--ease-out);
+      will-change: transform;
+    }
+
+    /* Sidechain Ducking Pulse (GPU Composited) */
+    @keyframes sidechain-pulse {
+      0%, 100% { opacity: 0.85; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.008); filter: drop-shadow(0 0 8px rgba(0, 212, 170, 0.4)); }
+    }
+    .animate-sidechain {
+      animation: sidechain-pulse 2.2s var(--ease-in-out) infinite;
+      will-change: transform, opacity;
+    }
+
+    /* Accessibility: Respect Reduced Motion */
+    @media (prefers-reduced-motion: reduce) {
+      .btn-spring, .segmented-slider, .stem-bar, .animate-sidechain {
+        transition: opacity 160ms ease, background-color 160ms ease !important;
+        animation: none !important;
+        transform: none !important;
+      }
+    }
+  </style>
+</head>
+<body class="min-h-full bg-[#0B0E14] text-[#F1F5F9] antialiased p-4 sm:p-6 lg:p-8">
+
+  <div class="max-w-[1440px] mx-auto space-y-6">
+
+    <!-- VARIANT PICKER HUD (Taste-Skill Live Switcher) -->
+    <div class="bg-[#141A23] border border-[#232F3E] rounded-[16px] p-4 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-lg">
+      <div class="flex items-center gap-3">
+        <span class="px-2.5 py-1 rounded-[4px] bg-[#7248EA]/20 text-[#A78BFA] border border-[#7248EA]/40 font-mono text-[11px] font-bold">
+          TASTE-SKILL PROTOTYPE
+        </span>
+        <span class="text-xs text-[#94A3B8]">
+          Compare layout variations & cognitive ergonomics
+        </span>
+      </div>
+      <div class="flex items-center gap-2">
+        <a href="mockup.html" class="px-3.5 py-1.5 rounded-[4px] bg-[#1E293B] hover:bg-[#334155] text-xs font-semibold text-[#CBD5E1] transition-all btn-spring flex items-center gap-1.5">
+          <i data-lucide="sun" class="w-3.5 h-3.5"></i>
+          Variant 1 (Light Mintlify Cockpit)
+        </a>
+        <a href="mockup_v2.html" class="px-3.5 py-1.5 rounded-[4px] bg-[#2B7FFF] text-white text-xs font-bold transition-all shadow-sm btn-spring flex items-center gap-1.5">
+          <i data-lucide="film" class="w-3.5 h-3.5"></i>
+          Variant 2 (Cinema Soundstage Dark) · Active
+        </a>
+      </div>
+    </div>
+
+    <!-- SOUNDSTAGE HERO HEADER & DYNAMIC MODE SWITCHER -->
+    <header class="bg-[#141A23] border border-[#232F3E] rounded-[24px] p-6 shadow-xl flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+      <div class="space-y-1.5">
+        <div class="flex items-center gap-2">
+          <span class="px-2.5 py-0.5 rounded-[4px] bg-[#1E293B] text-[#38BDF8] border border-[#38BDF8]/30 font-mono text-[10px] font-bold uppercase tracking-wider">
+            CINEMA MASTER DCI 4K
+          </span>
+          <span class="px-2.5 py-0.5 rounded-[4px] bg-[#064E3B] text-[#34D399] border border-[#059669]/40 font-mono text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-[#10B981] animate-pulse"></span>
+            EBU R128 (-24 LUFS) COMPLIANT
+          </span>
+        </div>
+        <h1 class="text-2xl sm:text-3xl font-black text-white tracking-tight">
+          Bleach: Sennen Kessen-hen — Episode 41 (1080p Disney Plus)
+        </h1>
+        <div class="flex flex-wrap items-center gap-4 text-xs text-[#94A3B8]">
+          <span class="flex items-center gap-1.5"><i data-lucide="languages" class="w-4 h-4 text-[#7248EA]"></i> Localized: <strong class="text-white">Hindi (Madhur Studio Dub)</strong></span>
+          <span>•</span>
+          <span class="flex items-center gap-1.5"><i data-lucide="timer" class="w-4 h-4 text-[#38BDF8]"></i> Total Audio: <strong class="text-white">02:01.00 (35 Segments)</strong></span>
+          <span>•</span>
+          <span class="flex items-center gap-1.5"><i data-lucide="cpu" class="w-4 h-4 text-[#10B981]"></i> QA Continuity Score: <strong class="text-[#34D399]">98.0% (Passed)</strong></span>
+        </div>
+      </div>
+
+      <!-- DYNAMIC ENGINE MODE SELECTOR (Strict Zero-Pill, Hardware Accelerated) -->
+      <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+        <div class="flex items-center bg-[#0B0E14] p-1 rounded-[4px] border border-[#232F3E]" role="tablist" aria-label="Engine Mode">
+          <button id="mode-a-btn" onclick="setMode('A')" class="px-3 py-1.5 text-xs font-bold rounded-[4px] bg-[#2B7FFF] text-white shadow-sm btn-spring flex items-center gap-1.5">
+            <i data-lucide="clapperboard" class="w-3.5 h-3.5"></i>
+            <span>Mode A: Theatrical</span>
+          </button>
+          <button id="mode-b-btn" onclick="setMode('B')" class="px-3 py-1.5 text-xs font-semibold rounded-[4px] text-[#94A3B8] hover:text-white btn-spring flex items-center gap-1.5">
+            <i data-lucide="radio" class="w-3.5 h-3.5"></i>
+            <span>Mode B: Broadcast</span>
+          </button>
+          <button id="mode-c-btn" onclick="setMode('C')" class="px-3 py-1.5 text-xs font-semibold rounded-[4px] text-[#94A3B8] hover:text-white btn-spring flex items-center gap-1.5">
+            <i data-lucide="subtitles" class="w-3.5 h-3.5"></i>
+            <span>Mode C: Subtitles</span>
+          </button>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button class="px-4 py-2.5 rounded-[4px] bg-[#10B981] hover:bg-[#059669] text-white text-xs font-bold tracking-wider uppercase btn-spring flex items-center gap-1.5 shadow-lg shadow-emerald-950/40">
+            <i data-lucide="check-circle" class="w-4 h-4"></i>
+            <span>Approve & Export</span>
+          </button>
+          <button class="px-3.5 py-2.5 rounded-[4px] bg-[#1E293B] hover:bg-[#2A3B50] text-[#E2E8F0] border border-[#334155] text-xs font-semibold btn-spring flex items-center gap-1.5">
+            <i data-lucide="download" class="w-4 h-4 text-[#38BDF8]"></i>
+            <span>Master .zip</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- SECTION 1: MASTER CINEMA VIEWFINDER & MULTI-STEM TIMELINE (Soundstage Focal Point) -->
+    <div class="grid grid-cols-1 xl:grid-cols-12 gap-6">
+
+      <!-- 16:9 MASTER VIDEO VIEWFINDER (Col-Span-7) -->
+      <div class="xl:col-span-7 bg-[#070A0F] border border-[#232F3E] rounded-[24px] overflow-hidden flex flex-col justify-between shadow-2xl relative group">
+        <!-- Viewfinder Overlay Bar -->
+        <div class="p-4 bg-gradient-to-b from-black/80 to-transparent flex items-center justify-between text-xs font-mono text-[#94A3B8] z-10">
+          <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-[#EF4444] animate-pulse"></span>
+            <span class="text-white font-bold">REC PREVIEW</span>
+            <span class="text-gray-500">|</span>
+            <span>24.00 FPS DCI</span>
+          </div>
+          <div class="flex items-center gap-2 bg-black/60 px-2.5 py-1 rounded-[4px] border border-white/10">
+            <i data-lucide="volume-2" class="w-3.5 h-3.5 text-[#00D4AA]"></i>
+            <span class="text-white font-bold">5.1 CINEMA BUS</span>
+          </div>
+        </div>
+
+        <!-- Cinema Screen Area with Burn-In Subtitles Simulation -->
+        <div class="aspect-video w-full flex items-center justify-center relative bg-[#05070A]">
+          <div class="text-center space-y-3 p-6">
+            <div class="w-16 h-16 rounded-[4px] bg-[#141A23] border border-[#232F3E] flex items-center justify-center mx-auto text-[#38BDF8] shadow-inner">
+              <i data-lucide="film" class="w-8 h-8"></i>
+            </div>
+            <p class="text-xs font-mono text-[#64748B]">
+              Master Video Stream: AnimePahe_Bleach_41_1080p.mp4
+            </p>
+          </div>
+
+          <!-- Dynamic Soft Subtitle Burn-In Overlay -->
+          <div class="absolute bottom-6 inset-x-8 text-center">
+            <span class="inline-block bg-black/80 text-yellow-300 font-medium text-sm md:text-base px-4 py-1.5 rounded-[4px] border border-black/40 backdrop-blur-sm shadow-md">
+              "अगर तुम सचमुच सोल सोसाइटी को बचाना चाहते हो, तो पीछे मत हटना!"
+            </span>
+          </div>
+        </div>
+
+        <!-- Transport Scrubber Chassis with Hardware-Accelerated Progress -->
+        <div class="p-4 bg-[#0F141C] border-t border-[#1E293B] space-y-3">
+          <div class="w-full h-2 bg-[#1E293B] rounded-[2px] overflow-hidden relative cursor-pointer" onclick="handleScrub(event)">
+            <div id="video-scrubber-fill" class="h-full bg-gradient-to-r from-[#7248EA] via-[#38BDF8] to-[#00D4AA] w-full origin-left transition-transform duration-100" style="transform: scaleX(0.54);"></div>
+          </div>
+          <div class="flex items-center justify-between text-xs font-mono">
+            <div class="flex items-center gap-3">
+              <button id="play-pause-btn" onclick="togglePlay()" class="w-8 h-8 rounded-[4px] bg-[#2B7FFF] hover:bg-[#1E6BDB] text-white flex items-center justify-center btn-spring">
+                <i data-lucide="play" id="play-icon" class="w-4 h-4 fill-white"></i>
+              </button>
+              <button onclick="rewind10()" class="w-8 h-8 rounded-[4px] bg-[#1E293B] hover:bg-[#334155] text-[#CBD5E1] flex items-center justify-center btn-spring">
+                <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+              </button>
+              <span class="text-white font-bold tabular-nums" id="timecode-display">01:05.34</span>
+              <span class="text-[#64748B]">/ 02:01.00</span>
+            </div>
+
+            <!-- YouTube-Style Multi-Audio Switcher (Zero-Pill) -->
+            <div class="flex items-center gap-1.5 bg-[#141A23] p-1 rounded-[4px] border border-[#232F3E]" id="audio-track-container">
+              <button onclick="switchTrack('jp', this)" class="px-2.5 py-1 text-[11px] font-mono rounded-[4px] text-[#94A3B8] hover:text-white btn-spring">
+                Original JP
+              </button>
+              <button onclick="switchTrack('hi', this)" class="px-2.5 py-1 text-[11px] font-mono rounded-[4px] bg-[#7248EA] text-white font-bold shadow-sm btn-spring">
+                Hindi Dub (Active)
+              </button>
+              <button onclick="switchTrack('es', this)" class="px-2.5 py-1 text-[11px] font-mono rounded-[4px] text-[#94A3B8] hover:text-white btn-spring">
+                Spanish Dub
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ACOUSTIC STEM MIXER & SIDECHAIN MONITOR (Col-Span-5) -->
+      <div class="xl:col-span-5 bg-[#141A23] border border-[#232F3E] rounded-[24px] p-6 shadow-xl space-y-5 flex flex-col justify-between">
+        <div class="flex items-center justify-between border-b border-[#1E293B] pb-3">
+          <div class="flex items-center gap-2">
+            <i data-lucide="sliders" class="w-5 h-5 text-[#00D4AA]"></i>
+            <h2 class="text-xs font-bold uppercase tracking-wider text-white">
+              Acoustic Mastering & Sidechain Bus
+            </h2>
+          </div>
+          <span id="ducking-indicator" class="text-[10px] font-mono text-[#00D4AA] bg-[#00D4AA]/10 px-2 py-0.5 rounded-[4px] border border-[#00D4AA]/30">
+            AUTO-DUCKING: -6.0 dB
+          </span>
+        </div>
+
+        <!-- 3 Audio Stem Channels with GPU transform-origin -->
+        <div class="space-y-3 font-mono text-xs" id="stem-channels-container">
+          <!-- Stem 1: Dialogue Dub -->
+          <div class="bg-[#0B0E14] border border-[#232F3E] rounded-[12px] p-3 space-y-2">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-[2px] bg-[#7248EA]"></span>
+                <span class="font-bold text-white">CH 1: Localized Dialogue (HI)</span>
+              </div>
+              <span class="text-[#A78BFA] text-[11px]">hi-IN-Madhur (48kHz)</span>
+            </div>
+            <div class="h-6 bg-[#141A23] rounded-[4px] p-1 flex items-center gap-0.5 overflow-hidden">
+              <div class="h-full bg-[#7248EA] stem-bar w-full" style="transform: scaleX(0.65);"></div>
+            </div>
+            <div class="flex justify-between text-[10px] text-[#64748B]">
+              <span>Gain: 0.0 dBFS</span>
+              <span>Clipping: 0.00% (Clean)</span>
+            </div>
+          </div>
+
+          <!-- Stem 2: Background Music & Sound Effects -->
+          <div class="bg-[#0B0E14] border border-[#232F3E] rounded-[12px] p-3 space-y-2">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-[2px] bg-[#00D4AA]"></span>
+                <span class="font-bold text-white">CH 2: M&E Background Stem</span>
+              </div>
+              <span class="text-[#34D399] text-[11px]">Demucs HTDemucs Separated</span>
+            </div>
+            <div class="h-6 bg-[#141A23] rounded-[4px] p-1 flex items-center gap-0.5 overflow-hidden">
+              <div class="h-full bg-[#00D4AA] stem-bar w-full animate-sidechain" style="transform: scaleX(0.45);"></div>
+            </div>
+            <div class="flex justify-between text-[10px] text-[#64748B]">
+              <span>Ducking: -6.0 dB during dialogue</span>
+              <span>Attack/Release: 20ms / 250ms</span>
+            </div>
+          </div>
+
+          <!-- Stem 3: Master Output Bus -->
+          <div class="bg-[#0B0E14] border border-[#10B981]/30 rounded-[12px] p-3 space-y-2">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-[2px] bg-[#10B981]"></span>
+                <span class="font-bold text-[#34D399]">MASTER: Final Composite Bus</span>
+              </div>
+              <span class="text-[#34D399] text-[11px] font-bold">-24.0 LUFS Target</span>
+            </div>
+            <div class="h-6 bg-[#141A23] rounded-[4px] p-1 flex items-center gap-0.5 overflow-hidden">
+              <div class="h-full bg-gradient-to-r from-[#7248EA] via-[#38BDF8] to-[#10B981] stem-bar w-full" style="transform: scaleX(0.88);"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="p-3 bg-[#0B0E14] rounded-[8px] border border-[#232F3E] text-xs text-[#94A3B8] flex items-center justify-between">
+          <span class="flex items-center gap-2">
+            <i data-lucide="shield-check" class="w-4 h-4 text-[#10B981]"></i>
+            Phonetic Lip Drift: <strong class="text-white">&lt; 14ms (Pass)</strong>
+          </span>
+          <span class="text-[#34D399] font-mono font-bold">100% READY</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- SECTION 2: 2-COLUMN BOTTOM GRID (QA DEFECT INSPECTOR & AUTONOMOUS REASONING GRAPH) -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+      <!-- LEFT: PRODUCER SIGN-OFF & DEFECT SELF-REPAIR (Col-Span-5) -->
+      <div class="lg:col-span-5 space-y-6">
+
+        <!-- CLOSED-LOOP SELF-REPAIR CARD -->
+        <div class="bg-[#141A23] border-2 border-[#D97706]/60 rounded-[20px] p-6 shadow-xl space-y-4">
+          <div class="flex items-center justify-between border-b border-[#232F3E] pb-3">
+            <div class="flex items-center gap-2">
+              <span class="px-2 py-0.5 rounded-[4px] bg-[#78350F] text-[#FDE68A] font-mono text-[10px] font-bold border border-[#D97706]">
+                TIMING OVERFLOW
+              </span>
+              <span class="text-xs font-mono text-[#94A3B8]">Scene: <strong>scene_07 @ 3.20s</strong></span>
+            </div>
+            <span class="px-2 py-0.5 rounded-[4px] bg-[#064E3B] text-[#34D399] font-mono text-[10px] font-bold border border-[#059669]">
+              SELF-REPAIR VERIFIED
+            </span>
+          </div>
+
+          <div class="space-y-2 text-xs">
+            <div>
+              <span class="text-[10px] font-mono text-[#94A3B8] uppercase block">QA Continuity Finding:</span>
+              <p class="font-semibold text-white mt-0.5">Synthesized dialogue exceeded target window by +1.40s during initial pass.</p>
+            </div>
+            <div class="p-3 bg-[#0B0E14] rounded-[4px] border border-[#232F3E]">
+              <span class="text-[10px] font-mono text-[#38BDF8] uppercase block">Automated Closed-Loop Remediation:</span>
+              <p class="text-[#E2E8F0] mt-0.5">Dispatched targeted retry to Sync Engineer: applied FFmpeg atempo 1.25x speed adjust.</p>
+            </div>
+          </div>
+
+          <div class="pt-2 border-t border-[#1E293B] flex items-center justify-between text-xs font-mono text-[#94A3B8]">
+            <span>Target: <strong class="text-white">sync_engineer</strong></span>
+            <span>Delta: <strong class="text-[#34D399]">0 syllable deficit</strong></span>
+          </div>
+        </div>
+
+        <!-- THE PRODUCER BOARD SUMMARY -->
+        <div class="bg-[#141A23] border border-[#232F3E] rounded-[20px] p-6 shadow-xl space-y-4">
+          <div class="flex items-center justify-between border-b border-[#1E293B] pb-3">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-white flex items-center gap-2">
+              <i data-lucide="award" class="w-4 h-4 text-[#7248EA]"></i>
+              The Producer Board
+            </h3>
+            <span class="text-[10px] font-mono text-[#34D399] bg-[#064E3B] px-2 py-0.5 rounded-[4px]">
+              RELEASE CERTIFIED
+            </span>
+          </div>
+
+          <div class="space-y-2 text-xs font-mono">
+            <div class="flex justify-between p-2 rounded-[4px] bg-[#0B0E14] border border-[#232F3E]">
+              <span class="text-[#94A3B8]">Continuity Score</span>
+              <span class="text-[#34D399] font-bold">98.0% (PASS)</span>
+            </div>
+            <div class="flex justify-between p-2 rounded-[4px] bg-[#0B0E14] border border-[#232F3E]">
+              <span class="text-[#94A3B8]">Subtitle CPS</span>
+              <span class="text-white">16.2 CPS (42 CPL Max)</span>
+            </div>
+            <div class="flex justify-between p-2 rounded-[4px] bg-[#0B0E14] border border-[#232F3E]">
+              <span class="text-[#94A3B8]">Gemini Reasoning</span>
+              <span class="text-white">2,410 tokens</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT: 6-AGENT PIPELINE CARDS & LIVE TELEMETRY STREAM (Col-Span-7) -->
+      <div class="lg:col-span-7 space-y-6">
+
+        <!-- 6-AGENT SEQUENCE CARDS (2x3 Grid in Dark Mode) -->
+        <div class="bg-[#141A23] border border-[#232F3E] rounded-[20px] p-6 shadow-xl space-y-4">
+          <div class="flex items-center justify-between border-b border-[#1E293B] pb-3">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-white flex items-center gap-2">
+              <i data-lucide="network" class="w-4 h-4 text-[#38BDF8]"></i>
+              Autonomous Multi-Agent Crew Roster
+            </h3>
+            <span id="crew-roster-count" class="text-[10px] font-mono text-[#94A3B8]">6 of 6 Completed</span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="crew-roster-grid">
+            <div class="p-3 bg-[#0B0E14] border border-[#232F3E] rounded-[8px] flex items-center justify-between">
+              <div>
+                <div class="text-[10px] font-mono text-[#7248EA]">AGENT 01</div>
+                <div class="font-bold text-xs text-white">Story Analyst</div>
+                <div class="text-[10px] text-[#64748B]">Demucs + Faster-Whisper</div>
+              </div>
+              <span class="px-2 py-0.5 rounded-[4px] bg-[#064E3B] text-[#34D399] font-mono text-[10px] font-bold">4.82s</span>
+            </div>
+
+            <div class="p-3 bg-[#0B0E14] border border-[#232F3E] rounded-[8px] flex items-center justify-between">
+              <div>
+                <div class="text-[10px] font-mono text-[#7248EA]">AGENT 02</div>
+                <div class="font-bold text-xs text-white">Localization Director</div>
+                <div class="text-[10px] text-[#64748B]">Isometric Syllables</div>
+              </div>
+              <span class="px-2 py-0.5 rounded-[4px] bg-[#064E3B] text-[#34D399] font-mono text-[10px] font-bold">5.91s</span>
+            </div>
+
+            <div class="p-3 bg-[#0B0E14] border border-[#232F3E] rounded-[8px] flex items-center justify-between">
+              <div>
+                <div class="text-[10px] font-mono text-[#7248EA]">AGENT 03</div>
+                <div class="font-bold text-xs text-white">Voice Director</div>
+                <div class="text-[10px] text-[#64748B]">Neural TTS Synthesis</div>
+              </div>
+              <span class="px-2 py-0.5 rounded-[4px] bg-[#064E3B] text-[#34D399] font-mono text-[10px] font-bold">6.84s</span>
+            </div>
+
+            <div class="p-3 bg-[#0B0E14] border border-[#D97706]/50 rounded-[8px] flex items-center justify-between">
+              <div>
+                <div class="text-[10px] font-mono text-[#F59E0B]">AGENT 04 (REPAIRED)</div>
+                <div class="font-bold text-xs text-white">Sync Engineer</div>
+                <div class="text-[10px] text-[#64748B]">Atempo 1.25x Adjust</div>
+              </div>
+              <span class="px-2 py-0.5 rounded-[4px] bg-[#78350F] text-[#FDE68A] font-mono text-[10px] font-bold">Target Retry</span>
+            </div>
+
+            <div class="p-3 bg-[#0B0E14] border border-[#232F3E] rounded-[8px] flex items-center justify-between">
+              <div>
+                <div class="text-[10px] font-mono text-[#7248EA]">AGENT 05</div>
+                <div class="font-bold text-xs text-white">Subtitle Director</div>
+                <div class="text-[10px] text-[#64748B]">Timed SRT / VTT Master</div>
+              </div>
+              <span class="px-2 py-0.5 rounded-[4px] bg-[#064E3B] text-[#34D399] font-mono text-[10px] font-bold">16.2 CPS</span>
+            </div>
+
+            <div class="p-3 bg-[#0B0E14] border border-[#10B981]/50 rounded-[8px] flex items-center justify-between">
+              <div>
+                <div class="text-[10px] font-mono text-[#10B981]">AGENT 06 (FINAL)</div>
+                <div class="font-bold text-xs text-white">QA Continuity Agent</div>
+                <div class="text-[10px] text-[#64748B]">Defect Scanner & Repair</div>
+              </div>
+              <span class="px-2 py-0.5 rounded-[4px] bg-[#064E3B] text-[#34D399] font-mono text-[10px] font-bold">98.0%</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION 6 LIVE TELEMETRY STREAM -->
+        <div class="bg-[#141A23] border border-[#232F3E] rounded-[20px] p-6 shadow-xl space-y-3">
+          <div class="flex items-center justify-between border-b border-[#1E293B] pb-2">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-white flex items-center gap-2">
+              <i data-lucide="terminal" class="w-4 h-4 text-[#38BDF8]"></i>
+              Live Agent Decision & Telemetry Stream (Section 6 Schema)
+            </h3>
+            <span class="text-[10px] font-mono text-[#94A3B8]">6 Events Logged</span>
+          </div>
+
+          <div class="space-y-2 font-mono text-xs max-h-48 overflow-y-auto pr-1">
+            <div class="p-2.5 rounded-[4px] bg-[#0B0E14] border border-[#232F3E] flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-[2px] bg-[#10B981]"></span>
+                <span class="font-bold text-white">[17:01:24] QA Continuity:</span>
+                <span class="text-[#94A3B8]">Release Candidate verified (Score: 98.0%, 0 defects remaining)</span>
+              </div>
+              <span class="text-[#64748B] text-[10px]">129ms</span>
+            </div>
+
+            <div class="p-2.5 rounded-[4px] bg-[#1A1408] border border-[#D97706]/40 flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-[2px] bg-[#F59E0B]"></span>
+                <span class="font-bold text-[#F59E0B]">[17:01:18] Sync Engineer:</span>
+                <span class="text-white">Applied atempo 1.25x speed adjust to segment #7</span>
+              </div>
+              <span class="text-[#F59E0B] text-[10px]">312ms</span>
+            </div>
+
+            <div class="p-2.5 rounded-[4px] bg-[#0B0E14] border border-[#232F3E] flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-[2px] bg-[#7248EA]"></span>
+                <span class="font-bold text-white">[17:01:05] Voice Director:</span>
+                <span class="text-[#94A3B8]">Synthesized 35 neural stems with hi-IN-MadhurNeural</span>
+              </div>
+              <span class="text-[#64748B] text-[10px]">6,840ms</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <script>
+    lucide.createIcons();
+
+    // DYNAMIC MODE SELECTOR WITH HARDWARE-ACCELERATED PHYSICS
+    function setMode(mode) {
+      const btnA = document.getElementById('mode-a-btn');
+      const btnB = document.getElementById('mode-b-btn');
+      const btnC = document.getElementById('mode-c-btn');
+      const duckingIndicator = document.getElementById('ducking-indicator');
+      const rosterCount = document.getElementById('crew-roster-count');
+
+      // Reset classes
+      [btnA, btnB, btnC].forEach(btn => {
+        btn.className = 'px-3 py-1.5 text-xs font-semibold rounded-[4px] text-[#94A3B8] hover:text-white btn-spring flex items-center gap-1.5';
+      });
+
+      if (mode === 'A') {
+        btnA.className = 'px-3 py-1.5 text-xs font-bold rounded-[4px] bg-[#2B7FFF] text-white shadow-sm btn-spring flex items-center gap-1.5';
+        duckingIndicator.innerText = 'AUTO-DUCKING: -6.0 dB';
+        rosterCount.innerText = '6 of 6 Completed';
+      } else if (mode === 'B') {
+        btnB.className = 'px-3 py-1.5 text-xs font-bold rounded-[4px] bg-[#2B7FFF] text-white shadow-sm btn-spring flex items-center gap-1.5';
+        duckingIndicator.innerText = 'AUTO-DUCKING: -6.0 dB (Auto)';
+        rosterCount.innerText = '8 Stages Registered';
+      } else if (mode === 'C') {
+        btnC.className = 'px-3 py-1.5 text-xs font-bold rounded-[4px] bg-[#2B7FFF] text-white shadow-sm btn-spring flex items-center gap-1.5';
+        duckingIndicator.innerText = 'ACTOR AUDIO: 100% PRESERVED';
+        rosterCount.innerText = '4 Stages (Subtitles Only)';
+      }
+      lucide.createIcons();
+    }
+
+    // AUDIO TRACK SWITCHER
+    function switchTrack(trackId, btnElement) {
+      const container = document.getElementById('audio-track-container');
+      const buttons = container.querySelectorAll('button');
+      buttons.forEach(b => {
+        b.className = 'px-2.5 py-1 text-[11px] font-mono rounded-[4px] text-[#94A3B8] hover:text-white btn-spring';
+      });
+      btnElement.className = 'px-2.5 py-1 text-[11px] font-mono rounded-[4px] bg-[#7248EA] text-white font-bold shadow-sm btn-spring';
+    }
+
+    // SCRUBBER
+    function handleScrub(event) {
+      const rect = event.currentTarget.getBoundingClientRect();
+      const clickX = event.clientX - rect.left;
+      const ratio = Math.max(0, Math.min(1, clickX / rect.width));
+      document.getElementById('video-scrubber-fill').style.transform = `scaleX(${ratio})`;
+      
+      const totalSec = 121; // 02:01.00
+      const currentSec = Math.floor(ratio * totalSec);
+      const mins = String(Math.floor(currentSec / 60)).padStart(2, '0');
+      const secs = String(currentSec % 60).padStart(2, '0');
+      document.getElementById('timecode-display').innerText = `${mins}:${secs}.00`;
+    }
+
+    // PLAY/PAUSE TOGGLE
+    let isPlaying = false;
+    let playInterval = null;
+    function togglePlay() {
+      isPlaying = !isPlaying;
+      const icon = document.getElementById('play-icon');
+      if (isPlaying) {
+        icon.setAttribute('data-lucide', 'pause');
+      } else {
+        icon.setAttribute('data-lucide', 'play');
+      }
+      lucide.createIcons();
+    }
+
+    function rewind10() {
+      document.getElementById('video-scrubber-fill').style.transform = `scaleX(0)`;
+      document.getElementById('timecode-display').innerText = `00:00.00`;
+    }
+  </script>
+</body>
+</html>

@@ -7,6 +7,7 @@ export * from './MultiAudioPlayer';
 export * from './ProducerBoard';
 export * from './QARepairCard';
 export * from './ReadinessGauge';
+export * from './ScriptQualityInspector';
 
 // Re-export studio-specific skeleton loaders
 export {
