@@ -1,8 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { CheckCircle2, ShieldCheck, Download, Sparkles, AlertCircle, FileText, Send, Flame } from 'lucide-react';
-import { TelemetrySummary } from '../../lib/telemetry';
+import { CheckCircle2, ShieldCheck, Download, Sparkles, FileText } from 'lucide-react';
 
 interface ProducerBoardProps {
   runId: string;
@@ -38,22 +37,22 @@ export const ProducerBoard: React.FC<ProducerBoardProps> = ({
   const isReady = readinessScore >= 85.0;
 
   return (
-    <div className="bg-white border border-[#dbd8e8] rounded-2xl p-6 flex flex-col justify-between gap-5 text-[#1a1a1a] font-sans shadow-xs">
+    <div className="bg-white border border-[#D0DFEE] rounded-[16px] p-5 flex flex-col justify-between gap-4 text-[#0F172A] font-sans shadow-sm">
       {/* Board Header */}
-      <div className="border-b border-[#f2f0f8] pb-3 flex items-center justify-between">
+      <div className="border-b border-[#F0F6FC] pb-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <ShieldCheck className="w-5 h-5 text-[#7248ea]" />
-          <h3 className="text-sm font-bold uppercase tracking-wider text-[#1a1a1a]">
+          <ShieldCheck className="w-5 h-5 text-[#7248EA]" />
+          <h3 className="text-sm font-bold uppercase tracking-wider text-[#0F172A]">
             The Producer Board
           </h3>
         </div>
         <span
-          className={`font-mono text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider border ${
+          className={`font-mono text-[10px] font-bold px-2.5 py-0.5 rounded-[4px] uppercase tracking-wider border ${
             isApproved
-              ? 'bg-[#f0f9eb] text-[#14804a] border-[#c2e7b0]'
+              ? 'bg-[#F0FDF4] text-[#15803D] border-[#BBF7D0]'
               : isReady
-              ? 'bg-[#f2eeff] text-[#7248ea] border-[#bd98ec]'
-              : 'bg-[#f8f9fa] text-[#575268] border-[#dbd8e8]'
+              ? 'bg-[#F0F6FC] text-[#2B7FFF] border-[#D0DFEE]'
+              : 'bg-[#F8FAFC] text-[#64748B] border-[#E2E8F0]'
           }`}
         >
           {isApproved ? 'RELEASE CERTIFIED' : isReady ? 'READY TO AIR' : 'EVALUATING'}
@@ -61,41 +60,41 @@ export const ProducerBoard: React.FC<ProducerBoardProps> = ({
       </div>
 
       {/* Metric Verdict Checklist */}
-      <div className="space-y-2 text-xs">
-        <div className="flex items-center justify-between p-2.5 bg-[#fbfbfd] rounded-xl border border-[#dbd8e8]">
-          <span className="text-[#575268] font-medium">Continuity Score</span>
-          <span className="font-mono font-bold text-[#1a1a1a] flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-[#14804a]" />
+      <div className="space-y-2 text-xs font-mono">
+        <div className="flex items-center justify-between p-2 rounded-[4px] bg-[#F0F6FC] border border-[#D0DFEE]">
+          <span className="text-[#64748B] font-sans font-medium">Continuity Score</span>
+          <span className="font-bold text-[#15803D] flex items-center gap-1.5 tabular-nums">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#15803D]" />
             {readinessScore.toFixed(1)}% (PASS)
           </span>
         </div>
 
-        <div className="flex items-center justify-between p-2.5 bg-[#fbfbfd] rounded-xl border border-[#dbd8e8]">
-          <span className="text-[#575268] font-medium">Phonetic Lip Drift</span>
-          <span className="font-mono font-bold text-[#1a1a1a] flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-[#14804a]" />
+        <div className="flex items-center justify-between p-2 rounded-[4px] bg-[#F0F6FC] border border-[#D0DFEE]">
+          <span className="text-[#64748B] font-sans font-medium">Phonetic Lip Drift</span>
+          <span className="font-bold text-[#15803D] flex items-center gap-1.5 tabular-nums">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#15803D]" />
             &lt; 18ms Max (EBU R128)
           </span>
         </div>
 
-        <div className="flex items-center justify-between p-2.5 bg-[#fbfbfd] rounded-xl border border-[#dbd8e8]">
-          <span className="text-[#575268] font-medium">Subtitle CPS Compliance</span>
-          <span className="font-mono font-bold text-[#1a1a1a] flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-[#14804a]" />
+        <div className="flex items-center justify-between p-2 rounded-[4px] bg-[#F0F6FC] border border-[#D0DFEE]">
+          <span className="text-[#64748B] font-sans font-medium">Subtitle CPS</span>
+          <span className="font-bold text-[#0F172A] flex items-center gap-1.5 tabular-nums">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#15803D]" />
             16.2 CPS (42 CPL Max)
           </span>
         </div>
 
-        <div className="flex items-center justify-between p-2.5 bg-[#fbfbfd] rounded-xl border border-[#dbd8e8]">
-          <span className="text-[#575268] font-medium">Reasoning Compute</span>
-          <span className="font-mono font-bold text-[#1a1a1a]">
-            {totalTokens.toLocaleString()} tok (Gemini 2.5)
+        <div className="flex items-center justify-between p-2 rounded-[4px] bg-[#F0F6FC] border border-[#D0DFEE]">
+          <span className="text-[#64748B] font-sans font-medium">Reasoning Compute</span>
+          <span className="font-bold text-[#0F172A] tabular-nums">
+            {totalTokens.toLocaleString()} tokens
           </span>
         </div>
 
-        <div className="flex items-center justify-between p-2.5 bg-[#fbfbfd] rounded-xl border border-[#dbd8e8]">
-          <span className="text-[#575268] font-medium">Self-Repair Loops</span>
-          <span className="font-mono font-bold text-[#1a1a1a]">
+        <div className="flex items-center justify-between p-2 rounded-[4px] bg-[#F0F6FC] border border-[#D0DFEE]">
+          <span className="text-[#64748B] font-sans font-medium">Self-Repair Loops</span>
+          <span className="font-bold text-[#0F172A] tabular-nums">
             {retryCount > 0 ? `${retryCount} Loop (Auto-Resolved)` : '0 Defects'}
           </span>
         </div>
@@ -103,16 +102,16 @@ export const ProducerBoard: React.FC<ProducerBoardProps> = ({
 
       {/* Production Summary Card */}
       <div
-        className={`p-3.5 rounded-xl text-xs leading-relaxed border-l-4 transition-all ${
+        className={`p-3 rounded-[6px] text-xs leading-relaxed border-l-4 transition-all ${
           isApproved
-            ? 'bg-[#f0f9eb] border-l-[#14804a] border border-[#c2e7b0] text-[#1a1a1a]'
-            : 'bg-[#f8f6ff] border-l-[#7248ea] border border-[#bd98ec]/40 text-[#1a1a1a]'
+            ? 'bg-[#F0FDF4] border-l-[#15803D] border border-[#BBF7D0] text-[#0F172A]'
+            : 'bg-[#F0F6FC] border-l-[#2B7FFF] border border-[#D0DFEE] text-[#0F172A]'
         }`}
       >
         <p className="font-medium">
           {isApproved ? (
             <>
-              <strong>Certified for Global Distribution.</strong> Spanish neural dubbing track conforms to Netflix Sound Delivery standards with zero acoustic clipping.
+              <strong>Certified for Global Distribution.</strong> Neural dubbing track conforms to Netflix Sound Delivery standards with zero acoustic clipping.
             </>
           ) : (
             <>
@@ -122,19 +121,19 @@ export const ProducerBoard: React.FC<ProducerBoardProps> = ({
         </p>
       </div>
 
-      {/* Producer Actions */}
+      {/* Producer Actions (Strict Zero-Pill 4px Button Radius) */}
       <div className="space-y-2 pt-1">
         {isApproved ? (
           <div className="flex flex-col gap-2">
-            <div className="w-full py-3 px-4 rounded-xl bg-[#14804a] text-white font-bold text-xs text-center border border-[#14804a] flex items-center justify-center gap-2 shadow-xs">
+            <div className="w-full py-2.5 px-4 rounded-[4px] bg-[#14804a] text-white font-bold text-xs text-center flex items-center justify-center gap-2 shadow-sm">
               <CheckCircle2 className="w-4 h-4" />
               <span>DISTRIBUTION APPROVED</span>
             </div>
             <a
               href={`/runs/${runId}/output`}
-              className="w-full py-2.5 px-4 rounded-xl bg-[#111827] text-white hover:bg-[#1f2937] font-bold text-xs text-center flex items-center justify-center gap-2 transition active:scale-[0.97]"
+              className="w-full py-2.5 px-4 rounded-[4px] bg-[#0F172A] text-white hover:bg-[#1E293B] font-bold text-xs text-center flex items-center justify-center gap-2 transition btn-spring shadow-sm"
             >
-              <Download className="w-3.5 h-3.5" />
+              <Download className="w-3.5 h-3.5 text-[#38BDF8]" />
               <span>Download Master Package (.zip)</span>
             </a>
           </div>
@@ -145,17 +144,17 @@ export const ProducerBoard: React.FC<ProducerBoardProps> = ({
               type="button"
               onClick={handleApprove}
               disabled={approving}
-              className="w-full py-3 px-4 rounded-xl bg-[#7248ea] hover:bg-[#6847ff] text-white font-bold text-xs shadow-xs flex items-center justify-center gap-2 transition active:scale-[0.97] cursor-pointer"
+              className="w-full py-2.5 px-4 rounded-[4px] bg-[#2B7FFF] hover:bg-[#1E6BDB] text-white font-bold text-xs shadow-sm flex items-center justify-center gap-2 transition btn-spring cursor-pointer"
             >
               <Sparkles className="w-4 h-4 fill-current" />
               <span>{approving ? 'CERTIFYING STEMS…' : 'APPROVE FOR DISTRIBUTION'}</span>
             </button>
             <button
               type="button"
-              onClick={() => alert('Dispatched manual review notice to Director Agent.')}
-              className="w-full py-2 px-4 rounded-xl bg-white hover:bg-[#f8f9fa] text-[#575268] hover:text-[#1a1a1a] font-bold text-xs border border-[#dbd8e8] flex items-center justify-center gap-1.5 transition active:scale-[0.97] cursor-pointer"
+              onClick={() => alert('Dispatched compliance report export to Director Agent.')}
+              className="w-full py-2 px-4 rounded-[4px] bg-white hover:bg-[#F0F6FC] text-[#64748B] hover:text-[#0F172A] font-bold text-xs border border-[#D0DFEE] flex items-center justify-center gap-1.5 transition btn-spring cursor-pointer"
             >
-              <FileText className="w-3.5 h-3.5" />
+              <FileText className="w-3.5 h-3.5 text-[#2B7FFF]" />
               <span>Export Compliance Audit Report</span>
             </button>
           </div>

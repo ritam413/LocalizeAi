@@ -33,6 +33,121 @@ Last updated: 2026-09-06 by antigravity
 | **TICKET-18** | Pluggable Speaker Diarization Adapter & Voiceprint Mapping | Completed | Pytest + Vitest (All Passed) | No | Pluggable acoustic & heuristic diarization |
 | **TICKET-19** | Broadcast Video Multiplexing & Studio Deliverables Exporter | Completed | Pytest (All Passed) | Yes | Packages release MP4, stems, & subtitles |
 
+## 2026-09-18 — 3-Part Master Console Architecture & Editorial Deck Implementation
+
+### Objective
+Implement the 3-Part Master Console Architecture approved in `implementation_plan.md` on the Studio Console workbench (`frontend/app/runs/[id]/page.tsx`):
+1. **Part 1: Linear Console** (Top Context Strip, Serpentine Agent Sequence Track with live timers and dynamic Mode A/B/C routing, and executive Producer Board with compliance metrics).
+2. **Part 2: Cinema Viewfinder & Demucs Acoustic Stem Mixer** (16:9 Viewfinder with soft subtitle burn-in overlay, YouTube-style audio switcher, and 3-stem acoustic mixer with $-6\text{dB}$ sidechain ducking envelope).
+3. **Part 3: Editorial Deck** (`ScriptQualityInspector` for source vs dub diff + syllable quota + proper noun lock, `QARepairCard` for closed-loop defect repair, and `DecisionFeed` telemetry stream).
+4. Enforce strict **Zero-Pill Geometry** (buttons: `rounded-[4px]`, cards: `rounded-[16px]`, containers: `rounded-[24px]`) and Light-Blue Mintlify palette (`#F0F6FC` canvas, `#FFFFFF` cards, `#D0DFEE` borders, `#2B7FFF` Signal Blue, `#7248EA` Studio Violet).
+
+### Changes Made
+1. **Script Quality Inspector (`frontend/components/studio/ScriptQualityInspector.tsx`)**:
+   - Built editorial review component showing localized script comparison, speaker avatar tags, character tone badges, syllable count match ($14/14$), and proper noun entity locking (`Claude Code`, `Supabase`).
+2. **Demucs Acoustic Stem Mixer (`frontend/components/studio/BeforeAfterPlayer.tsx`)**:
+   - Re-architected into a 3-stem acoustic mixer (Dialogue Stem, M&E Background Stem, Master Composite) with dynamic $-6\text{dB}$ auto-ducking animation, solo/mute toggles, and GPU `scaleX` waveform level indicators.
+3. **Producer Board & Sequence Track Geometry Overhaul**:
+   - Updated `ProducerBoard.tsx`, `AgentSequenceTrack.tsx`, and `QARepairCard.tsx` with zero-pill `rounded-[4px]` buttons/inputs and `.btn-spring` tactile feedback.
+   - Handled dynamic stage counts across Mode A (8 stages), Mode B (8 stages), and Mode C (4 stages).
+4. **Master Studio Workbench Integration (`frontend/app/runs/[id]/page.tsx`)**:
+   - Assembled the 3-part layout cleanly with responsive flex/grid wrappers, audio track switching (English Dubbed vs Japanese Original), soft subtitle burn-in overlays, and live telemetry feeds.
+5. **Interactive Prototypes & Styles**:
+   - Created `mockup.html` and `mockup_v2.html` featuring interactive mode switching, audio track toggles, and scrubbing.
+   - Updated `frontend/app/globals.css` with motion tokens (`.btn-spring`, `.stem-gpu-bar`, `.segmented-slider`, `--ease-out`) and reduced-motion fallback.
+
+### Files Changed / Created
+- `frontend/components/studio/ScriptQualityInspector.tsx` (Created)
+- `frontend/components/studio/BeforeAfterPlayer.tsx` (Modified)
+- `frontend/components/studio/AgentSequenceTrack.tsx` (Modified)
+- `frontend/components/studio/ProducerBoard.tsx` (Modified)
+- `frontend/components/studio/QARepairCard.tsx` (Modified)
+- `frontend/app/runs/[id]/page.tsx` (Modified)
+- `frontend/app/globals.css` (Modified)
+- `mockup.html` (Created)
+- `mockup_v2.html` (Created)
+- `tracker.md` (Modified)
+
+### Verification
+- `npx tsc --noEmit` passed with 0 errors.
+- `npm --prefix frontend test` executed: **19 / 19 test files passed (100 / 100 tests passed, 100%)**.
+- Next.js production build (`npm --prefix frontend run build`) passed with 0 errors across all 9 routes.
+
+### Current State
+- The Studio Console on `http://localhost:3000/runs/[id]` renders the 3-Part Master Console with zero-pill geometry, live acoustic stem mixer, script quality inspector, and QA defect resolution.
+
+### Next Agent Instructions
+1. Inspect `frontend/components/studio/` and `frontend/app/runs/[id]/page.tsx`.
+2. Ensure any new UI elements strictly follow zero-pill geometry (`rounded-[4px]` on buttons/inputs, `rounded-[16px]` on cards).
+
+---
+
+## 2026-09-18 — Hardware-Accelerated Spring Physics & Animation Gating (/find-animation-opportunities, /animate)
+
+### Objective
+Identify genuine animation opportunities, gate them rigorously against Emil Kowalski's animation philosophy, and implement hardware-accelerated spring physics (`.btn-spring`, `will-change: transform`, `--ease-out: cubic-bezier(0.23, 1, 0.32, 1)`) and interruptible layout transitions across the Studio Console prototypes (`mockup.html`, `mockup_v2.html`) and Next.js global stylesheet (`frontend/app/globals.css`).
+
+### Changes Made
+1. **Animation Opportunity Gating (/find-animation-opportunities)**:
+   - Gated candidates through frequency, purpose, speed (<300ms), and function filters.
+   - Selected:
+     - Button Press Tactile Feedback (`:active { transform: scale(0.97); }` with `160ms var(--ease-out)`).
+     - Sliding Active Segmented Mode Selector (`transform: translateX(...)` with `220ms var(--ease-out)`).
+     - Demucs Waveform Stem Level Transitions (`transform-origin: left center` with GPU `scaleX`).
+     - Transport Bar Scrubber & Timecode Update (GPU `scaleX` without layout reflow).
+   - Rejected:
+     - Live Terminal Log Streaming / Auto-scroll (high-frequency, destroys readability).
+     - Telemetry Metric Counters (information-dense, creates visual noise).
+     - Agent Step Card Entrances (disrupts scanability during fast pipeline completion).
+2. **Implementation (/animate)**:
+   - Updated `frontend/app/globals.css` with `.btn-spring`, `.stem-gpu-bar`, `.segmented-slider`, and `@media (prefers-reduced-motion: reduce)`.
+   - Updated `mockup.html` and `mockup_v2.html` with interactive scrubbing (`handleScrub`), tactile press feedback, Mode A/B/C state transitions, and YouTube-style audio switching.
+3. **Verification**:
+   - `npm --prefix frontend test` executed: **19 / 19 test files passed (100 / 100 tests passed, 100%)**.
+
+### Files Changed
+- `frontend/app/globals.css`
+- `mockup_v2.html`
+- `mockup.html`
+- `tracker.md`
+
+### Next Agent Instructions
+- Use `.btn-spring` on all interactive buttons and action triggers.
+- For all waveform or volume bar level adjustments, use `transform: scaleX(...)` with `transform-origin: left center` to skip layout and paint phases.
+
+---
+
+## 2026-09-18 — Brand Tokens, Curated Color Palette & Zero-Pill Geometry Injection (/awesome_design, /taste-skill)
+
+### Objective
+Inject brand tokens, curated color palette (Light-Blue Mintlify & Studio Violet), typography scales, and strict zero-pill geometry into `DESIGN.md`, `frontend/tailwind.config.ts`, and `frontend/app/globals.css`.
+
+### Changes Made
+1. **Canonical `DESIGN.md` Updated**:
+   - Integrated curated Mintlify/Light-Blue base (`#F0F6FC`), card surface (`#FFFFFF` with `#D0DFEE` border), Signal Blue (`#2B7FFF`), Studio Violet (`#7248EA`), and Secondary Mint (`#00D4AA`).
+   - Enforced strict **Zero-Pill Geometry**: 4px button/input radius (`rounded-[4px]`), 16px card radius (`rounded-[16px]`), and 24px container radius (`rounded-[24px]`).
+   - Formulated typography scales (Display H1 40px, Section H2 30px, Subhead H3 20px, Card Title 16px, Body 14px/13px, Caption 12px font-mono) with `tabular-nums`.
+2. **Tailwind Configuration (`frontend/tailwind.config.ts`)**:
+   - Registered color tokens (`canvas`, `surface`, `surfaceBorder`, `ink`, `signalBlue`, `studio.*`, `qa.*`).
+   - Registered zero-pill geometry radius tokens (`btn: '4px'`, `tag: '4px'`, `card: '16px'`, `container: '24px'`).
+3. **Global Stylesheets (`frontend/app/globals.css`)**:
+   - Synchronized CSS variables for palette, shadows, and zero-pill geometry.
+
+### Files Changed
+- `DESIGN.md` (Modified)
+- `frontend/tailwind.config.ts` (Modified)
+- `frontend/app/globals.css` (Modified)
+- `tracker.md` (Modified)
+
+### Verification
+- `npm --prefix frontend test` executed: **19 / 19 test files passed (100 / 100 tests passed, 100%)**.
+
+### Next Agent Instructions
+- Ensure all newly created buttons strictly use `rounded-[4px]` or `rounded-btn` (no `rounded-full` on buttons).
+- Use `rounded-[16px]` for cards and `rounded-[24px]` for major view containers.
+
+---
+
 ## 2026-09-18 — Kokoro-82M TTS Architectural Report & Startup Directive (Priority 1)
 
 ### Objective

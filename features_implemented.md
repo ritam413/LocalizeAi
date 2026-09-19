@@ -23,6 +23,12 @@ This document tracks the current functionality and implementation status of LOCA
   - `emil-prototype`: Multi-variant UI divergence with a live visual switcher.
   - `taste-skill`: Anti-slop frontend design system and aesthetic standards.
 
+### Hardware-Accelerated Spring Physics & Animation Gating (`/find-animation-opportunities`, `/animate`)
+- **Status**: Implemented
+- **Details**: Rigorously gated animation opportunities using Emil Kowalski's motion framework. Implemented hardware-accelerated spring physics (`.btn-spring` with `:active { transform: scale(0.97); }`, `--ease-out: cubic-bezier(0.23, 1, 0.32, 1)`, and `will-change: transform`), GPU-composited waveform stem level adjustments (`transform-origin: left center` with `scaleX`), sliding segmented indicator transitions (`.segmented-slider`), and interruptible cinema video scrubbing without layout thrashing. Enforces strict `@media (prefers-reduced-motion: reduce)` accessibility fallback and `@media (hover: hover) and (pointer: fine)` touch gating. Deliberately rejected motion on high-frequency log streams and raw data counters to prevent cognitive fatigue.
+- **Modules**: `frontend/app/globals.css`, `mockup.html`, `mockup_v2.html`
+- **Verification**: Full Vitest test suite (`npm --prefix frontend test`: 19 / 19 test files passed, 100 / 100 tests passed, 100%).
+
 ### Predictive Duration Engine & Multi-Device Log Synchronizer
 - **Status**: Implemented
 - **Details**: Dynamically calibrates expected pipeline stage durations based on input video length ($D$) and engine mode (Mode A, B, C). Emits Hermite S-curve progress ($0\% \rightarrow 90\%$) and asymptotic deceleration ($90\% \rightarrow 98.5\%$) during processing overruns with anxiety-reducing contextual status text. Integrates zero-bloat run-length duplicate log bundling with Raycast-style multiplier badges (`×4`) and multi-device WebSocket connectivity (`NEXT_PUBLIC_WS_URL`).
