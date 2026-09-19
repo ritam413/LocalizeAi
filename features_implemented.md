@@ -47,7 +47,7 @@ This document tracks the current functionality and implementation status of LOCA
 
 ### ASR Speech Transcription
 - **Status**: Implemented
-- **Details**: Uses `faster-whisper` (CTranslate2) with Silero VAD filtering to generate timestamped speech segments. Features CUDA 12 dynamic library loading support via `LD_LIBRARY_PATH` (`nvidia-cublas-cu12`, `nvidia-cudnn-cu12`) with automatic self-healing fallback to CPU (`int8`) inference upon missing `.so` libraries or VRAM exhaustion.
+- **Details**: Standardized on `faster-whisper` `medium` (int8 CTranslate2) with Silero VAD filtering to generate accurate timestamped speech segments within a strict 4GB VRAM GPU footprint. Features CUDA 12 dynamic library loading support via `LD_LIBRARY_PATH` (`nvidia-cublas-cu12`, `nvidia-cudnn-cu12`) with automatic self-healing fallback to CPU (`int8`) inference upon missing `.so` libraries or VRAM exhaustion.
 - **Modules**: `backend/app/engine/stages/transcription.py`, `backend/Dockerfile`
 - **Verification**: `backend/tests/test_cuda_fallback_and_preview.py`
 
@@ -104,9 +104,9 @@ This document tracks the current functionality and implementation status of LOCA
 - **Verification**: Vitest (`frontend/__tests__/localization_director.test.ts`: 5 tests passed), Pytest (`backend/tests/test_localization_director.py`: 4 tests passed).
 
 ### Voice Director Agent & Pluggable Speech Synthesis Adapter (TICKET-04 & TICKET-12)
-- **Status**: Implemented
-- **Details**: Assigns language and gender-appropriate neural voices per character, synthesizes per-segment speech audio stems with exact durations, and logs telemetry decisions. Employs a pluggable `SpeechSynthesisAdapter` architecture featuring `EdgeTTSAdapter` for live 300+ Microsoft neural voices with FFmpeg PCM 16kHz transcoding and `MockAudioAdapter` for instant deterministic test isolation.
-- **Modules**: `backend/app/agents/voice_director.py`, `frontend/lib/agents/voice_director.ts`
+- **Status**: Implemented (EdgeTTS & MockAudio) | **In Progress / Next Priority**: Kokoro-82M Adapter (`Docs/KOKORO_TTS_INTEGRATION_ARCHITECTURAL_REPORT.md`)
+- **Details**: Assigns language and gender-appropriate neural voices per character, synthesizes per-segment speech audio stems with exact durations, and logs telemetry decisions. Employs a pluggable `SpeechSynthesisAdapter` architecture featuring `EdgeTTSAdapter` for live 300+ Microsoft neural voices with FFmpeg PCM 16kHz transcoding, `MockAudioAdapter` for instant deterministic test isolation, and architectural design ready for `KokoroTTSAdapter` (StyleTTS 2 / 24kHz float32 uncompressed audio).
+- **Modules**: `backend/app/agents/voice_director.py`, `frontend/lib/agents/voice_director.ts`, `Docs/KOKORO_TTS_INTEGRATION_ARCHITECTURAL_REPORT.md`
 - **Verification**: Vitest (`frontend/__tests__/voice_director.test.ts`: 3 tests passed), Pytest (`backend/tests/test_voice_director.py`: 4 tests passed).
 
 ### Sync Engineer Agent (TICKET-05)
