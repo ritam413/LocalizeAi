@@ -1,0 +1,32 @@
+# ==============================================================================
+# Ollama Modelfile: qwen25-3b-subtitles
+# Fine-Tuned from richardyoung/qwen2.5-3b-instruct-abliterated using Unsloth
+# Optimized for NVIDIA GeForce GTX 1050 Ti (4GB VRAM)
+# ==============================================================================
+
+# 1. Base Model: Points to the Q4_K_M GGUF downloaded from Google Colab
+FROM ./Qwen2.5-3B-Instruct-heretic.Q4_K_M.gguf
+
+# 2. Hardware Allocation & Memory Optimization
+# Offloads 100% of layers to GTX 1050 Ti (~2.1 GB VRAM footprint)
+PARAMETER num_gpu 99
+
+# 3. Context Window (Matches fine-tuning max_seq_length = 2048)
+PARAMETER num_ctx 2048
+
+# 4. Sampling & Anti-Degeneracy Guardrails
+# Balanced temperature for creative dialogue without hallucinatory drifting
+PARAMETER temperature 0.7
+# High repetition penalty prevents small 3B models from stuttering or looping
+PARAMETER repeat_penalty 1.22
+PARAMETER repeat_last_n 128
+PARAMETER top_k 40
+PARAMETER top_p 0.92
+
+# 5. Stop Sequences for ChatML & Screenplay boundaries
+PARAMETER stop "<|im_end|>"
+PARAMETER stop "<|im_start|>"
+PARAMETER stop "<|endoftext|>"
+
+# 6. System Persona
+SYSTEM """You are a cinematic script writer. Given raw subtitle dialogue with timestamps and character tags from a video scene, rewrite it as clean, natural, movie-grade script dialogue. Fix punctuation, remove speech disfluencies, maintain character voice consistency, preserve emotional tone, and output dialogue that reads like a professional screenplay."""

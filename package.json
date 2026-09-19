@@ -1,0 +1,11 @@
+{
+  "name": "localize-ai",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Localize AI - Multi-Agent Studio & Video Dubbing Platform",
+  "scripts": {
+    "skills": "node scripts/skills-cli/dist/index.js",
+    "skills:help": "node scripts/skills-cli/dist/index.js --help",
+    "skills:build": "npm --prefix scripts/skills-cli run build"
+  }
+}

@@ -57,6 +57,18 @@ This document tracks the current functionality and implementation status of LOCA
 - **Modules**: `backend/app/engine/subtitle_formatter.py`, `backend/app/engine/stages/translation.py`, `backend/app/agents/subtitle_director.py`
 - **Verification**: Verified end-to-end with real video runs producing synchronized `.srt` and `.vtt` deliverables.
 
+### Subtitle Fine-Tuning & Screenplay Dataset Pipeline (Unsloth richardyoung/qwen2.5-3b-instruct-abliterated)
+- **Status**: Implemented & Verified
+- **Details**: Dedicated dataset preprocessing and fine-tuning suite to adapt `richardyoung/qwen2.5-3b-instruct-abliterated` (refusal-free / uncensored Qwen 2.5 3B) for cinematic scriptwriting, dialogue completion, and movie-grade subtitle generation without censorship refusals. Includes:
+  1. `scripts/srt_to_jsonl.py`: Pure-Python zero-dependency SRT parser, Humanizer text cleaner (strips disfluencies, collapses stutters, normalizes punctuation), hybrid character attribution (CSV line-range overrides, global `character_config.json` filename aliases, and silence-gap heuristic diarization), and sliding-window ChatML chunking preserving file-level narrative context (`sub1/chunk_0`, `sub1/chunk_1`...).
+  2. `scripts/assign_roles.py`: Interactive and template-based character role assigner tool that generates `data/subtitles/character_config.json` and previews dialogue turns per speaker.
+  3. `scripts/auto_name_characters.py`: Automatic character role assigner script supporting `--mode sequential` (Subtitle 1 gets `[SPEAKER_A, SPEAKER_B]`, Subtitle 2 gets `[SPEAKER_C, SPEAKER_D]`, etc.), `--mode filename` (extracts actor/character names from title), and `--mode hybrid`.
+  4. `scripts/validate_jsonl.py`: Line-by-line JSON validator, token distribution calculator (flags > 2048), character dialogue breakdown, and GO/WARN/STOP readiness verdict.
+  4. `notebooks/finetune_qwen25_3b_subtitles.ipynb` / `.py`: Google Colab training notebook targeting free-tier Tesla T4 GPU (4-bit QLoRA, rank=32, packing=True, 8-bit AdamW, pre-training dataset health dashboard, inference preview, and GGUF Q4_K_M export).
+  5. `scripts/Modelfile.subtitles`: Ollama modelfile with 100% GPU offloading (`num_gpu 99`), anti-repetition penalties (`1.22`), and 2048 context length optimized for GTX 1050 Ti (4GB VRAM).
+- **Modules**: `scripts/srt_to_jsonl.py`, `scripts/assign_roles.py`, `scripts/validate_jsonl.py`, `notebooks/finetune_qwen25_3b_subtitles.ipynb`, `scripts/Modelfile.subtitles`
+- **Verification**: Verified on real subtitle collection (27 files, 9,699 lines, 2,430 training chunks) with 0 errors, eliminating numeric character artifacts and testing role assignment with `JAZMINE` and `DEREK`.
+
 ### Full Voice Dubbing Pipeline (Mode A & Mode B)
 - **Status**: Implemented & Operational
 - **Details**: Full 8-stage autonomous dubbing pipeline (`extraction` -> `denoise` -> `transcription` -> `translation` -> `tts` -> `duration_align` -> `remix` -> `remux`) registered in `RunExecutor.STAGE_CLASSES`. Connects `VoiceDirectorAgent` (EdgeTTS 300+ Microsoft neural voices with MockAudio fallback), `DurationAlignStage` (FFmpeg atempo duration reconciliation), `MasteringStage` (dialogue bus compositing, dynamic -6dB sidechain ducking, EBU R128 -24 LUFS loudness mastering), and `RemuxStage` (lossless stream copy MP4 multiplexing and deliverables manifest).

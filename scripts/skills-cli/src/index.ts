@@ -229,15 +229,21 @@ async function runInteractiveMenu() {
 }
 
 async function main() {
-  const args = process.argv.slice(2);
+  const rawArgs = process.argv.slice(2);
+  const helpTriggers = new Set([
+    '', '--help', '-help', '-h', '--h', 'help', '/help', '?', '-?', '/?', 'gui', 'menu'
+  ]);
 
-  // If no args or --help / -h / gui, launch interactive Clack UI
-  if (args.length === 0 || args.includes('--help') || args.includes('-h') || args.includes('gui')) {
+  const cleanArgs = rawArgs.map(a => a.toLowerCase().trim());
+  const isHelpOrInteractive = rawArgs.length === 0 || cleanArgs.some(a => helpTriggers.has(a));
+
+  // If no args or help / gui trigger, launch interactive Clack UI
+  if (isHelpOrInteractive) {
     await runInteractiveMenu();
     return;
   }
 
-  const firstArg = args[0].toLowerCase().replace(/^\//, '');
+  const firstArg = cleanArgs[0].replace(/^[-/]+/, '');
 
   if (firstArg === 'workflows' || firstArg === '-w') {
     p.intro(pc.bgCyan(pc.black(' 🚀 STANDARDIZED WORKFLOW PIPELINES ')));

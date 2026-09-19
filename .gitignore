@@ -59,6 +59,12 @@ generate_pdf.py
 *.ass
 *_detailed.json
 latest_10_videos_detailed.json
+*.jsonl
+*.gguf
+*.safetensors
+*.bin
+*.pt
+*.pth
 
 # Storage Directories (Preserve directory structure via .gitkeep)
 docker_data/
