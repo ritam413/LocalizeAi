@@ -33,6 +33,47 @@ Last updated: 2026-09-06 by antigravity
 | **TICKET-18** | Pluggable Speaker Diarization Adapter & Voiceprint Mapping | Completed | Pytest + Vitest (All Passed) | No | Pluggable acoustic & heuristic diarization |
 | **TICKET-19** | Broadcast Video Multiplexing & Studio Deliverables Exporter | Completed | Pytest (All Passed) | Yes | Packages release MP4, stems, & subtitles |
 
+## 2026-09-19 — GitHub Upstream Pull, Merge Conflict Resolution & Verification (/resolving-merge-conflicts)
+
+### Objective
+Fetch the latest commits from GitHub (`origin`), identify the latest remote commits across all branches (`a75aa87` on `origin/feat/predictive-stage-progress-and-log-sync`), and merge them into the current active codebase using the `/resolving-merge-conflicts` standard protocol while preserving local subtitle fine-tuning work.
+
+### Changes Made
+1. **Committed Local Uncommitted Work**: Safely committed local dataset automation, Qwen 2.5 3B Colab fine-tuning tools, and CLI runner (`30a59c0`). Updated `.gitignore` to prevent committing heavy models (`*.gguf`, `*.safetensors`, `*.pt`, `*.bin`) and generated datasets (`*.jsonl`).
+2. **Fetched & Merged Upstream**: Merged `origin/feat/predictive-stage-progress-and-log-sync` (incorporating Kokoro-82M report `Docs/KOKORO_TTS_INTEGRATION_ARCHITECTURAL_REPORT.md`, Faster-Whisper `medium` standardizations, and upstream test updates) into `main`.
+3. **Resolved Merge Conflicts**: Resolved content conflicts in `TRACKER.md` by preserving all log entries from both the local repository (Qwen 2.5 3B fine-tuning, CLI access) and remote branch (Kokoro architecture, Whisper medium, Repomix). Clean auto-merge on `features_implemented.md`.
+4. **Automated Verification**:
+   - Backend Pytest Suite: **82 / 82 passed** (`.\.venv\Scripts\python -m pytest backend/tests/`).
+   - Frontend Vitest Suite: **100 / 100 passed** (`npm --prefix frontend test -- --run`).
+   - Frontend Next.js Production Build: **Passed with 0 errors** (`npm --prefix frontend run build`).
+
+### Files Changed
+- `TRACKER.md`
+- `features_implemented.md`
+- `CONTEXT.md`
+- `Docs/KOKORO_TTS_INTEGRATION_ARCHITECTURAL_REPORT.md`
+- `HANDOFF.md`
+- `backend/app/engine/stages/transcription.py`
+- `backend/tests/test_demucs_silence_chunking.py`
+- `frontend/app/runs/new/page.tsx`
+- `frontend/components/studio/WorkbenchCard.tsx`
+- `repomix-output.xml`
+- `.gitignore`
+
+### Verification
+- Full test pass across both Python and TypeScript stacks (82 pytest, 100 vitest).
+- Next.js production build succeeded with clean static/dynamic route compilation.
+
+### Current State
+- `main` branch contains all latest commits from GitHub and local development, fully reconciled with zero conflicts.
+- Working tree clean.
+
+### Next Agent Instructions
+1. Refer to `Docs/KOKORO_TTS_INTEGRATION_ARCHITECTURAL_REPORT.md` and **PRIORITY 1** in `HANDOFF.md` for implementing `KokoroTTSAdapter` if offline high-naturalness TTS is requested.
+2. For subtitle fine-tuning, refer to `notebooks/finetune_qwen25_3b_subtitles.ipynb` and `scripts/Modelfile.subtitles`.
+
+---
+
 ## 2026-09-18 — Qwen 2.5 3B Abliterated HuggingFace Repo ID Resolution
 
 ### Objective
