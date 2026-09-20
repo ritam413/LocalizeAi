@@ -13,6 +13,7 @@ from app.db.database import get_db
 from app.db.models import Run, Clip, Preset, StageRun
 from app.engine.executor import RunExecutor
 from app.engine.cancel_registry import signal_cancel
+from app.engine.stages.tts import sanitize_tts_adapter
 from app.api.websocket import manager
 
 runs_router = APIRouter(prefix="/runs", tags=["Runs"])
@@ -28,34 +29,39 @@ async def create_run(
     project_mode = payload.get("project_mode", "C")
     source_language = payload.get("source_language", "es")
     target_languages = payload.get("target_languages", ["en"])
-    subtitle_only = payload.get("subtitle_only", project_mode == "C")
-    use_demucs = payload.get("use_demucs", project_mode != "C")
+    subtitle_only = payload.get("subtitle_only")
+    use_demucs = payload.get("use_demucs")
     whisper_model = payload.get("whisper_model") or payload.get("asr_model")
 
-    if not whisper_model:
-        if project_mode == "A":
-            whisper_model = "whisper-large-v3"
-        elif project_mode == "B":
-            whisper_model = "whisper-large-v3-turbo"
-        else:
-            whisper_model = "whisper-large-v3-turbo"
+    # If preset_id provided, fetch and override empty settings
+    if preset_id:
+        preset_res = await db.execute(select(Preset).where(Preset.id == preset_id))
+        preset = preset_res.scalar_one_or_none()
+        if preset:
+            if subtitle_only is None:
+                subtitle_only = preset.subtitle_only
+            if use_demucs is None:
+                use_demucs = preset.use_demucs
+            if whisper_model is None:
+                whisper_model = preset.whisper_model
 
-    if not clip_id:
-        raise HTTPException(status_code=400, detail="clip_id is required")
+    # Defaults if still None
+    if subtitle_only is None:
+        subtitle_only = False
+    if use_demucs is None:
+        use_demucs = True
+    if whisper_model is None:
+        whisper_model = "medium"
 
-    clip = await db.get(Clip, clip_id)
-    if not clip:
-        raise HTTPException(status_code=404, detail="Clip not found")
-
-    # Generate human-readable run ID derived from uploaded clip's filename
-    raw_stem = Path(clip.filename).stem if clip.filename else "clip"
-    base_id = re.sub(r'[^a-zA-Z0-9_\-]', '_', raw_stem) or "run"
-
-    candidate_id = base_id
+    # Deterministic Run ID generation: {clip_id}_dub_{target_lang}_01
+    target_lang_str = target_languages[0] if target_languages else "en"
+    base_id = f"{clip_id}_dub_{target_lang_str}"
     counter = 1
+    candidate_id = f"{base_id}_{counter:02d}"
+
     while True:
-        existing = await db.get(Run, candidate_id)
-        if not existing:
+        existing = await db.execute(select(Run).where(Run.id == candidate_id))
+        if not existing.scalar_one_or_none():
             break
         candidate_id = f"{base_id}_{counter}"
         counter += 1
@@ -68,7 +74,7 @@ async def create_run(
         "use_demucs": use_demucs,
         "whisper_model": whisper_model,
         "asr_model": whisper_model,
-        "tts_adapter": payload.get("tts_adapter", "edge_tts"),
+        "tts_adapter": sanitize_tts_adapter(payload.get("tts_adapter")),
     }
 
 

@@ -21,8 +21,8 @@ class SyncEngineerAgent(BaseAgent):
 
         for stem in synthesized_stems:
             seg_id = stem.get("segment_id", 1)
-            raw_s = float(stem.get("synthesized_duration_s", 3.0))
-            target_s = float(stem.get("target_duration_s", 3.0))
+            raw_s = max(0.1, float(stem.get("synthesized_duration_s", 3.0)))
+            target_s = max(0.1, float(stem.get("target_duration_s", 3.0)))
             diff = abs(raw_s - target_s)
 
             if diff <= tolerance_s:

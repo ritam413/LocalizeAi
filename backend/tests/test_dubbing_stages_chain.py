@@ -54,7 +54,7 @@ async def test_tts_stage_execution(tmp_path):
     """
     from app.engine.stages.tts import TTSStage
 
-    stage = TTSStage()
+    stage = TTSStage(adapter_type="mock")
     assert stage.stage_name == "tts"
     assert not stage.gpu_required
 
@@ -305,3 +305,109 @@ async def test_end_to_end_dubbing_executor_mode_b(tmp_path):
     assert (run_dir / "dialogue_bus.wav").exists()
     assert (run_dir / "mastered_audio.wav").exists()
     assert (run_dir / "deliverables" / "deliverables.json").exists() or (run_dir / "deliverables.json").exists()
+
+
+# ==============================================================================
+# TICKET-26: TTS Stage, Executor Seam & GPU Mutex Wiring Tests
+# ==============================================================================
+
+@pytest.mark.parametrize("adapter, cuda_available, expected_gpu_required", [
+    ("kokoro", True, True),
+    ("kokoro", False, False),
+    ("edge_tts", True, False),
+    ("edge_tts", False, False),
+    ("mock", True, False),
+    ("mock", False, False),
+    (None, True, True),
+    ("unknown_invalid_val", True, True),
+])
+def test_tts_stage_gpu_lock_matrix(monkeypatch, adapter, cuda_available, expected_gpu_required):
+    """
+    [TICKET-26] Verifies that TTSStage dynamically calculates gpu_required
+    based on adapter type and CUDA availability.
+    """
+    from app.engine.stages.tts import TTSStage
+    import torch
+
+    monkeypatch.setattr(torch.cuda, "is_available", lambda: cuda_available)
+    stage = TTSStage(adapter_type=adapter)
+    assert stage.gpu_required == expected_gpu_required
+
+
+def test_sanitize_tts_adapter():
+    """
+    [TICKET-26] Asserts that sanitize_tts_adapter strictly normalizes
+    null, empty, and invalid inputs safely to 'kokoro'.
+    """
+    from app.engine.stages.tts import sanitize_tts_adapter
+
+    assert sanitize_tts_adapter(None) == "kokoro"
+    assert sanitize_tts_adapter("") == "kokoro"
+    assert sanitize_tts_adapter("   ") == "kokoro"
+    assert sanitize_tts_adapter(123) == "kokoro"
+    assert sanitize_tts_adapter("KOKORO") == "kokoro"
+    assert sanitize_tts_adapter("edge_tts") == "edge_tts"
+    assert sanitize_tts_adapter("EDGE_TTS") == "edge_tts"
+    assert sanitize_tts_adapter("mock") == "mock"
+    assert sanitize_tts_adapter("malicious_adapter_name") == "kokoro"
+
+
+@pytest.mark.asyncio
+async def test_run_executor_forwards_tts_adapter_in_stage_config_override(tmp_path, monkeypatch):
+    """
+    [TICKET-26] Asserts that RunExecutor passes tts_adapter in stage_config_override to TTSStage.
+    """
+    from app.engine.stages.tts import TTSStage
+
+    received_adapter = None
+
+    async def mock_execute(self, input_artifacts, config, progress_cb, log_cb):
+        nonlocal received_adapter
+        received_adapter = config.get("tts_adapter")
+        return {"status": "success", "synthesized_stems": []}
+
+    monkeypatch.setattr(TTSStage, "execute", mock_execute)
+
+    test_id = f"test_run_override_wiring_{int(asyncio.get_event_loop().time() * 1000)}"
+    run_dir = tmp_path / "storage" / "runs" / test_id
+    run_dir.mkdir(parents=True, exist_ok=True)
+
+    async with AsyncSessionLocal() as session:
+        clip = Clip(
+            id=f"clip_{test_id}",
+            filename="sample.mp4",
+            source_path=str(tmp_path / "sample.mp4"),
+            duration_s=5.0
+        )
+        preset = Preset(
+            id=f"preset_{test_id}",
+            name="Test",
+            project_mode="B",
+            stage_config_json='{"stages": ["tts"]}'
+        )
+        session.add(clip)
+        session.add(preset)
+        await session.commit()
+
+        run = Run(
+            id=test_id,
+            clip_id=clip.id,
+            preset_id=preset.id,
+            project_mode="B",
+            target_languages_json='["es"]',
+            subtitle_only=False,
+            frozen_stage_config_json=json.dumps({
+                "stages": ["tts"],
+                "subtitle_only": False,
+                "tts_adapter": "mock"
+            }),
+            status="queued"
+        )
+        session.add(run)
+        await session.commit()
+
+    executor = RunExecutor()
+    await executor.execute_run(run_id=test_id, force_resume=True)
+
+    assert received_adapter == "mock"
+

@@ -29,5 +29,9 @@ This directory contains individual specification and execution tickets for the L
 | [TICKET-21](./TICKET-21-hybrid-demucs-window-planner.md) | Hybrid Speech Clustering & VAD-Guided Macro-Window Generator | Planned | `backend/app/engine/stages/demucs_window_planner.py` | Pytest | TICKET-20 |
 | [TICKET-22](./TICKET-22-director-demucs-pipeline-integration.md) | Director Pipeline Integration & Telemetry Savings Exporter | Planned | `backend/app/agents/director.py` | Pytest | TICKET-20, TICKET-21 |
 | [TICKET-23](./TICKET-23-studio-demucs-timeline-selector-ui.md) | Studio Console Advanced Timeline Marker & Compute Savings HUD | Planned | `frontend/components/studio/WorkbenchCard.tsx` | Vitest | TICKET-22 |
-
+| [TICKET-24](./TICKET-24-centralized-language-registry.md) | Centralized Language & Voice Persona Registry | Completed | `backend/app/core/languages.py` | Pytest (4/4 Passed) | None |
+| [TICKET-25](./TICKET-25-kokoro-neural-tts-adapter.md) | Hardened Kokoro-82M Neural TTS Adapter | Completed | `backend/app/agents/voice_director.py` | Pytest (13/13 Passed) | None (Unblocked) |
+| [TICKET-26](./TICKET-26-tts-stage-executor-gpu-lock-wiring.md) | TTS Stage, Executor Seam & GPU Mutex Wiring | Completed | `backend/app/engine/stages/tts.py` | Pytest (16/16 Passed) | TICKET-24, TICKET-25 |
+| [TICKET-27](./TICKET-27-downstream-audio-seams-and-qa-verification.md) | Downstream Audio Seams & Acoustic QA Verification | Completed | `backend/app/agents/qa_agent.py` | Pytest (9/9 Passed) | TICKET-25, TICKET-26 |
+| [TICKET-28](./TICKET-28-kokoro-tts-automated-test-harness.md) | Kokoro TTS Automated Test Harness & CI Gatekeeper | Completed | `backend/tests/test_voice_director.py` | Pytest (9/9 Passed) | TICKET-24, TICKET-25, TICKET-26, TICKET-27 |
 

@@ -137,3 +137,24 @@ async def test_qa_agent_clean_pass(tmp_path):
     assert result["defect_count"] == 0
     assert result["release_readiness_score"] >= 85.0
     assert len(result["findings"]) == 0
+
+
+def test_check_audio_clipping_on_24khz_pcm16(tmp_path):
+    wav_path = tmp_path / "kokoro_sample_24k.wav"
+    sample_rate = 24000
+    duration_s = 0.5
+    t = np.linspace(0, duration_s, int(sample_rate * duration_s), endpoint=False)
+    samples = (0.8 * np.sin(2 * np.pi * 440 * t)).astype(np.float32)
+    int_samples = (np.clip(samples, -1.0, 1.0) * 32767).astype(np.int16)
+
+    with wave.open(str(wav_path), "wb") as wf:
+        wf.setnchannels(1)
+        wf.setsampwidth(2)
+        wf.setframerate(sample_rate)
+        wf.writeframes(int_samples.tobytes())
+
+    is_clipped, clipped_count, peak_amp = check_audio_clipping(wav_path)
+    assert not is_clipped
+    assert clipped_count == 0
+    assert 0.79 <= peak_amp <= 0.81
+

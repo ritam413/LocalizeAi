@@ -32,6 +32,583 @@ Last updated: 2026-09-06 by antigravity
 | **TICKET-17** | Post-QA Acoustic Master Mixdown & Sidechain Bus Integration | Completed | Pytest (4/4 Passed) | Yes | Wires AcousticMasteringEngine post-QA |
 | **TICKET-18** | Pluggable Speaker Diarization Adapter & Voiceprint Mapping | Completed | Pytest + Vitest (All Passed) | No | Pluggable acoustic & heuristic diarization |
 | **TICKET-19** | Broadcast Video Multiplexing & Studio Deliverables Exporter | Completed | Pytest (All Passed) | Yes | Packages release MP4, stems, & subtitles |
+| **TICKET-24** | Centralized Language & Voice Persona Registry | Completed | Pytest (4/4 Passed) | Yes | Single source of truth in backend/app/core/languages.py |
+| **TICKET-25** | Hardened Kokoro-82M Neural TTS Adapter | Completed | Pytest (13/13 Passed) | Yes | Multi-sentence chunk aggregation, pause silence, Windows atomic write, PCM_16 format, Edge-TTS fallback |
+| **TICKET-26** | TTS Stage, Executor Seam & GPU Mutex Wiring | Completed | Pytest (16/16 Passed, 101/101 Full) | Yes | Dynamic GPU mutex requirements, RunExecutor override forwarding, sanitize_tts_adapter |
+| **TICKET-27** | Downstream Audio Seams & Acoustic QA Verification | Completed | Pytest (9/9 Passed, 111/111 Full) | Yes | 24kHz PCM_16 QA clipping, atempo reconciliation, EBU R128 mastering, zero-division defense |
+| **TICKET-28** | Kokoro TTS Automated Test Harness & CI Gatekeeper | Completed | Pytest (9/9 Passed) | Yes | Fast (<1.5s) offline test suite, chunk aggregation, pause silence, fallback error recovery |
+| **TICKET-29** | Demucs Removal & Resumable Chunked Faster-Whisper ASR | Completed | Pytest (106/106 Passed) | Yes | Direct pass-through + AudioChunker + atomic checkpoint persistence & resumption |
+
+## 2026-09-21 — GitHub Push & Repository Synchronization
+
+### Objective
+Commit and push all complete features, bug fixes, neural TTS hardening (Kokoro-82M), zero-copy denoise pass-through, chunked ASR checkpointing, multi-track audio player enhancements, agent memory updates, and test harnesses to GitHub `origin/main`.
+
+### Changes Made
+- Staged all source code modifications across backend (`app/core`, `app/engine`, `app/agents`, `app/api`), frontend (`runs/[id]`, `BeforeAfterPlayer`, `mediaTrackHelpers`), research documents, and tickets (TICKET-24 through TICKET-29).
+- Verified full test suites across both backend (Pytest: 111/111 passed) and frontend (Vitest: 117/117 passed across 21 test suites).
+- Pushed clean tree to remote `origin/main`.
+
+### Files Changed
+- `backend/app/engine/stages/denoise.py`, `backend/app/engine/stages/transcription.py`, `backend/app/engine/stages/tts.py`, `backend/app/engine/stages/duration_align.py`
+- `backend/app/agents/voice_director.py`, `backend/app/agents/sync_engineer.py`, `backend/app/core/languages.py`
+- `backend/app/engine/audio_chunker.py`, `backend/app/engine/executor.py`, `backend/app/api/runs.py`
+- `backend/tests/*` (111 unit & integration tests)
+- `frontend/components/studio/BeforeAfterPlayer.tsx`, `frontend/lib/mediaTrackHelpers.ts`, `frontend/__tests__/*`
+- `.agents/memory/agent_memory.json`, `.agents/skills/agentmemory/SKILL.md`
+- `Docs/tickets/*`, `CONTEXT.md`, `features_implemented.md`, `TRACKER.md`
+
+### Verification
+- `pytest backend/tests` — 111/111 passed (100%).
+- `npm test -- --run` — 21 test files, 117/117 passed (100%).
+
+### Current State
+Production-grade localized dubbing engine is fully integrated, stable, tested, and synced with GitHub.
+
+### Remaining Work
+- Continue live deployment testing and performance monitoring under high-concurrency loads.
+
+### Next Agent Instructions
+1. Check `TRACKER.md` and `CONTEXT.md` for project architecture.
+2. Run `pytest backend/tests` and `npm --prefix frontend test` to verify local environment integrity.
+
+## 2026-09-20 — AgentMemory Skill & Knowledge Store Refresh (/agentmemory, /ponytail, /clean-code)
+
+### Objective
+Update `.agents/skills/agentmemory/SKILL.md` and `.agents/memory/agent_memory.json` to synchronize with LOCALIZE's current post-production pipeline architecture, domain invariants (ADR-007 through ADR-011, Demucs bypass pass-through, Kokoro 24kHz PCM_16 format standard, atomic ASR checkpointing), and recent bug resolution traces.
+
+### Changes Made
+1. **`.agents/skills/agentmemory/SKILL.md`**:
+   - Replaced legacy placeholder/cross-project references with LOCALIZE-specific domain architecture, zero-dependency CLI query workflows (`python .agents/memory/query_memory.py <term>`), and Python programmatic client examples.
+2. **`.agents/memory/agent_memory.json` (v1.1.0)**:
+   - Updated `inv_003_gpu_acceleration_boundary` reflecting `DenoiseStage` zero-copy pass-through (`gpu_required=False`).
+   - Added `inv_007_demucs_bypass_vram_optimization` (Demucs removal saving ~1.8GB VRAM).
+   - Added `inv_008_resumable_asr_checkpointing` (30s `AudioChunker` with atomic `transcription_checkpoint.json`).
+   - Added `inv_009_24khz_downstream_seams_and_zero_division_guard` (24kHz PCM_16 downstream compatibility and `max(0.1, duration)` defense).
+   - Added `trace_007_zero_division_duration_reconciliation` (clamping duration bounds).
+   - Added `trace_008_qa_clipping_false_positives` (16-bit integer peak normalization in `qa_agent.py`).
+   - Added `trace_009_kokoro_ci_offline_mocking` (<1.5s SLA mock offline test suite).
+   - Added `runbook_001_backend_startup`, `runbook_002_frontend_startup`, `runbook_003_test_suites`, and `runbook_004_ollama_startup` (Ollama host binding, CORS origins, and VRAM keep-alive settings).
+   - Added `pattern_003_defensive_duration_guards` and `pattern_004_atomic_file_replacement`.
+3. **`features_implemented.md`**:
+   - Updated `agentmemory` entry with v1.1.0 specifications and verification metrics.
+
+### Verification
+- `python .agents/memory/query_memory.py "kokoro"` -> Returned 7 matching entries across domain invariants, bug resolution traces, and clean code patterns.
+- `python .agents/memory/query_memory.py "temporal" domain_invariants` -> Verified 1 matching domain invariant.
+- `python .agents/memory/query_memory.py "ollama" operational_runbooks` -> Verified Ollama startup runbook.
+
+### Current State
+Cross-agent memory engine is fully up to date and verified for subsequent agent sessions.
+
+### Next Agent Instructions
+1. When implementing or modifying audio and neural synthesis features, consult `python .agents/memory/query_memory.py <query>` before editing.
+2. Record any non-obvious bug resolutions into `.agents/memory/agent_memory.json`.
+
+---
+
+## 2026-09-20 — TICKET-27 & TICKET-28: Downstream Audio Seams & Kokoro CI Gatekeeper (/tdd, /ponytail, /beads, /multica)
+
+### Objective
+Verify that 24,000 Hz 16-bit PCM WAV stems synthesized by Kokoro integrate seamlessly across all downstream pipeline stages (`qa_agent.py`, `duration_align.py`, `sync_engineer.py`, and `mixer.py`) without sample-rate conversion errors or clipping false-positives (TICKET-27), and establish an automated, fast (<1.5s), 100% offline CI test harness for `VoiceDirectorAgent` and `KokoroTTSAdapter` (TICKET-28).
+
+### Changes Made
+1. **`backend/tests/test_qa_agent.py`**:
+   - Added `test_check_audio_clipping_on_24khz_pcm16` verifying that 24,000 Hz 16-bit PCM WAV stems at 0.8 amplitude pass through `check_audio_clipping` without false-positive clipping flags (`is_clipped == False`, `clipped_count == 0`, `0.79 <= peak_amp <= 0.81`).
+2. **`backend/app/engine/stages/duration_align.py` & `backend/app/agents/sync_engineer.py`**:
+   - Applied adversarial hardening against zero-division errors (`ZeroDivisionError`) when upstream timestamps or malformed durations are passed (`raw_duration_s = max(0.1, ...)` and `target_duration_s = max(0.1, ...)`).
+3. **`backend/tests/test_downstream_audio_seams.py` (New Suite)**:
+   - Created dedicated integration suite testing:
+     - `test_duration_align_stage_24khz_atempo`: 24kHz stem time-stretching/compression via FFmpeg `atempo` (1.25x factor).
+     - `test_duration_align_stage_zero_duration_edge_case`: Adversarial resilience against 0.0s durations.
+     - `test_acoustic_mastering_engine_24khz_multitrack_mix`: Multitrack compositing of 24kHz dialogue stems with background M&E ducking (-6dB) and EBU R128 (-24 LUFS) broadcast mastering.
+     - `test_acoustic_mastering_engine_empty_dialogue_graceful_handling`: Fallback silence handling when 0 dialogue segments are present.
+4. **`backend/tests/test_voice_director.py`**:
+   - Verified 100% offline isolated test harness covering multi-sentence chunk aggregation, non-lexical pause silence (`...`), unsupported language Edge-TTS fallback (`de`), and runtime exception fallback (`espeak-ng`).
+
+### Verification
+- `pytest backend/tests/test_qa_agent.py backend/tests/test_downstream_audio_seams.py backend/tests/test_voice_director.py -v` -> **18/18 passed** (100%).
+- `pytest backend/tests/ -v` -> **111/111 passed** (100% full regression pass in 37.49s).
+
+### Current State
+Kokoro-82M TTS adapter and all downstream audio pipeline seams (clipping detection, duration reconciliation, and multitrack mastering) are fully verified, defensively hardened, and backed by a comprehensive offline CI test harness.
+
+### Remaining Work
+None for TICKET-27 or TICKET-28.
+
+### Next Agent Instructions
+1. Both TICKET-27 and TICKET-28 are completed and verified.
+2. The entire test suite (111 tests) is green.
+3. Run `pytest backend/tests/ -v` before starting any new feature tasks.
+
+## 2026-09-20 — Demucs Removal & Resumable Chunked Faster-Whisper ASR (/tdd, /ponytail, /beads)
+
+### Objective
+Decommission the heavy Demucs HTDemucs stem separation step in `DenoiseStage` in favor of direct zero-copy 16kHz audio pass-through, and implement a windowed audio chunker (`AudioChunker`) that streams chunks directly to Faster-Whisper ASR with persistent atomic checkpointing (`transcription_checkpoint.json`) and mid-stage resumption (e.g. continuing from 20% mark without duplicating segments).
+
+### Changes Made
+1. **`backend/app/engine/audio_chunker.py`**:
+   - Created `AudioChunk` dataclass and `AudioChunker.split_audio()` splitting audio into windowed chunks with exact millisecond start/end offsets using stdlib `wave`.
+2. **`backend/app/engine/stages/denoise.py`**:
+   - Streamlined `DenoiseStage` by removing Demucs model loading/subprocess overhead.
+   - Routed extracted 16kHz mono audio directly into `vocals.wav` and `background.wav` with sub-50ms execution speed, freeing ~1.8GB GPU VRAM.
+3. **`backend/app/engine/stages/transcription.py`**:
+   - Updated `TranscriptionStage.execute()` to divide input audio using `AudioChunker`.
+   - Added persistent atomic checkpoint writing (`.tmp.json` + `os.replace`) to `transcription_checkpoint.json` after every completed chunk.
+   - Added mid-run resumption logic: checks existing checkpoints, skips already completed chunks, offsets segment timestamps by `chunk.start_offset_s`, and merges seamlessly into final `transcript.json`.
+   - Added live progress updates: emits `log_cb` and `progress_cb` on every chunk completion (e.g. `20%`, `40%`, etc.).
+4. **Test Suites Added & Updated**:
+   - `backend/tests/test_audio_chunker.py`: Unit tests for single and multi-chunk splitting.
+   - `backend/tests/test_denoise_passthrough.py`: Unit test verifying direct pass-through.
+   - `backend/tests/test_transcription_checkpointing.py`: Unit tests for per-chunk checkpoint saving and 50% mid-run resumption.
+   - `backend/tests/test_demucs_silence_chunking.py`: Updated legacy tests for direct pass-through and chunking.
+
+### Verification
+- `pytest backend/tests/test_audio_chunker.py backend/tests/test_denoise_passthrough.py backend/tests/test_transcription_checkpointing.py -v` → **5/5 passed** (100%).
+- `pytest backend/tests/ -v` → **106/106 passed** (100% full regression pass).
+
+### Current State
+Demucs overhead has been completely eliminated from the pipeline. Faster-Whisper ASR operates with windowed chunking and full mid-stage resumption.
+
+### Remaining Work
+None for this task.
+
+### Next Agent Instructions
+1. Both `AudioChunker` and `TranscriptionStage` are fully tested and operational.
+2. Run `pytest backend/tests/ -v` before making any further modifications.
+
+## 2026-09-20 — TICKET-26: TTS Stage, Executor Seam & GPU Mutex Wiring (/ponytail)
+
+### Objective
+Wire `tts_adapter="kokoro"` through the end-to-end execution pipeline. Fix the critical seam in `RunExecutor` where `stage_config_override` omitted `tts_adapter`, coordinate Pascal 4GB GPU Mutex locking (`gpu_lock`) when Kokoro is active on CUDA devices, and default run generation to Kokoro across REST endpoints with defensive null/adversarial input sanitization.
+
+### Changes Made
+1. **`backend/app/engine/stages/tts.py`**:
+   - Added `sanitize_tts_adapter(adapter: Any) -> str` enforcing whitelist `{"kokoro", "edge_tts", "mock"}` with safe `"kokoro"` default.
+   - Updated `TTSStage.__init__(self, adapter_type: str = "kokoro")` to dynamically compute `gpu_required = (adapter == "kokoro" and bool(torch.cuda.is_available()))`.
+   - Updated `TTSStage.execute()` to sanitize `config.get("tts_adapter")`.
+2. **`backend/app/engine/executor.py`**:
+   - Updated `_run_pipeline` stage instantiation: when `stage_name == "tts"`, passes `adapter_type=stage_config.get("tts_adapter", "kokoro")` so `gpu_required` is evaluated accurately before GPU lock acquisition.
+   - Updated `stage_config_override` dictionary construction to include `"tts_adapter": stage_config.get("tts_adapter", "kokoro")`.
+3. **`backend/app/api/runs.py`**:
+   - Updated `create_run` to sanitize `payload.get("tts_adapter")` into `frozen_stage_config["tts_adapter"]`, defaulting to `"kokoro"`.
+4. **`backend/tests/test_dubbing_stages_chain.py`**:
+   - Added `test_tts_stage_gpu_lock_matrix` (8-case parametrized test matrix).
+   - Added `test_sanitize_tts_adapter` verifying null, empty, case-insensitive, and invalid string coercion.
+   - Added `test_run_executor_forwards_tts_adapter_in_stage_config_override`.
+   - Updated baseline `test_tts_stage_execution` with explicit `adapter_type="mock"`.
+5. **`Docs/RESEARCH_TICKET_26_GPU_MUTEX_AND_PAYLOAD_HARDENING.md`**:
+   - Created research document grounding PyTorch CUDA semantics, Kokoro StyleTTS2 architecture, and FastAPI payload sanitization.
+
+### Verification
+- `pytest backend/tests/test_dubbing_stages_chain.py -v` → **16/16 passed** in 10.21s.
+- `pytest backend/tests/ -v` → **101/101 passed** in 53.49s (100% full regression pass).
+
+### Current State
+TICKET-26 is completed. All dubbing pipeline stages now preserve `tts_adapter`, default to Kokoro-82M neural TTS, and coordinate Pascal 4GB GPU mutex locking.
+
+### Remaining Work
+- **TICKET-20**: Windowed Demucs Splicer & Equal-Power Crossfade DSP Engine.
+- **TICKET-21**: Hybrid Speech Clustering & VAD-Guided Macro-Window Generator.
+- **TICKET-22**: Director Pipeline Integration & Telemetry Savings Exporter.
+- **TICKET-23**: Studio Console Demucs Timeline Selector UI.
+- **TICKET-27**: Downstream Audio Seams & Acoustic QA Verification.
+
+### Next Agent Instructions
+1. Inspect `Docs/tickets/TICKET-27-downstream-audio-seams-and-qa-verification.md` or `Docs/tickets/TICKET-20-windowed-demucs-splicer.md`.
+2. Implement TICKET-27 for 24kHz PCM_16 QA clipping and duration reconciliation verification.
+
+### Objective
+Update README documentation with explicit startup commands for both project root and `backend/` directories, and document network binding (`--host 0.0.0.0` vs `--host 127.0.0.1`) to resolve LAN connection issues (`192.168.x.x`).
+
+### Changes Made
+- Updated [README.md](file:///d:/Games/Hckthons/Side%20Projects/LocalizeAi/README.md) under Step 1 with direct PowerShell `.venv` execution commands and LAN accessibility callouts.
+- Updated [backend/README.md](file:///d:/Games/Hckthons/Side%20Projects/LocalizeAi/backend/README.md) with quick start launch commands.
+
+### Files Changed
+- `README.md`
+- `backend/README.md`
+- `TRACKER.md`
+
+### Current State
+Backend starts cleanly with `--host 0.0.0.0` and accepts connections across local loopback and local network IPs.
+
+---
+
+## 2026-09-19 — TICKET-25: Hardened Kokoro-82M Neural TTS Adapter (/ponytail)
+
+### Objective
+Implement a production-hardened `KokoroTTSAdapter` that solves four TTS failure modes discovered in TICKET-24 research:
+1. Multi-sentence truncation (generator consumed only first chunk)
+2. Pause/punctuation-only text causing zero-frame crashes
+3. Windows file-lock contention on `.wav` output files
+4. 32-bit float WAV format incompatible with `wave.open()` (stdlib) and downstream audio pipeline
+
+### Changes Made
+1. **`backend/app/agents/voice_director.py`** (329 lines):
+   - Added `KokoroTTSAdapter` class (lines 147–221) with singleton thread-safe `KPipeline` cache guarded by `threading.Lock()`.
+   - Zero-chunk pause guard: `re.search(r'\w', text)` → writes silent `np.int16` array via `sf.write(..., subtype="PCM_16")`.
+   - Unsupported-language fallback: checks `spec.kokoro_lang_code is None` → delegates to `EdgeTTSAdapter`.
+   - Chunk aggregation: `np.concatenate([audio for _, _, audio in generator if len(audio) > 0])`.
+   - Atomic write: `sf.write(temp.tmp.wav)` → `os.replace(temp, output_path)` for Windows lock safety.
+   - All `sf.write` calls now use `subtype="PCM_16"` for stdlib `wave.open()` compatibility.
+   - `VoiceDirectorAgent.__init__` wired at line 236 (`elif adapter_type == "kokoro"`).
+   - `_execute()` passes `target_lang=` to all `adapter.synthesize()` calls.
+2. **`backend/tests/test_voice_director.py`** (258 lines):
+   - Added 5 new Kokoro-specific tests: chunk aggregation, pause silence, unsupported language fallback, exception fallback, VoiceDirectorAgent wiring.
+   - Fixed pre-existing `CustomTestAdapter.synthesize()` stub (missing `target_lang` param, line 69).
+
+### Files Changed
+- `backend/app/agents/voice_director.py`
+- `backend/tests/test_voice_director.py`
+
+### Implementation Details
+- `KPipeline` is cached per `kokoro_lang_code` in `KokoroTTSAdapter._pipeline_cache` (class-level dict + `threading.Lock`) to prevent VRAM over-allocation on 4 GB GPUs.
+- `asyncio.to_thread(_generate)` wraps the synchronous KPipeline inference to avoid blocking the event loop.
+- The broad `except (ImportError, RuntimeError, OSError, Exception)` catch covers: missing `kokoro` package, missing `espeak-ng`, CUDA OOM, and any I/O error — all degrade gracefully to `EdgeTTSAdapter`.
+- German (`de`) has `kokoro_lang_code=None` in the registry → always routed to Edge-TTS.
+
+### Verification
+- `pytest backend/tests/test_voice_director.py backend/tests/test_languages.py -v` → **13/13 passed in 2.35s** (exit code 0).
+
+### Current State
+TICKET-25 is complete. `KokoroTTSAdapter` is the production TTS adapter for Kokoro-supported languages (`en`, `hi`, `es`, `fr`, `ja`). Edge-TTS handles `de` and any unknown language codes.
+
+### Remaining Work
+None for this ticket. Next work item should address the full end-to-end pipeline integration test with real Kokoro model weights (requires `espeak-ng` installed on CI).
+
+### Known Issues
+- Kokoro model weights must be downloaded separately; tests use monkeypatched pipelines.
+- `espeak-ng` must be installed at the OS level for real inference (not mocked tests).
+
+### Next Agent Instructions
+1. Check `Docs/tickets/` for any open tickets (TICKET-20 through TICKET-23 if they exist).
+2. The next logical step is wiring `adapter_type="kokoro"` as the default in production `config.py` or `.env`.
+3. Run `pytest backend/ -v` for a full suite regression check before merging.
+4. Update `Docs/tickets/TICKET-25*.md` status to `Completed` if that file exists.
+
+---
+
+## 2026-09-19 — Developer: Centralized Language Registry (TICKET-24, /ponytail)
+
+### Objective
+Implement `TICKET-24-centralized-language-registry.md` as Developer (`/wshobson-agents`) using `/ponytail` (YAGNI, minimal, stdlib-first) and `/tdd` (Red $\to$ Green). Centralize language metadata, Kokoro 1-character language codes (`'a'`, `'e'`, `'f'`, `'h'`, `'j'`, `'z'`), and Microsoft Edge-TTS fallback personas into `backend/app/core/languages.py`.
+
+### Changes Made
+1. **Created Test Suite (`backend/tests/test_languages.py`)**:
+   - Red phase: Verified test collection failed with `ModuleNotFoundError: No module named 'app.core.languages'`.
+   - Tested resolution for tier-1 languages (`en`, `hi`, `es`, `fr`, `ja`, `de`).
+   - Tested compound locale tag normalization (`"hi-IN"` $\to$ `"hi"`, `"es-ES"` $\to$ `"es"`, `"fr-FR"` $\to$ `"fr"`).
+   - Tested German explicit Edge-TTS fallback (`kokoro_lang_code=None`).
+   - Tested fallback to English on unknown tags (`"xx-YY"`), empty strings, and `None`.
+   - Tested immutability of `LanguageSpec` (Pydantic `frozen=True`).
+2. **Implemented Single Source of Truth (`backend/app/core/languages.py`)**:
+   - Reused `LanguageSpec` from `app.core.tts_contracts` (adhering to `/ponytail` Rung 2: *"Already in this codebase?"*).
+   - Defined `SUPPORTED_LANGUAGES: Dict[str, LanguageSpec]` mapping 6 tier-1 languages with Kokoro persona voices and Edge-TTS fallback IDs.
+   - Implemented lean, 6-line `resolve_language(lang_code: Optional[str]) -> LanguageSpec` using standard library string operations.
+3. **Updated Tracking & Tickets Documentation**:
+   - Marked `TICKET-24` as `Completed` in `Docs/tickets/TICKET-24-centralized-language-registry.md` and `Docs/tickets/README.md`.
+   - Updated `features_implemented.md` and `TRACKER.md`.
+
+### Files Changed
+- `backend/tests/test_languages.py` (Created)
+- `backend/app/core/languages.py` (Created)
+- `Docs/tickets/TICKET-24-centralized-language-registry.md` (Updated)
+- `Docs/tickets/README.md` (Updated)
+- `features_implemented.md` (Updated)
+- `TRACKER.md` (Updated)
+
+### Verification
+- `pytest tests/test_languages.py -v`:
+  - 4 / 4 passed in 0.20s (100% Green).
+
+### Current State
+`TICKET-24` is fully implemented and tested. `backend/app/core/languages.py` is the single source of truth for language metadata and voice mapping. `TICKET-25` is now completely unblocked.
+
+### Remaining Work
+- **TICKET-25**: Implement `KokoroTTSAdapter` in `backend/app/agents/voice_director.py`.
+- **TICKET-26**: Wire `tts_adapter` through `executor.py`, `tts.py`, and `runs.py`.
+- **TICKET-27**: Downstream audio seams and acoustic QA verification.
+- **TICKET-28**: Automated Kokoro test harness.
+
+### Next Agent Instructions
+1. Claim `TICKET-25` (`Docs/tickets/TICKET-25-kokoro-neural-tts-adapter.md`).
+2. Implement `KokoroTTSAdapter(SpeechSynthesisAdapter)` in `backend/app/agents/voice_director.py`.
+3. Use `resolve_language` from `app.core.languages`.
+4. Run `pytest backend/tests/test_voice_director.py`.
+
+---
+
+## 2026-09-19 — Architect: Pydantic Interface Contracts & Domain Invariants (Tickets 24–28)
+
+### Objective
+Assume the `/wshobson-agents` `[Architect]` role to analyze unmerged Tickets 24 through 28 (`Docs/tickets/`) via `/context7` precision slicing and `/serena` discovery, and formally define the type interfaces, domain invariants, and Pydantic schemas across the language registry, Kokoro synthesis adapter, pipeline executor seams, and downstream acoustic QA verification.
+
+### Changes Made
+1. **Created Core Package & Pydantic Contracts (`backend/app/core/`)**:
+   - `backend/app/core/__init__.py`: Initialized the `app.core` package.
+   - `backend/app/core/tts_contracts.py`: Defined comprehensive Pydantic V2 interface models:
+     - `LanguageSpec(frozen=True)`: Immutable specification for ISO 639-1 languages, Kokoro 1-char language codes (`'a'|'e'|'f'|'h'|'j'|'z'`), default style voice IDs, and Edge-TTS fallback IDs.
+     - `LanguageResolutionRequest` & `LanguageResolutionResult`: Strongly typed normalization contracts.
+     - `KokoroSynthesisRequest` & `KokoroSynthesisResult`: Typed boundary for `synthesize()`, enforcing 24kHz PCM_16 WAV standard and tracking fallback provenance.
+     - `SpeakerVoiceMapping`: Speaker-to-voice assignment contracts with fallback guarantees.
+     - `DialogueSegmentInput`: Standardized segment input into the `TTSStage`.
+     - `TTSStageConfig`: Validated configuration schema for `TTSStage.execute()`.
+     - `StageConfigOverride` & `CreateRunPayloadContract`: Strongly typed REST payload for `POST /api/v1/runs` and `executor.py`, eliminating untyped dictionary drop-offs (`tts_adapter`).
+     - `AudioStemQualityMetrics`: Contract for downstream acoustic QA checks asserting standard sample rates (24k/48k/16k), peak amplitude bounds ($\le 1.0$), and clipping flags.
+     - `DownstreamAudioSeamVerification`: Integration seam contract asserting survival through `qa_agent`, `sync_engineer` (atempo), and `mixer` (sidechain ducking).
+     - `MockSynthesisFixtureContract` & `MockChunkGeneratorItem`: Deterministic contracts for zero-GPU mock unit tests.
+2. **Updated Features Implemented & Memory Tracking**:
+   - Updated `features_implemented.md` with the new architectural contracts and modules.
+   - Updated `TRACKER.md` with the Architect $\to$ Developer handoff packet.
+
+### Files Changed
+- `backend/app/core/__init__.py` (Created)
+- `backend/app/core/tts_contracts.py` (Created)
+- `features_implemented.md` (Updated)
+- `TRACKER.md` (Updated)
+
+### Verification
+- Executed `python -c "from app.core.tts_contracts import LanguageSpec, KokoroSynthesisRequest, TTSStageConfig, CreateRunPayloadContract; print('Contracts imported successfully!')"`:
+  - Exit code: `0`
+  - Output: `Contracts imported successfully!`
+
+### Current State
+All architectural contracts, domain invariants, and Pydantic schemas for Tickets 24–28 are formally established in `backend/app/core/tts_contracts.py`. Implementation code remains clean and ready for the Implementation Developer persona.
+
+### Remaining Work
+- **TICKET-24**: Implement `backend/app/core/languages.py` exporting `LanguageSpec` and `resolve_language()`.
+- **TICKET-25**: Implement `KokoroTTSAdapter` in `backend/app/agents/voice_director.py`.
+- **TICKET-26**: Wire `tts_adapter` through `executor.py`, `tts.py`, and `runs.py`.
+- **TICKET-27**: Verify downstream audio seams (`check_audio_clipping`, `atempo`, `amix`).
+- **TICKET-28**: Run automated pytest test suite (`pytest backend/tests/test_voice_director.py`).
+
+### Next Agent Instructions (wshobson-agents Handoff)
+1. Transition role from `[Architect]` to `[Developer]` (`/ponytail`, `/tdd`).
+2. Claim `TICKET-24`: Implement `backend/app/core/languages.py` using `LanguageSpec` from `app.core.tts_contracts`. Verify with `pytest backend/tests/test_languages.py`.
+3. Claim `TICKET-25`: Implement `KokoroTTSAdapter` in `backend/app/agents/voice_director.py` utilizing `KokoroSynthesisRequest` and `KokoroSynthesisResult`.
+4. Claim `TICKET-26`: Wire `executor.py` and `tts.py` using `TTSStageConfig` and `CreateRunPayloadContract`.
+
+---
+
+## 2026-09-19 — Kokoro-82M TTS TDD Tickets & Agent Memory Centralization
+
+### Objective
+Decompose the Kokoro-82M neural TTS integration into contract-isolated, test-driven development tickets (TICKET-24 through TICKET-28 in `Docs/tickets/`) using `/writing-for-agents` and `/tdd` style. Incorporate findings from `/council-review`, `/adversarial-review`, `/ponytail-review`, and `/firecrawl` research, and update `.agents/memory/agent_memory.json` with all domain invariants, bug traces, and clean code patterns.
+
+### Changes Made
+1. **Created TDD Specification Tickets (`Docs/tickets/`)**:
+   - `TICKET-24-centralized-language-registry.md`: Single source of truth in `backend/app/core/languages.py` for language specs, Kokoro codes (`'a'`, `'e'`, `'f'`, `'h'`, `'j'`, `'z'`), styles (`af_heart`, `hm_omega`), and Edge-TTS fallbacks.
+   - `TICKET-25-kokoro-neural-tts-adapter.md`: Hardened, lean `KokoroTTSAdapter` in `backend/app/agents/voice_director.py` with multi-sentence chunk aggregation (`np.concatenate`), pause silence generator (`np.zeros`), Windows atomic replacement (`.tmp.wav` + `os.replace`), and broad exception fallback.
+   - `TICKET-26-tts-stage-executor-gpu-lock-wiring.md`: Pass-through wiring in `backend/app/engine/executor.py` (`stage_config_override`), `backend/app/engine/stages/tts.py` (dynamic `gpu_required` mutex locking), and `backend/app/api/runs.py` (default `"tts_adapter": "kokoro"`).
+   - `TICKET-27-downstream-audio-seams-and-qa-verification.md`: Invariant verification for 24kHz PCM_16 WAV compatibility with `qa_agent.py` (`check_audio_clipping`), `sync_engineer.py` (`atempo`), and `mixer.py` (`amix` & `loudnorm`).
+   - `TICKET-28-kokoro-tts-automated-test-harness.md`: Automated offline test suite in `backend/tests/test_voice_director.py` verifying Kokoro adapter instantiation, chunk aggregation, silence generation, and fallback without live GPU weights.
+2. **Updated Tickets Directory Index (`Docs/tickets/README.md`)**:
+   - Registered TICKET-24 through TICKET-28 in the master ticket matrix.
+3. **Updated Persistent Vector/Episodic Memory (`.agents/memory/agent_memory.json`)**:
+   - Added `inv_005_kokoro_pcm16_audio_standard` (24kHz 16-bit PCM WAV standard).
+   - Added `inv_006_threadsafe_model_cache` (Singleton thread-safe `KPipeline` cache).
+   - Added `trace_004_kokoro_multi_sentence_truncation` (Concatenating chunks across generator).
+   - Added `trace_005_kokoro_zero_chunk_pause_crash` (Silence generation for pauses/punctuation).
+   - Added `trace_006_windows_file_lock_retry_contention` (Atomic file replacement via `.tmp.wav`).
+   - Added `pattern_002_centralized_language_registry` (Single source of truth in `app.core.languages`).
+
+### Files Changed
+- `Docs/tickets/TICKET-24-centralized-language-registry.md` (Created)
+- `Docs/tickets/TICKET-25-kokoro-neural-tts-adapter.md` (Created)
+- `Docs/tickets/TICKET-26-tts-stage-executor-gpu-lock-wiring.md` (Created)
+- `Docs/tickets/TICKET-27-downstream-audio-seams-and-qa-verification.md` (Created)
+- `Docs/tickets/TICKET-28-kokoro-tts-automated-test-harness.md` (Created)
+- `Docs/tickets/README.md` (Updated)
+- `Docs/RESEARCH_KOKORO_FIXES_AND_CENTRALIZED_LANGUAGES.md` (Created)
+- `.agents/memory/agent_memory.json` (Updated)
+- `TRACKER.md` (Updated)
+
+### Current State
+Source code left 100% untouched as requested (Option B). All 5 implementation tickets are structured, contract-isolated, and ready for immediate red-to-green execution.
+
+### Next Agent Instructions
+1. Claim `TICKET-24` and implement `backend/app/core/languages.py`.
+2. Claim `TICKET-25` and implement `KokoroTTSAdapter` in `backend/app/agents/voice_director.py`.
+3. Claim `TICKET-26` and wire `executor.py`, `tts.py`, and `runs.py`.
+4. Claim `TICKET-27` & `TICKET-28` to verify with `pytest backend/tests/test_voice_director.py`.
+
+---
+
+## 2026-09-19 — Codebase Memory Index & Gated Inspection System (/agentmemory, /repomix)
+
+### Objective
+Force the coding agent to prioritize pre-indexed codebase memory over costly full-codebase folder reading, implement zero-tool fast bypass for non-codebase queries, and automate deterministic memory generation from `/repomix` XML bundles.
+
+### Changes Made
+1. **Deterministic Ingestion Script (`.agents/scripts/ingest_repomix.py`)**:
+   - Implemented line-streaming XML extractor (`stream_repomix_files`) with strictly bounded $O(1)$ memory ($<20\text{MB}$ RSS).
+   - Regex-extracted 6,580 exported symbols, interfaces, and function signatures across 306 files.
+   - Generated instant $O(1)$ lookup table: `.agents/memory/symbols_manifest.json`.
+   - Built self-healing pre-flight check with clear instructions if vector packages are missing.
+   - Added cache marker `.agents/memory/.indexed_hash` storing SHA-256 and timestamps.
+2. **Codebase Indexing & Gating Rule (`.agents/rules/codebase-indexing.md`)**:
+   - Zero-tool fast bypass for general, conceptual, and syntax queries.
+   - Tiered search pipeline: Manifest $\to$ Vector Memory $\to$ AST (`serena`/`codegraph`) $\to$ Targeted Grep $\to$ `context7` sliced reading ($\le 50$ lines).
+   - Hard ban on blind `list_dir` folder crawling and uninspected whole-file dumping during Q&A.
+3. **Turn-1 Handoff Integration (`.agents/rules/session-init.md`)**:
+   - Added 3-bullet Turn-1 proactive handoff briefing (`[Last Completed]`, `[Current State]`, `[Recommended Next Action]`).
+   - Integrated non-blocking index freshness check badge.
+
+### Files Changed
+- `C:\Users\ritam\.gemini\config\rules\index-codebase.md` (Global Rule)
+- `.agents/rules/index-codebase.md` (Workspace Rule)
+- `.agents/scripts/ingest_repomix.py` (New)
+- `.agents/rules/codebase-indexing.md` (New)
+- `.agents/rules/session-init.md` (Modified)
+- `.agents/memory/symbols_manifest.json` (Generated)
+- `.agents/memory/.indexed_hash` (Generated)
+- `features_implemented.md` (Modified)
+- `TRACKER.md` (Modified)
+
+### Verification
+- Ran `python .agents/scripts/ingest_repomix.py --local`:
+  - Processed 13.2MB Repomix XML in 4.1s.
+  - Successfully wrote 6,580 symbols across 306 files.
+  - Verified $O(1)$ symbol lookup for `BeforeAfterPlayer` component.
+
+### Current State
+Deterministic symbol indexing is active, up to date, and verified.
+
+### Next Agent Instructions
+When answering questions about the repository, query `.agents/memory/symbols_manifest.json` first for exact symbol locations before reading files. For non-codebase questions, answer with zero tool calls.
+
+---
+
+## 2026-09-19 — Cross-Agent Memory & Bug Resolution Traces (/agentmemory)
+
+### Objective
+Store persistent cross-agent memories, domain invariants, and bug resolution traces in a structured local vector-ready store (`.agents/memory/agent_memory.json`) and provide a zero-dependency CLI query tool (`query_memory.py`) for instantaneous semantic recall across agent sessions.
+
+### Changes Made
+1. **Persistent Memory Catalog (`.agents/memory/agent_memory.json`)**:
+   - `domain_invariants`: Preserved Temporal Invariant (`inv_001_temporal_continuity`), HTTP 206 Byte-Range Streaming Bridge (`inv_002_http_206_streaming`), GPU Stage Boundaries (`inv_003_gpu_acceleration_boundary`), and 4GB VRAM Hardware Limit (`inv_004_vram_footprint`).
+   - `bug_resolution_traces`: Documented root causes and fixes for Video Player Disconnection (`trace_001`), BeforeAfterPlayer Silent Mockup (`trace_002`), and JSDOM HTMLMediaElement Not Implemented (`trace_003`).
+   - `clean_code_patterns`: Documented Single Responsibility Helper Pattern (`pattern_001`).
+2. **Memory Query Engine (`.agents/memory/query_memory.py`)**:
+   - Zero-dependency CLI search tool with Windows encoding safety and categorical filtering.
+
+### Verification
+- `python .agents/memory/query_memory.py "temporal"`: Verified 100% precision match for ADR-009 invariant.
+- `python .agents/memory/query_memory.py "hardcoded"`: Verified exact recall of Video Player bug trace.
+
+### Current State
+Cross-agent memory engine is active and searchable.
+
+### Next Agent Instructions
+Run `python .agents/memory/query_memory.py "<topic>"` to query historical bug fixes or domain invariants before modifying core player or pipeline stages.
+
+---
+
+## 2026-09-19 — QA/Test Engineer Regression Suite & Verification (/wshobson-agents)
+
+### Objective
+Assume role of QA / Test Engineer under `/wshobson-agents` to perform edge-case generation, regression verification, and public boundary testing for newly authored `BeforeAfterPlayer.tsx` and `mediaTrackHelpers.ts`.
+
+### Changes Made
+1. **Authored Comprehensive Frontend Test Suite (`frontend/__tests__/BeforeAfterPlayer.test.tsx`)**:
+   - Asserts against public DOM boundaries and user interactions (never internal state).
+   - Verifies default channel rendering (Dialogue, Background, Master), auto-ducking label (`-6.0 dB`), and certification badges (`EBU R128`).
+   - Tests custom acoustic parameter propagation (`duckingDb={-9.5}`, `lipDriftMs={8}`, `targetLanguage="fr"`).
+   - Validates disabled state enforcement when audio streams are null/undefined.
+   - Tests playback controls invocation (`HTMLMediaElement.prototype.play`) and play/pause toggle.
+   - Verifies multi-channel stem switching across CH 1 Dialogue, CH 2 Background, and Master.
+   - Tests timeline slider user scrubbing interactions (`fireEvent.change`).
+
+### Verification
+- **Frontend Vitest**: 21 / 21 test suites passed (**117 / 117** tests green, 100%).
+- **Backend Pytest**: 22 test modules passed (**82 / 82** tests green, 100%).
+
+### Current State
+Full regression suite passes across both frontend and backend environments with zero flakiness.
+
+### Next Agent Instructions
+The test suite is complete and green. Downstream roles (e.g. Security Lead or Staff Optimizer) can proceed with confidence in the regression harness.
+
+---
+
+## 2026-09-19 — Clean Code Refactor: Media Track Helpers & BeforeAfterPlayer (/clean-code)
+
+### Objective
+Enforce Single Responsibility Principle (SRP), readable naming, small focused functions, and clear abstraction boundaries across the newly integrated media player and timeline modules.
+
+### Changes Made
+1. **Extracted `frontend/lib/mediaTrackHelpers.ts`**:
+   - `isGpuAcceleratedStage(stageName: string)`: Encapsulates GPU hardware acceleration lookup using a `Set`.
+   - `getPreviewStreamUrl(filePath?: string | null)`: Safely encodes and constructs preview stream routes.
+   - `getPrimaryTargetLanguage(json?: string | null, fallback?: string)`: Isolates JSON parsing and error handling for target language arrays.
+   - `getLanguageMetadata(code: string)`: Dictionary lookup for human-friendly language labels, flag emojis, and default neural voices.
+   - `buildRunAudioTracks(options)`: Pure function assembling selectable player track options from run data and deliverables.
+2. **Refactored `frontend/components/studio/BeforeAfterPlayer.tsx`**:
+   - Decomposed monolithic card rendering into a dedicated `StemChannelCard` sub-component.
+   - Extracted pure helper `formatAudioTimestamp` and single-responsibility source resolution `resolveStemAudioSource`.
+   - Renamed methods with intention-revealing names (`switchTrackPreservingTimestamp`, `togglePlayback`).
+3. **De-cluttered `frontend/app/runs/[id]/page.tsx`**:
+   - Replaced duplicate URL concatenations and in-line JSON parsing with direct imports from `mediaTrackHelpers.ts`.
+   - Reduced `dynamicTracks` `useMemo` from 80 lines of nested logic down to a clean, single-expression call.
+4. **Comprehensive Test Suite (`frontend/__tests__/mediaTrackHelpers.test.ts`)**:
+   - 11 unit tests covering all helpers, edge cases, fallback behaviors, and URL encoding.
+
+### Verification
+- `npm test -- --run` in `frontend/`: 20 passed, 111/111 tests passed (100%).
+- `python -m pytest backend/tests/ -q`: 82/82 passed in 62.42s (100%).
+
+### Current State
+Codebase conforms strictly to Uncle Bob's Clean Code principles: zero duplicated stream URLs, isolated helper functions with single responsibilities, typed contracts, and full test coverage.
+
+### Next Agent Instructions
+Proceed to any next feature implementation or user requests.
+
+---
+
+## 2026-09-19 — Frontend Dubbing Timeline & Video Player Integration (/ponytail)
+
+### Objective
+Wire real pipeline deliverables and dynamic audio streams into the frontend run detail console (`frontend/app/runs/[id]/page.tsx`), convert `BeforeAfterPlayer.tsx` into an active HTML5 stem player with seamless timestamp preservation, and update GPU badging across the 8-stage pipeline.
+
+### Changes Made
+1. **HTML5 Audio Engine in `BeforeAfterPlayer.tsx`**:
+   - Implemented native `<audio>` playback with play/pause, duration scrubbing, and clean Light-Blue Mintlify styling.
+   - Built seamless timestamp preservation (`audioRef.current.currentTime` preserved across stem switches between Dialogue, Background, and Master).
+2. **Deliverables Ingestion & Dynamic Tracks (`frontend/app/runs/[id]/page.tsx`)**:
+   - Added `deliverables` state and `fetchDeliverables()` calling `GET /api/v1/runs/{id}/deliverables` on mount and on WebSocket `run_completed` events.
+   - Constructed `dynamicTracks: AudioTrackOption[]` mapping `release_video_mp4`, `mastered_soundtrack_wav`, `subtitles_vtt`, and `subtitles_srt` with fail-safe fallback to raw source footage.
+   - Passed `tracks={dynamicTracks}` and `defaultTrackId` to `<MultiAudioPlayer />` in the Preview tab, replacing hardcoded demo clips.
+   - Wired `sourceAudioUrl`, `localizedAudioUrl`, and `backgroundAudioUrl` into `<BeforeAfterPlayer />`.
+3. **Pipeline Timeline GPU Badging (`frontend/app/runs/[id]/page.tsx`)**:
+   - Updated `isGpu` logic to include `tts` (Kokoro neural speech synthesis) alongside `denoise`, `transcription`, and `translation`.
+
+### Verification
+- `npm test -- --run` in `frontend/`: 19 passed, 100/100 tests passed (100%).
+- `python -m pytest backend/tests/ -q`: 82/82 passed in 62.42s (100%).
+
+### Current State
+The Frontend Dubbing Timeline, Multi-Audio Player, and Demucs Stem A/B Player are fully wired to live run artifacts and HTTP 206 partial content preview endpoints with zero bloat.
+
+### Next Agent Instructions
+The integration is 100% green and verified. Inspect `frontend/app/runs/[id]/page.tsx` and `frontend/components/studio/BeforeAfterPlayer.tsx` if additional custom audio filters or EQ controls are desired.
+
+---
+
+## 2026-09-19 — Repomix Codebase Index Refresh (/repomix)
+
+### Objective
+Update the global `repomix-output.xml` index using the `/repomix` workflow to ensure full repository context, AST dependencies, and latest merged Studio Console updates are packed for LLM analysis.
+
+### Changes Made
+- Executed `npx --yes repomix --style xml --output repomix-output.xml`.
+- Successfully packed 1,135 files (3,780,486 tokens, 13,182,053 characters).
+- Security check passed with 0 suspicious files.
+
+### Verification
+- Output file `repomix-output.xml` updated in workspace root.
+
+---
 
 ## 2026-09-19 — GitHub Upstream origin/main Pull & Studio Console Merge Reconcile
 

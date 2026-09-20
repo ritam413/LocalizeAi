@@ -37,8 +37,8 @@ class DurationAlignStage(BaseStage):
     ) -> Dict[str, Any]:
         """Reconciles duration for an individual dialogue stem."""
         seg_id = stem.get("segment_id", 1)
-        raw_duration_s = float(stem.get("synthesized_duration_s", 3.0))
-        target_duration_s = float(stem.get("target_duration_s", 3.0))
+        raw_duration_s = max(0.1, float(stem.get("synthesized_duration_s", 3.0)))
+        target_duration_s = max(0.1, float(stem.get("target_duration_s", 3.0)))
         source_audio_path = Path(stem.get("audio_path", ""))
         duration_delta = abs(raw_duration_s - target_duration_s)
 

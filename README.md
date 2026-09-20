@@ -135,7 +135,7 @@ Ensure you have the following installed on your machine:
 
 ### Step 1: Backend Setup & Launch
 
-1. Open a terminal in the project root:
+1. Open a terminal in the project root (`LocalizeAi`):
    ```bash
    cd backend
    ```
@@ -164,11 +164,28 @@ Ensure you have the following installed on your machine:
      ```
 
 5. Start the FastAPI backend server:
-   ```bash
-   uvicorn app.main:app --reload --port 8000
-   ```
+
+   - **From the project root (`LocalizeAi`) — Recommended for Windows PowerShell:**
+     ```powershell
+     $env:PYTHONPATH="backend"
+     .\.venv\Scripts\python.exe -m uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+     ```
+
+   - **From inside the `backend/` directory:**
+     ```powershell
+     # Using root .venv:
+     ..\.venv\Scripts\python.exe -m uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+     
+     # Or inside activated venv:
+     uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+     ```
+
+   > [!TIP]
+   > **Binding to `0.0.0.0` vs `127.0.0.1`:**
+   > Use `--host 0.0.0.0` if you want other devices or clients on your local network (e.g. `http://192.168.x.x:8000`) to connect. Use `--host 127.0.0.1` for local-only development on the same machine.
+
    The backend will be available at:
-   - **API Server**: `http://localhost:8000`
+   - **API Server**: `http://localhost:8000` (or `http://<your-lan-ip>:8000`)
    - **Interactive Swagger Docs**: `http://localhost:8000/docs`
    - **Health Check**: `http://localhost:8000/health`
 

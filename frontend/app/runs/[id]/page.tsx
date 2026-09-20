@@ -12,13 +12,19 @@ import { ReadinessGauge } from '../../../components/studio/ReadinessGauge';
 import { DecisionFeed } from '../../../components/studio/DecisionFeed';
 import { BeforeAfterPlayer } from '../../../components/studio/BeforeAfterPlayer';
 import { MasterVideoPreview } from '../../../components/studio/MasterVideoPreview';
-import { MultiAudioPlayer } from '../../../components/studio/MultiAudioPlayer';
+import { MultiAudioPlayer, AudioTrackOption } from '../../../components/studio/MultiAudioPlayer';
 import { ScriptQualityInspector } from '../../../components/studio/ScriptQualityInspector';
 import { AccessibleErrorReport } from '../../../components/ui/AccessibleErrorReport';
 import { StudioConsoleSkeleton } from '../../../components/ui/skeleton';
 import { TelemetryEvent, summarizeTelemetryEvents } from '../../../lib/telemetry';
 import { AgentName } from '../../../lib/telemetry';
 import { CrewMemberStatus } from '../../../lib/agents/director';
+import {
+  buildRunAudioTracks,
+  getPreviewStreamUrl,
+  getPrimaryTargetLanguage,
+  isGpuAcceleratedStage,
+} from '../../../lib/mediaTrackHelpers';
 
 interface StageRun {
   id: string;
@@ -60,6 +66,7 @@ export default function RunDashboardPage() {
   const [activeTab, setActiveTab] = useState<'studio' | 'progress' | 'preview' | 'subtitles' | 'output'>('studio');
   const [telemetryEvents, setTelemetryEvents] = useState<TelemetryEvent[]>([]);
   const [dashboardError, setDashboardError] = useState<string | null>(null);
+  const [deliverables, setDeliverables] = useState<any>(null);
   const logEndRef = useRef<HTMLDivElement>(null);
 
   const fetchRunDetails = async () => {
@@ -75,6 +82,18 @@ export default function RunDashboardPage() {
     } catch (err: any) {
       console.error('Failed to fetch run details:', err);
       setDashboardError(err?.message || 'Failed to connect to backend service');
+    }
+  };
+
+  const fetchDeliverables = async () => {
+    try {
+      const res = await fetch(`/api/v1/runs/${runId}/deliverables`);
+      if (res.ok) {
+        const data = await res.json();
+        setDeliverables(data);
+      }
+    } catch (err) {
+      console.warn('Failed to fetch deliverables:', err);
     }
   };
 
@@ -124,9 +143,20 @@ export default function RunDashboardPage() {
 
   useEffect(() => {
     fetchRunDetails();
+    fetchDeliverables();
     fetchHistoricalLogs();
     fetchTelemetryEvents();
   }, [runId]);
+
+  const dynamicTracks = React.useMemo<AudioTrackOption[]>(() => {
+    return buildRunAudioTracks({
+      sourceVideoPath: runData?.clip?.source_path,
+      sourceLanguage: runData?.source_language,
+      targetLanguagesJson: runData?.target_languages_json,
+      artifacts: runData?.artifacts,
+      deliverables,
+    });
+  }, [runData, deliverables]);
 
   const prevRunStatusRef = useRef<string | null>(null);
   useEffect(() => {
@@ -157,9 +187,11 @@ export default function RunDashboardPage() {
         const payload = JSON.parse(event.data);
         if (payload.type === 'stage_status_changed' || payload.type === 'run_completed' || payload.type === 'run_cancelled' || payload.type === 'run_cancelling') {
           fetchRunDetails();
+          fetchDeliverables();
           fetchTelemetryEvents();
           if (payload.type === 'run_completed') {
             setTimeout(() => {
+              fetchDeliverables();
               setActiveTab('preview');
             }, 800);
           }
@@ -496,14 +528,14 @@ export default function RunDashboardPage() {
               {/* Right: Demucs Stem Mixer & Sidechain (Col-Span-5) */}
               <div className="lg:col-span-5">
                 <BeforeAfterPlayer
-                  targetLanguage={(() => {
-                    try {
-                      const parsed = JSON.parse(runData.target_languages_json || '["hi"]');
-                      return Array.isArray(parsed) ? parsed[0] : 'hi';
-                    } catch {
-                      return 'hi';
-                    }
-                  })()}
+                  targetLanguage={getPrimaryTargetLanguage(runData.target_languages_json)}
+                  sourceAudioUrl={getPreviewStreamUrl(runData.clip?.source_path)}
+                  localizedAudioUrl={
+                    getPreviewStreamUrl(deliverables?.files?.mastered_soundtrack_wav) ||
+                    getPreviewStreamUrl(deliverables?.files?.release_video_mp4)
+                  }
+                  backgroundAudioUrl={getPreviewStreamUrl(deliverables?.files?.dialogue_bus_wav)}
+                  dialogueAudioUrl={getPreviewStreamUrl(deliverables?.files?.dialogue_bus_wav)}
                 />
               </div>
             </div>
@@ -555,7 +587,7 @@ export default function RunDashboardPage() {
               {stagesList.map((stageName, index) => {
                 const status = getStageStatus(stageName);
                 const pct = getStageProgress(stageName);
-                const isGpu = stageName === 'denoise' || stageName === 'transcription' || stageName === 'translation';
+                const isGpu = isGpuAcceleratedStage(stageName);
 
                 return (
                   <div
@@ -701,17 +733,8 @@ export default function RunDashboardPage() {
         <div className="space-y-6">
           <MultiAudioPlayer
             title={`Run #${runId} — ${runData.clip?.filename || 'Master Cinema Footage'}`}
-            defaultTrackId={(() => {
-              try {
-                const parsed = JSON.parse(runData.target_languages_json || '["hi"]');
-                const code = Array.isArray(parsed) ? parsed[0] : 'hi';
-                if (code === 'es') return 'spanish';
-                if (code === 'fr') return 'french';
-                return 'hindi';
-              } catch {
-                return 'hindi';
-              }
-            })()}
+            tracks={dynamicTracks.length > 0 ? dynamicTracks : undefined}
+            defaultTrackId={dynamicTracks.length > 1 ? dynamicTracks[1].id : 'original'}
           />
 
           <div className="pt-4 border-t border-[#dbd8e8]">

@@ -3,6 +3,16 @@ from typing import Dict, Any, List
 from app.engine.stage import BaseStage, ProgressCallback, LogCallback
 from app.agents.voice_director import VoiceDirectorAgent
 
+ALLOWED_TTS_ADAPTERS = {"kokoro", "edge_tts", "mock"}
+
+
+def sanitize_tts_adapter(adapter: Any) -> str:
+    """Sanitizes incoming TTS adapter input, defaulting safely to 'kokoro'."""
+    if not adapter or not isinstance(adapter, str):
+        return "kokoro"
+    cleaned = adapter.strip().lower()
+    return cleaned if cleaned in ALLOWED_TTS_ADAPTERS else "kokoro"
+
 
 class TTSStage(BaseStage):
     """
@@ -10,8 +20,16 @@ class TTSStage(BaseStage):
     into character-consistent acoustic WAV stems.
     """
 
-    def __init__(self):
-        super().__init__("tts", gpu_required=False)
+    def __init__(self, adapter_type: str = "kokoro"):
+        adapter = sanitize_tts_adapter(adapter_type)
+        gpu_active = False
+        if adapter == "kokoro":
+            try:
+                import torch
+                gpu_active = bool(torch.cuda.is_available())
+            except Exception:
+                gpu_active = False
+        super().__init__("tts", gpu_required=gpu_active)
 
     @staticmethod
     def _build_localized_lines(segments: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
@@ -44,7 +62,7 @@ class TTSStage(BaseStage):
         await log_cb("INFO", f"Starting TTS Speech Synthesis for {len(segments)} segments (lang={target_lang})")
         await progress_cb(10.0, "Initializing Neural Voice Director")
 
-        adapter_type = config.get("tts_adapter", "edge_tts")
+        adapter_type = sanitize_tts_adapter(config.get("tts_adapter"))
         voice_agent = VoiceDirectorAgent(base_storage_dir=str(run_dir.parent), adapter_type=adapter_type)
 
         localized_lines = self._build_localized_lines(segments)

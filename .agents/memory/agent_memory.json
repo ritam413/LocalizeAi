@@ -1,0 +1,224 @@
+{
+  "version": "1.1.0",
+  "last_updated": "2026-09-20T23:25:00+05:30",
+  "categories": {
+    "domain_invariants": [
+      {
+        "id": "inv_001_temporal_continuity",
+        "title": "Stem Auditioning Temporal Invariant",
+        "text": "When switching audio channels or stems (dialogue, background, master mixdown) in BeforeAfterPlayer, the audioRef.current.currentTime MUST be preserved across switches, enabling seamless A/B comparison without resetting the playhead to 00:00.",
+        "metadata": {
+          "source": "context.md",
+          "adr": "ADR-009",
+          "components": ["BeforeAfterPlayer.tsx", "mediaTrackHelpers.ts"]
+        }
+      },
+      {
+        "id": "inv_002_http_206_streaming",
+        "title": "HTTP 206 Partial Content Media Bridge",
+        "text": "All video and audio playback must route through /api/v1/clips/preview-stream?path=... supporting HTTP 206 Partial Content byte ranges, avoiding memory exhaustion from full-file downloads and enabling native seeking on broadcast containers.",
+        "metadata": {
+          "source": "context.md",
+          "adr": "ADR-008",
+          "components": ["backend/app/api/endpoints/clips.py", "frontend/lib/mediaTrackHelpers.ts"]
+        }
+      },
+      {
+        "id": "inv_003_gpu_acceleration_boundary",
+        "title": "GPU Accelerated Stages Invariant",
+        "text": "Pipeline stages transcription (Faster-Whisper), translation (Gemini/LLM), and tts (Kokoro-82M) are hardware-accelerated GPU/cloud stages. Extraction, denoise (zero-copy audio pass-through), duration_align, remix, and remux are CPU/FFmpeg stages.",
+        "metadata": {
+          "source": "context.md",
+          "components": ["frontend/lib/mediaTrackHelpers.ts", "backend/app/engine/stages/denoise.py", "frontend/app/runs/[id]/page.tsx"]
+        }
+      },
+      {
+        "id": "inv_004_vram_footprint",
+        "title": "4GB VRAM Hardware Limit",
+        "text": "ASR speech recognition is standardized on faster-whisper medium with int8 quantization to prevent CUDA OOM on GTX 1050 Ti (4GB VRAM) devices, with automatic fallback to CPU int8 upon missing CUDA libraries.",
+        "metadata": {
+          "source": "context.md",
+          "adr": "ADR-007",
+          "components": ["backend/app/engine/stages/transcription.py"]
+        }
+      },
+      {
+        "id": "inv_005_kokoro_pcm16_audio_standard",
+        "title": "Kokoro 24kHz PCM_16 Audio Stem Invariant",
+        "text": "All speech stems synthesized via KokoroTTSAdapter must be written using soundfile with subtype='PCM_16' at 24000 Hz, guaranteeing clean ingestion by Python standard library wave.open, check_audio_clipping, and FFmpeg amix.",
+        "metadata": {
+          "source": "Docs/RESEARCH_KOKORO_FIXES_AND_CENTRALIZED_LANGUAGES.md",
+          "adr": "ADR-011",
+          "components": ["backend/app/agents/voice_director.py", "backend/app/core/languages.py"]
+        }
+      },
+      {
+        "id": "inv_006_threadsafe_model_cache",
+        "title": "Singleton Thread-Safe Model Pipeline Cache",
+        "text": "Neural TTS pipelines (KPipeline) must be cached in a class-level singleton dictionary (_pipeline_cache) guarded by a threading.Lock, preventing duplicate VRAM allocations and OOM spikes on 4GB GPUs.",
+        "metadata": {
+          "source": "Docs/RESEARCH_KOKORO_FIXES_AND_CENTRALIZED_LANGUAGES.md",
+          "components": ["backend/app/agents/voice_director.py"]
+        }
+      },
+      {
+        "id": "inv_007_demucs_bypass_vram_optimization",
+        "title": "Zero-Copy Denoise Pass-Through & Demucs Removal",
+        "text": "DenoiseStage performs direct zero-copy 16kHz audio routing for speech and background stems, completely removing Demucs neural stem separation overhead (~1.8GB VRAM savings) to eliminate OOM lock contention during concurrent transcription.",
+        "metadata": {
+          "source": "context.md",
+          "ticket": "TICKET-29",
+          "components": ["backend/app/engine/stages/denoise.py"]
+        }
+      },
+      {
+        "id": "inv_008_resumable_asr_checkpointing",
+        "title": "Atomic ASR Transcription Checkpointing",
+        "text": "AudioChunker processes 30-second audio windows with persistent atomic transcription_checkpoint.json. Interrupted runs seamlessly resume from the last completed chunk without re-transcribing earlier audio.",
+        "metadata": {
+          "source": "context.md",
+          "ticket": "TICKET-29",
+          "components": ["backend/app/engine/stages/transcription.py"]
+        }
+      },
+      {
+        "id": "inv_009_24khz_downstream_seams_and_zero_division_guard",
+        "title": "Downstream 24kHz Audio Seams & Defensive Duration Clamping",
+        "text": "All duration reconciliation (atempo time-stretching) and audio mastering (amix sidechain ducking & EBU R128 -24 LUFS normalization) must support 24,000 Hz 16-bit PCM WAV stems. All duration arithmetic must clamp input durations using max(0.1, duration) to prevent ZeroDivisionError.",
+        "metadata": {
+          "source": "context.md",
+          "ticket": "TICKET-27",
+          "components": ["backend/app/agents/qa_agent.py", "backend/app/engine/stages/duration_align.py", "backend/app/agents/sync_engineer.py", "backend/app/engine/stages/mixer.py"]
+        }
+      }
+    ],
+    "bug_resolution_traces": [
+      {
+        "id": "trace_001_video_player_disconnection",
+        "symptom": "MultiAudioPlayer fell back to hardcoded sample clips (trial1 demo) on live run detail page.",
+        "root_cause": "The tracks prop was omitted when invoking MultiAudioPlayer in frontend/app/runs/[id]/page.tsx, and deliverables were never fetched from the backend.",
+        "resolution": "Added fetchDeliverables() calling GET /api/v1/runs/{id}/deliverables on initial mount and on WebSocket run_completed event. Extracted buildRunAudioTracks to synthesize original and localized streams with graceful fallback.",
+        "verification_suite": "frontend/__tests__/MultiAudioPlayer.test.tsx and frontend/__tests__/mediaTrackHelpers.test.ts"
+      },
+      {
+        "id": "trace_002_before_after_player_silent_mock",
+        "symptom": "BeforeAfterPlayer was an un-hydrated visual scaffold without audio playback or timestamp continuity.",
+        "root_cause": "Component lacked an HTMLMediaElement audio engine, track switching event handlers, and active stream URL bindings.",
+        "resolution": "Implemented HTML5 audio element with preload='metadata', switchTrackPreservingTimestamp, time scrubber, and decomposed into clean StemChannelCard sub-components.",
+        "verification_suite": "frontend/__tests__/BeforeAfterPlayer.test.tsx"
+      },
+      {
+        "id": "trace_003_jsdom_audio_mock",
+        "symptom": "Vitest crashed when testing audio components with 'Not implemented: HTMLMediaElement.prototype.play'.",
+        "root_cause": "JSDOM environment lacks native browser media decoding and playback engines.",
+        "resolution": "Mocked window.HTMLMediaElement.prototype.play = vi.fn().mockImplementation(() => Promise.resolve()) and pause = vi.fn() in test beforeEach hook.",
+        "verification_suite": "frontend/__tests__/BeforeAfterPlayer.test.tsx"
+      },
+      {
+        "id": "trace_004_kokoro_multi_sentence_truncation",
+        "symptom": "Multi-sentence dialogue monologues were truncated after the first sentence.",
+        "root_cause": "Early return inside the generator loop for _, _, audio in generator: sf.write(...); return ... exited on chunk 1, discarding subsequent sentences.",
+        "resolution": "Accumulate all chunks in a list comprehension and concatenate via np.concatenate before writing to disk.",
+        "verification_suite": "backend/tests/test_voice_director.py (test_kokoro_tts_adapter_chunk_aggregation)"
+      },
+      {
+        "id": "trace_005_kokoro_zero_chunk_pause_crash",
+        "symptom": "Dialogue lines containing only pauses or punctuation ('...') crashed with ValueError or produced missing WAV files.",
+        "root_cause": "Phonemizer stripped non-lexical tokens, resulting in 0 chunks yielded by StyleTTS 2 generator.",
+        "resolution": "Pre-check text with re.search(r'\\w', text) and generate clean silent 16-bit PCM WAV matching target_duration_s using np.zeros.",
+        "verification_suite": "backend/tests/test_voice_director.py (test_kokoro_tts_adapter_pause_silence)"
+      },
+      {
+        "id": "trace_006_windows_file_lock_retry_contention",
+        "symptom": "Targeted retries on Windows crashed with PermissionError: [WinError 32] when overwriting existing WAV stems.",
+        "root_cause": "Windows OS file lock on active audio stream handles held by media player or browser bridge.",
+        "resolution": "Write to sibling .tmp.wav and atomically replace via os.replace().",
+        "verification_suite": "backend/tests/test_voice_director.py"
+      },
+      {
+        "id": "trace_007_zero_division_duration_reconciliation",
+        "symptom": "Dialogue segments with 0.0s or corrupt duration triggered ZeroDivisionError during atempo factor computation.",
+        "root_cause": "Missing defensive clamp on raw_duration_s and target_duration_s before floating-point division.",
+        "resolution": "Enforced raw_duration_s = max(0.1, float(raw_duration_s)) and target_duration_s = max(0.1, float(target_duration_s)) in duration_align.py and sync_engineer.py.",
+        "verification_suite": "backend/tests/test_downstream_audio_seams.py"
+      },
+      {
+        "id": "trace_008_qa_clipping_false_positives",
+        "symptom": "24kHz PCM_16 WAV dialogue stems were incorrectly flagged as clipped in QA analysis.",
+        "root_cause": "check_audio_clipping assumed raw float32 normalized samples without proper 16-bit integer conversion scale [-32768, 32767].",
+        "resolution": "Standardized peak amplitude calculation in qa_agent.py, ensuring 0.79 <= peak <= 0.81 for valid audio and >= 0.999 for genuine clipping.",
+        "verification_suite": "backend/tests/test_qa_agent.py"
+      },
+      {
+        "id": "trace_009_kokoro_ci_offline_mocking",
+        "symptom": "CI test runners failed or timed out trying to connect to Hugging Face or initialize CUDA models.",
+        "root_cause": "VoiceDirector tests previously executed unmocked pipeline initializations.",
+        "resolution": "Created fast (<1.5s SLA), 100% offline unit test suite with mock KPipeline fixtures covering chunk aggregation, silence generation, Edge-TTS fallback, and exception resilience.",
+        "verification_suite": "backend/tests/test_voice_director.py"
+      },
+      {
+        "id": "trace_010_ollama_port_bind_conflict",
+        "symptom": "ollama serve fails with 'bind: Only one usage of each socket address (protocol/network address/port) is normally permitted'.",
+        "root_cause": "Ollama is already running in the background as the Windows system tray application (ollama app.exe / ollama.exe), occupying port 11434 with default 127.0.0.1 binding.",
+        "resolution": "Terminate background instances via Stop-Process -Name 'ollama', 'ollama app' -Force (or right-click Tray Icon -> Quit Ollama), set env variables ($env:OLLAMA_HOST='0.0.0.0:11434', etc.), and re-run ollama serve.",
+        "verification_suite": "Get-Process -Name 'ollama*' and ollama serve"
+      }
+    ],
+    "clean_code_patterns": [
+      {
+        "id": "pattern_001_single_responsibility_helpers",
+        "rule": "Avoid mixing DOM rendering with URL encoding or JSON parsing.",
+        "implementation": "frontend/lib/mediaTrackHelpers.ts exports isGpuAcceleratedStage, getPreviewStreamUrl, getPrimaryTargetLanguage, getLanguageMetadata, and buildRunAudioTracks.",
+        "benefit": "Eliminated 7 duplicate preview stream URL templates and reduced dynamicTracks useMemo by 70 lines."
+      },
+      {
+        "id": "pattern_002_centralized_language_registry",
+        "rule": "Never hardcode language codes or voice mappings in agent business logic.",
+        "implementation": "backend/app/core/languages.py serves as single source of truth for ISO codes, Kokoro lang_code, Kokoro style personas, and Edge-TTS fallbacks.",
+        "benefit": "Eliminates duplicate language dictionaries across voice_director.py, tts.py, and test suites."
+      },
+      {
+        "id": "pattern_003_defensive_duration_guards",
+        "rule": "Always defensively clamp segment timestamps and audio durations before ratio calculations.",
+        "implementation": "Use max(0.1, duration) across SyncEngineer, DurationAlignStage, and AcousticMasteringEngine.",
+        "benefit": "Prevents catastrophic pipeline halts from ZeroDivisionError on edge-case audio inputs."
+      },
+      {
+        "id": "pattern_004_atomic_file_replacement",
+        "rule": "Use atomic temporary file substitution to bypass Windows file locks.",
+        "implementation": "Write to sibling .tmp.* file first and atomically replace with os.replace().",
+        "benefit": "Immunity to WinError 32 permission errors during live playback and targeted retries."
+      }
+    ],
+    "operational_runbooks": [
+      {
+        "id": "runbook_001_backend_startup",
+        "title": "Start / Spin Up LOCALIZE FastAPI Backend",
+        "command_from_root": "$env:PYTHONPATH=\"backend\"; .\\.venv\\Scripts\\python.exe -m uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload",
+        "command_from_backend": "..\\.venv\\Scripts\\python.exe -m uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload",
+        "description": "Spins up FastAPI backend with live reload on port 8000. Swagger docs available at http://localhost:8000/docs."
+      },
+      {
+        "id": "runbook_002_frontend_startup",
+        "title": "Start / Spin Up Next.js Frontend Studio",
+        "command": "cd frontend; npm run dev",
+        "description": "Launches Next.js studio console on port 3000 (http://localhost:3000)."
+      },
+      {
+        "id": "runbook_003_test_suites",
+        "title": "Execute Test Suites",
+        "backend_tests": ".\\.venv\\Scripts\\pytest backend/tests",
+        "frontend_tests": "cd frontend; npm test",
+        "description": "Runs backend Pytest suite (100+ tests) and frontend Vitest suite (117 tests)."
+      },
+      {
+        "id": "runbook_004_ollama_startup",
+        "title": "Start / Spin Up Ollama LLM Server for Client Connections",
+        "command_native_lan": "$env:OLLAMA_HOST=\"0.0.0.0:11434\"; $env:OLLAMA_ORIGINS=\"*\"; $env:OLLAMA_KEEP_ALIVE=\"0\"; ollama serve",
+        "command_native_local": "ollama serve",
+        "command_run_model": "ollama run richardyoung/qwen2.5-3b-instruct-abliterated:latest",
+        "description": "Starts Ollama daemon on port 11434. Setting OLLAMA_HOST=0.0.0.0 allows LAN/external client connections. Setting OLLAMA_ORIGINS=* enables browser CORS. OLLAMA_KEEP_ALIVE=0 releases VRAM immediately after generation to prevent CUDA OOM during Whisper/Kokoro stages."
+      }
+    ]
+  }
+}

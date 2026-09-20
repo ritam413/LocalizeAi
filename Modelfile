@@ -1,20 +1,4 @@
-FROM ./Qwen2.5-3B-Instruct-heretic.Q4_K_M.gguf
-
-# Match richardyoung/qwen2.5-3b-instruct-abliterated exactly:
-# 1. Zero system prompt restrictions (lets base model write fully detailed, unconstrained text)
-# 2. 8192 context window (allows massive, long-form detailed responses)
-PARAMETER num_gpu 99
-PARAMETER num_ctx 8192
-
-# 3. Natural generation parameters (matching base Qwen2.5 defaults)
-PARAMETER temperature 0.7
-PARAMETER top_p 0.8
-PARAMETER top_k 20
-PARAMETER repeat_penalty 1.05
-
-PARAMETER stop "<|im_end|>"
-PARAMETER stop "<|im_start|>"
-PARAMETER stop "<|endoftext|>"
-
-# Raw prompt passthrough matching richardyoung's exact template
+FROM qwen3-short-story-4b
 TEMPLATE "{{ .Prompt }}"
+PARAMETER num_ctx 8192
+PARAMETER stop "<|im_end|>"

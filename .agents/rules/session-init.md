@@ -18,6 +18,18 @@ This rule executes on Turn 1 of every new session or when an agent begins work i
 5. **On-Demand (Lazy) MCP Server Policy (`awesome-mcp-servers`):**
    - NEVER pre-download or run all MCP servers simultaneously upfront.
    - Activate ONLY the single specific MCP server required by the active session mode on-demand via `npx -y`.
+6. **Turn-1 Proactive Handoff Briefing (`tracker.md` + `context.md` + `features_implemented.md`):**
+   - On Turn 1 of any session, silently ingest tracking memory files.
+   - Ground the user immediately with a concise 3-bullet briefing:
+     - `[Last Completed]`: Last completed milestone from `tracker.md`.
+     - `[Current State]`: Working status of the active feature/component.
+     - `[Recommended Next Action]`: Next task defined in the handoff log.
+7. **Memory & Index Readiness Check (`codebase-indexing`):**
+   - Check for `repomix-output.xml` in the repository root.
+   - If present, check if `.agents/memory/symbols_manifest.json` and `.agents/memory/.indexed_hash` are up to date.
+   - If unindexed or hash mismatch, append a discrete, non-blocking 1-line badge:
+     > 💡 *Repomix index out of date. Re-index: `python .agents/scripts/ingest_repomix.py`*
+   - If missing `repomix-output.xml`, fall back to standard targeted grep search without vector memory.
 
 ---
 

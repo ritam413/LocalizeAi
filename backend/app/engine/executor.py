@@ -168,8 +168,12 @@ class RunExecutor:
                     })
 
                 # Instantiate stage engine
-                stage_cls = STAGE_CLASSES.get(stage_name, lambda: StubStage(stage_name))
-                stage_engine = stage_cls()
+                if stage_name == "tts":
+                    tts_adapter = stage_config.get("tts_adapter", "kokoro")
+                    stage_engine = TTSStage(adapter_type=tts_adapter)
+                else:
+                    stage_cls = STAGE_CLASSES.get(stage_name, lambda: StubStage(stage_name))
+                    stage_engine = stage_cls()
 
                 async def progress_callback(pct: float, msg: str):
                     if is_cancelled(run_id):
@@ -218,6 +222,7 @@ class RunExecutor:
                     "use_demucs": stage_config.get("use_demucs", True),
                     "whisper_model": stage_config.get("whisper_model") or stage_config.get("asr_model"),
                     "asr_model": stage_config.get("asr_model") or stage_config.get("whisper_model"),
+                    "tts_adapter": stage_config.get("tts_adapter", "kokoro"),
                 }
 
                 try:

@@ -22,12 +22,56 @@ This document tracks the current functionality and implementation status of LOCA
   - `pick-ui-library`: Opinionated UI library selection for specialized interactive components.
   - `emil-prototype`: Multi-variant UI divergence with a live visual switcher.
   - `taste-skill`: Anti-slop frontend design system and aesthetic standards.
+- **Codebase Memory Index & Gated Inspection Engine (`/agentmemory`, `/repomix`, `/context7`)**:
+  - **Status**: Implemented & Updated (v1.1.0)
+  - **Details**: Enforces zero-tool fast bypass on non-codebase queries and a deterministic tiered inspection pipeline on repo inquiries. Includes streaming $O(1)$ RAM parser (`ingest_repomix.py`) extracting 6,580 exported symbols, interfaces, and function signatures across 306 files into an instant $O(1)$ dictionary (`symbols_manifest.json`). Implements structured episodic memory store (`.agents/memory/agent_memory.json` & `query_memory.py`) holding domain invariants (temporal continuity, 4GB VRAM limits, Kokoro 24kHz PCM_16 standard, Demucs bypass pass-through, atomic ASR checkpointing, downstream defensive duration clamping), bug resolution traces, and clean code patterns. Implements Windows SQLite WAL isolation, hash-based cache invalidation (`.indexed_hash`), Turn-1 proactive handoff briefings (`tracker.md`, `context.md`, `features_implemented.md`), and strict bans on blind directory walking (`list_dir`) and uninspected whole-file dumping.
+  - **Modules**: `.agents/scripts/ingest_repomix.py`, `.agents/memory/agent_memory.json`, `.agents/memory/query_memory.py`, `.agents/skills/agentmemory/SKILL.md`, `.agents/rules/codebase-indexing.md`, `.agents/rules/session-init.md`, `.agents/memory/symbols_manifest.json`, `.agents/memory/.indexed_hash`.
+  - **Verification**: `python .agents/memory/query_memory.py "kokoro"` and `python .agents/memory/query_memory.py "temporal" domain_invariants` verified; Ingestion executed successfully on 13.2MB Repomix XML in 4.1s.
+
+- **Centralized Language & Voice Persona Registry (TICKET-24)**:
+  - **Status**: Implemented & Verified
+  - **Details**: Single authoritative registry (`backend/app/core/languages.py`) centralizing ISO 639-1 language specifications, Kokoro 1-character codes (`'a'`, `'e'`, `'f'`, `'h'`, `'j'`, `'z'`), Kokoro style voices (`af_heart`, `am_adam`, `ef_dora`, `hm_omega`), and Microsoft Edge-TTS fallback personas. Features `resolve_language()` which normalizes compound tags (`"hi-IN"` -> `"hi"`, `"es_ES"` -> `"es"`), gracefully defaults unknown tags to English (`en`), and explicitly flags German (`de`) with `kokoro_lang_code=None` for clean Edge fallback without phonemization overhead. Built with `/ponytail` (YAGNI, minimal, zero boilerplate, leveraging immutable `LanguageSpec` from `app.core.tts_contracts`).
+  - **Modules**: `backend/app/core/languages.py`, `backend/app/core/tts_contracts.py`.
+  - **Verification**: `pytest backend/tests/test_languages.py` (4/4 tests passed in 0.20s).
+
+- **Hardened Kokoro-82M Neural TTS Adapter (TICKET-25)**:
+  - **Status**: Implemented & Verified
+  - **Details**: Neural speech synthesis adapter (`backend/app/agents/voice_director.py`) solving multi-sentence generator truncation (`np.concatenate`), zero-frame punctuation pause crashes (`re.search(r'\w')` silence generator), Windows atomic `.tmp.wav` file-locking safety, 24kHz PCM_16 WAV standard compliance, and graceful exception/language degradation to `EdgeTTSAdapter`.
+  - **Modules**: `backend/app/agents/voice_director.py`.
+  - **Verification**: `pytest backend/tests/test_voice_director.py` (13/13 tests passed in 15.16s).
+
+- **TTS Stage, RunExecutor Override & GPU Mutex Wiring (TICKET-26)**:
+  - **Status**: Implemented & Verified
+  - **Details**: Full pipeline pass-through for `tts_adapter` defaulting to `"kokoro"`. Implements `sanitize_tts_adapter()` enforcing whitelist `{"kokoro", "edge_tts", "mock"}` against `null` or invalid payloads. Dynamically calculates `gpu_required = (adapter == "kokoro" and torch.cuda.is_available())` during `TTSStage` initialization in `RunExecutor` to serialize against Faster-Whisper and Demucs on Pascal 4GB GPUs via `gpu_lock`.
+  - **Modules**: `backend/app/engine/stages/tts.py`, `backend/app/engine/executor.py`, `backend/app/api/runs.py`.
+  - **Verification**: `pytest backend/tests/test_dubbing_stages_chain.py` (16/16 tests passed), Full suite (101/101 tests passed).
+
+- **Downstream Audio Seams & Acoustic QA Verification (TICKET-27)**:
+  - **Status**: Implemented & Verified
+  - **Details**: Validates end-to-end integration of 24,000 Hz 16-bit PCM WAV stems across downstream stages without sample-rate conversion errors or clipping false-positives. Verifies `qa_agent.py` (`check_audio_clipping`) correctly parses 24kHz PCM_16 samples with amplitude bounds ($0.79 \le \text{peak} \le 0.81$ unclipped vs $\ge 0.999$ clipped). Incorporates adversarial zero-division defenses in `duration_align.py` and `sync_engineer.py` (`max(0.1, duration)`), and validates `DurationAlignStage` (`atempo` speed reconciliation) and `MasteringStage` (`amix`, `adelay`, and EBU R128 -24 LUFS loudness mastering) producing standard release soundtracks.
+  - **Modules**: `backend/app/agents/qa_agent.py`, `backend/app/engine/stages/duration_align.py`, `backend/app/agents/sync_engineer.py`, `backend/app/engine/stages/mixer.py`.
+  - **Verification**: `pytest backend/tests/test_qa_agent.py backend/tests/test_downstream_audio_seams.py` (9/9 passed).
+
+- **Kokoro TTS Automated Test Harness & CI Gatekeeper (TICKET-28)**:
+  - **Status**: Implemented & Verified
+  - **Details**: Established a 100% offline, fast (<1.5s runtime SLA) test suite in `backend/tests/test_voice_director.py` verifying `VoiceDirectorAgent` and `KokoroTTSAdapter`. Validates multi-sentence chunk aggregation, non-lexical/whitespace pause silence generation, unsupported language degradation to `EdgeTTSAdapter`, and runtime exception recovery without requiring live GPU hardware or Hugging Face downloads.
+  - **Modules**: `backend/app/agents/voice_director.py`, `backend/tests/test_voice_director.py`.
+  - **Verification**: `pytest backend/tests/test_voice_director.py` (9/9 passed in <1.5s).
+
+
+---
 
 ### Hardware-Accelerated Spring Physics & Animation Gating (`/find-animation-opportunities`, `/animate`)
 - **Status**: Implemented
 - **Details**: Rigorously gated animation opportunities using Emil Kowalski's motion framework. Implemented hardware-accelerated spring physics (`.btn-spring` with `:active { transform: scale(0.97); }`, `--ease-out: cubic-bezier(0.23, 1, 0.32, 1)`, and `will-change: transform`), GPU-composited waveform stem level adjustments (`transform-origin: left center` with `scaleX`), sliding segmented indicator transitions (`.segmented-slider`), and interruptible cinema video scrubbing without layout thrashing. Enforces strict `@media (prefers-reduced-motion: reduce)` accessibility fallback and `@media (hover: hover) and (pointer: fine)` touch gating. Deliberately rejected motion on high-frequency log streams and raw data counters to prevent cognitive fatigue.
 - **Modules**: `frontend/app/globals.css`, `mockup.html`, `mockup_v2.html`
 - **Verification**: Full Vitest test suite (`npm --prefix frontend test`: 19 / 19 test files passed, 100 / 100 tests passed, 100%).
+
+### Frontend Dubbing Timeline & Dynamic Video/Stem Player Integration
+- **Status**: Implemented & Verified (100%)
+- **Details**: Wires live pipeline deliverables (`GET /api/v1/runs/{id}/deliverables`) into the Frontend Run Console (`frontend/app/runs/[id]/page.tsx`). Constructs dynamic `AudioTrackOption[]` mapping `release_video_mp4`, `mastered_soundtrack_wav`, `subtitles_vtt`, and `subtitles_srt` served over HTTP 206 partial content streaming (`/api/v1/clips/preview-stream`), replacing hardcoded demo clips in `MultiAudioPlayer`. Converts `BeforeAfterPlayer.tsx` from a static UI into an active HTML5 stem player supporting continuous timestamp preservation (`currentTime` continuity) across Master, Isolated Dialogue, and Background stems. Updates pipeline stage timeline with GPU badging for `tts` (Kokoro neural engine) alongside `denoise`, `transcription`, and `translation`.
+- **Modules**: `frontend/app/runs/[id]/page.tsx`, `frontend/components/studio/BeforeAfterPlayer.tsx`, `frontend/components/video/MultiAudioPlayer.tsx`
+- **Verification**: `npm --prefix frontend test` (19/19 files, 100/100 tests passed) & Pytest test suite (82/82 tests passed).
 
 ### Predictive Duration Engine & Multi-Device Log Synchronizer
 - **Status**: Implemented
@@ -45,17 +89,17 @@ This document tracks the current functionality and implementation status of LOCA
 - **Modules**: `backend/app/engine/stages/extraction.py`
 - **Verification**: Verified on sample videos.
 
-### Vocal Stem Separation (Demucs HTDemucs)
-- **Status**: Implemented
-- **Details**: Silence-aware chunked separation using Demucs HTDemucs with ffmpeg speech-formant filter fallback. Checkpointed resumption across chunks.
+### Audio Routing & Direct Pass-Through (DenoiseStage)
+- **Status**: Implemented & Verified
+- **Details**: Decommissioned heavy Demucs neural stem separation overhead. Extracted 16kHz mono audio is routed directly into vocals and background audio stems with zero GPU VRAM allocation and sub-50ms execution speed, freeing ~1.8GB VRAM and eliminating startup delays.
 - **Modules**: `backend/app/engine/stages/denoise.py`
-- **Verification**: `backend/tests/test_demucs_silence_chunking.py`
+- **Verification**: `backend/tests/test_denoise_passthrough.py`
 
-### ASR Speech Transcription
-- **Status**: Implemented
-- **Details**: Standardized on `faster-whisper` `medium` (int8 CTranslate2) with Silero VAD filtering to generate accurate timestamped speech segments within a strict 4GB VRAM GPU footprint. Features CUDA 12 dynamic library loading support via `LD_LIBRARY_PATH` (`nvidia-cublas-cu12`, `nvidia-cudnn-cu12`) with automatic self-healing fallback to CPU (`int8`) inference upon missing `.so` libraries or VRAM exhaustion.
-- **Modules**: `backend/app/engine/stages/transcription.py`, `backend/Dockerfile`
-- **Verification**: `backend/tests/test_cuda_fallback_and_preview.py`
+### Resumable Chunked ASR Speech Transcription (Faster-Whisper)
+- **Status**: Implemented & Verified
+- **Details**: Standardized on `faster-whisper` `medium` (int8 CTranslate2) with Silero VAD filtering, integrated with `AudioChunker` for windowed audio slicing (~60s chunks). Features persistent incremental checkpointing (`transcription_checkpoint.json`) written atomically (`.tmp.json` + `os.replace`) after every completed chunk, emitting live progress updates (`20%`, `40%`, etc.) and seamlessly resuming from previously completed chunks on re-runs without duplicating or dropping segments.
+- **Modules**: `backend/app/engine/stages/transcription.py`, `backend/app/engine/audio_chunker.py`
+- **Verification**: `backend/tests/test_audio_chunker.py`, `backend/tests/test_transcription_checkpointing.py` (106/106 full backend suite passed).
 
 ### Subtitle Formatting & QA Sanity Rules
 - **Status**: Implemented & Verified
@@ -110,9 +154,9 @@ This document tracks the current functionality and implementation status of LOCA
 - **Verification**: Vitest (`frontend/__tests__/localization_director.test.ts`: 5 tests passed), Pytest (`backend/tests/test_localization_director.py`: 4 tests passed).
 
 ### Voice Director Agent & Pluggable Speech Synthesis Adapter (TICKET-04 & TICKET-12)
-- **Status**: Implemented (EdgeTTS & MockAudio) | **In Progress / Next Priority**: Kokoro-82M Adapter (`Docs/KOKORO_TTS_INTEGRATION_ARCHITECTURAL_REPORT.md`)
-- **Details**: Assigns language and gender-appropriate neural voices per character, synthesizes per-segment speech audio stems with exact durations, and logs telemetry decisions. Employs a pluggable `SpeechSynthesisAdapter` architecture featuring `EdgeTTSAdapter` for live 300+ Microsoft neural voices with FFmpeg PCM 16kHz transcoding, `MockAudioAdapter` for instant deterministic test isolation, and architectural design ready for `KokoroTTSAdapter` (StyleTTS 2 / 24kHz float32 uncompressed audio).
-- **Modules**: `backend/app/agents/voice_director.py`, `frontend/lib/agents/voice_director.ts`, `Docs/KOKORO_TTS_INTEGRATION_ARCHITECTURAL_REPORT.md`
+- **Status**: Implemented (EdgeTTS & MockAudio) | **Ready to Implement (TDD Tickets Specified)**: Kokoro-82M & Centralized Language Registry (`Docs/tickets/TICKET-24` through `TICKET-28`)
+- **Details**: Assigns language and gender-appropriate neural voices per character, synthesizes per-segment speech audio stems with exact durations, and logs telemetry decisions. Employs a pluggable `SpeechSynthesisAdapter` architecture featuring `EdgeTTSAdapter` for live 300+ Microsoft neural voices with FFmpeg PCM 16kHz transcoding, `MockAudioAdapter` for instant deterministic test isolation, and production-hardened specification for `KokoroTTSAdapter` (StyleTTS 2 / 24kHz PCM_16 uncompressed audio, chunk aggregation, pause silence generator, Windows file-lock defense, and centralized language registry).
+- **Modules**: `backend/app/agents/voice_director.py`, `backend/app/core/languages.py`, `Docs/tickets/TICKET-24-centralized-language-registry.md` through `TICKET-28-kokoro-tts-automated-test-harness.md`
 - **Verification**: Vitest (`frontend/__tests__/voice_director.test.ts`: 3 tests passed), Pytest (`backend/tests/test_voice_director.py`: 4 tests passed).
 
 ### Sync Engineer Agent (TICKET-05)
@@ -267,4 +311,21 @@ This document tracks the current functionality and implementation status of LOCA
 
 
 
+
+### Hardened Kokoro-82M Neural TTS Adapter (TICKET-25)
+- **Status**: Implemented
+- **What it does**: Provides on-device neural speech synthesis using Kokoro-82M (StyleTTS 2) as a pluggable `SpeechSynthesisAdapter`. Resolves four production failure modes: multi-sentence truncation, pause crashes, Windows file-lock contention, and 32-bit float WAV format incompatibility.
+- **Key implementation details**:
+  - `KokoroTTSAdapter` class in `backend/app/agents/voice_director.py` (lines 147–221).
+  - Singleton `KPipeline` cache per `kokoro_lang_code` guarded by `threading.Lock()` — prevents VRAM over-allocation on 4 GB GPUs.
+  - `asyncio.to_thread(_generate)` wraps synchronous inference to avoid event-loop blocking.
+  - Zero-chunk pause guard: non-lexical text (`"..."`, `"—"`) writes a clean PCM_16 silence rather than invoking inference.
+  - Chunk aggregation via `np.concatenate` across the full generator output prevents first-chunk-only truncation.
+  - Atomic write: `sf.write(*.tmp.wav)` → `os.replace()` avoids Windows file-lock errors.
+  - All WAV output uses `subtype="PCM_16"` (Format Tag 1, 16-bit integer) for Python stdlib `wave.open()` compatibility.
+  - Unsupported language (e.g., German, `kokoro_lang_code=None`) and runtime exceptions (missing `espeak-ng`, CUDA OOM, `ImportError`) fall back to `EdgeTTSAdapter` automatically.
+  - `VoiceDirectorAgent` now accepts `adapter_type="kokoro"` and passes `target_lang=` to every `synthesize()` call.
+- **Modules**: `backend/app/agents/voice_director.py`, `backend/tests/test_voice_director.py`
+- **Verification**: `pytest backend/tests/test_voice_director.py backend/tests/test_languages.py -v` → **13/13 passed in 2.35s** (exit code 0).
+- **Known limitations**: Kokoro model weights downloaded separately; `espeak-ng` must be installed at OS level for real inference. Tests use monkeypatched pipelines.
 

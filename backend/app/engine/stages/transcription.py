@@ -2,27 +2,29 @@ import json
 import os
 import asyncio
 from pathlib import Path
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List, Optional, Tuple
 
 os.environ["HF_HUB_DISABLE_SYMLINKS"] = "1"
 os.environ["HF_HUB_DISABLE_SYMLINKS_WARNING"] = "1"
 
 from app.engine.stage import BaseStage, ProgressCallback, LogCallback
 from app.engine.subtitle_formatter import clean_segments, purge_hallucinations, deduplicate_segments
+from app.engine.audio_chunker import AudioChunker, AudioChunk
 
 
 class TranscriptionStage(BaseStage):
     """
-    ASR stage using Faster-Whisper with full anti-hallucination configuration.
+    ASR stage using Faster-Whisper with silence-aware chunking and persistent checkpoints.
 
-    Key settings (per ADR 0001):
-    - Reads isolated vocals.wav produced by DenoiseStage (HTDemucs stem).
+    Key settings (per ADR 0001 & ADR 0007):
+    - Standardized on faster-whisper medium (int8/float16).
+    - Divides input audio into chunks, transcribing each sequentially.
+    - Persists progress to transcription_checkpoint.json after each chunk (e.g. 20%, 40%).
+    - Resumes seamlessly from existing checkpoints on re-runs.
     - VAD filter enabled: min_speech_duration_ms=250, min_silence_duration_ms=500.
     - Anti-hallucination: no_speech_threshold=0.6, compression_ratio_threshold=2.4,
       condition_on_previous_text=False.
-    - Device: CUDA (float16) if available, CPU (int8) as fallback.
-    - Model is loaded, used, then explicitly deleted + CUDA cache cleared so the
-      next GPU stage (e.g. TTS) can load without OOM on a 4 GB GTX 1050 Ti.
+    - Explicit memory cleanup after execution to free GPU for downstream TTS.
     """
 
     MODEL_SIZE = "medium"
@@ -62,9 +64,12 @@ class TranscriptionStage(BaseStage):
 
         raw_model = config.get("whisper_model") or config.get("asr_model") or self.MODEL_SIZE
         model_name = self._normalize_model_name(raw_model)
+        target_chunk_s: float = float(config.get("target_chunk_s", 60.0))
 
         run_dir = Path(config.get("run_dir", "./storage/runs/default"))
+        run_dir.mkdir(parents=True, exist_ok=True)
         output_json = run_dir / "transcript.json"
+        checkpoint_json = run_dir / "transcription_checkpoint.json"
 
         audio_path = self._resolve_audio(input_artifacts, run_dir)
 
@@ -73,29 +78,96 @@ class TranscriptionStage(BaseStage):
             f"TranscriptionStage: source_lang={source_lang or 'auto-detect'}, "
             f"model={model_name} (raw={raw_model}), audio={audio_path}",
         )
-        await progress_cb(10.0, "Resolving input audio path")
+        await progress_cb(5.0, "Resolving input audio path")
 
-        segments_data: List[Dict[str, Any]] = []
-
-        if audio_path and Path(audio_path).exists():
-            segments_data = await self._run_whisper(
-                audio_path, source_lang, model_name, progress_cb, log_cb
-            )
-        elif config.get("stub_mode"):
-            await log_cb("WARNING", f"No valid audio found at '{audio_path}'. Using stub placeholder segments.")
-            segments_data = self._placeholder_segments()
-        else:
-            await log_cb("ERROR", f"No valid audio found at '{audio_path}'.")
-            raise RuntimeError(f"No valid audio file found for transcription stage at path: '{audio_path}'")
-
-        if not segments_data:
+        if not audio_path or not Path(audio_path).exists():
             if config.get("stub_mode"):
+                await log_cb("WARNING", f"No valid audio found at '{audio_path}'. Using stub placeholder segments.")
                 segments_data = self._placeholder_segments()
+                with open(output_json, "w", encoding="utf-8") as fh:
+                    json.dump(segments_data, fh, indent=2, ensure_ascii=False)
+                await progress_cb(100.0, "Transcription complete (stub)")
+                return {
+                    "status": "success",
+                    "segments": segments_data,
+                    "audio_path": audio_path,
+                    "artifacts": [
+                        {"type": "json", "label": "Transcription JSON", "path": str(output_json)}
+                    ],
+                }
             else:
-                raise RuntimeError("Transcription produced zero segments.")
+                await log_cb("ERROR", f"No valid audio found at '{audio_path}'.")
+                raise RuntimeError(f"No valid audio file found for transcription stage at path: '{audio_path}'")
 
-        # Post-process: purge phantom hallucinations and deduplicate consecutive loops (action/fight scenes)
-        segments_data = purge_hallucinations(segments_data)
+        # ── 1. Split audio into windowed chunks ────────────────────────── #
+        chunks_dir = run_dir / "chunks"
+        chunks = AudioChunker.split_audio(audio_path, str(chunks_dir), target_chunk_s=target_chunk_s)
+        total_chunks = len(chunks)
+
+        if total_chunks == 0:
+            raise RuntimeError("AudioChunker produced 0 chunks from input audio.")
+
+        await log_cb("INFO", f"TranscriptionStage: Divided audio into {total_chunks} chunk(s) of ~{target_chunk_s}s each")
+
+        # ── 2. Checkpoint Loading & Resumption ─────────────────────────── #
+        completed_chunks: List[int] = []
+        accumulated_segments: List[Dict[str, Any]] = []
+
+        if checkpoint_json.exists():
+            try:
+                with open(checkpoint_json, "r", encoding="utf-8") as fh:
+                    cp_data = json.load(fh)
+                    completed_chunks = cp_data.get("completed_chunks", [])
+                    accumulated_segments = cp_data.get("accumulated_segments", [])
+                
+                prev_pct = cp_data.get("progress_percent", 0.0)
+                await log_cb(
+                    "INFO",
+                    f"TranscriptionStage: Found existing checkpoint! Resuming from chunk {len(completed_chunks)}/{total_chunks} ({prev_pct}% previously completed).",
+                )
+            except Exception as cp_err:
+                await log_cb("WARNING", f"Failed to load checkpoint ({cp_err}), restarting transcription from chunk 0.")
+                completed_chunks = []
+                accumulated_segments = []
+
+        # ── 3. Sequential Chunk Transcription Loop ────────────────────── #
+        for chunk in chunks:
+            if chunk.index in completed_chunks:
+                await log_cb("INFO", f"TranscriptionStage: Skipping already completed chunk {chunk.index} [{chunk.start_offset_s}s - {chunk.end_offset_s}s]")
+                continue
+
+            await log_cb("INFO", f"TranscriptionStage: Transcribing chunk {chunk.index + 1}/{total_chunks} [{chunk.start_offset_s}s - {chunk.end_offset_s}s]")
+            
+            chunk_segments, detected_lang = await self._transcribe_single_chunk(
+                chunk_path=chunk.path,
+                source_lang=source_lang,
+                model_name=model_name,
+            )
+
+            # Offset chunk relative timestamps by chunk.start_offset_s
+            for seg in chunk_segments:
+                seg["start_s"] = round(seg["start_s"] + chunk.start_offset_s, 3)
+                seg["end_s"] = round(seg["end_s"] + chunk.start_offset_s, 3)
+                accumulated_segments.append(seg)
+
+            completed_chunks.append(chunk.index)
+            progress_pct = round((len(completed_chunks) / total_chunks) * 100.0, 1)
+
+            # Atomic checkpoint write (.tmp + os.replace)
+            self._save_checkpoint(
+                checkpoint_json=checkpoint_json,
+                total_chunks=total_chunks,
+                completed_chunks=completed_chunks,
+                progress_percent=progress_pct,
+                last_completed_offset_s=chunk.end_offset_s,
+                accumulated_segments=accumulated_segments,
+            )
+
+            await log_cb("INFO", f"TranscriptionStage: {progress_pct}% complete (chunk {chunk.index + 1}/{total_chunks} done)")
+            await progress_cb(progress_pct, f"Transcribing audio: {progress_pct}% complete ({chunk.index + 1}/{total_chunks} chunks)")
+
+        # ── 4. Post-processing & Final Transcript Export ──────────────── #
+        segments_data = purge_hallucinations(accumulated_segments)
         segments_data = deduplicate_segments(segments_data)
 
         with open(output_json, "w", encoding="utf-8") as fh:
@@ -107,30 +179,25 @@ class TranscriptionStage(BaseStage):
             "segments": segments_data,
             "audio_path": audio_path,
             "artifacts": [
-                {"type": "json", "label": "Transcription JSON", "path": str(output_json)}
+                {"type": "json", "label": "Transcription JSON", "path": str(output_json)},
+                {"type": "json", "label": "Transcription Checkpoint", "path": str(checkpoint_json)},
             ],
         }
 
     # ------------------------------------------------------------------ #
-    #  Whisper inference (runs in a thread to not block the event loop)   #
+    #  Single Chunk Whisper Inference                                    #
     # ------------------------------------------------------------------ #
 
-    async def _run_whisper(
+    async def _transcribe_single_chunk(
         self,
-        audio_path: str,
+        chunk_path: str,
         source_lang: Optional[str],
         model_name: str,
-        progress_cb: ProgressCallback,
-        log_cb: LogCallback,
-    ) -> List[Dict[str, Any]]:
-        await log_cb("INFO", f"Loading Faster-Whisper '{model_name}' model")
-        await progress_cb(20.0, f"Loading Whisper model '{model_name}' into memory")
-
-        def _whisper_sync() -> List[Dict[str, Any]]:
+    ) -> Tuple[List[Dict[str, Any]], Optional[str]]:
+        def _whisper_sync() -> Tuple[List[Dict[str, Any]], Optional[str]]:
             from faster_whisper import WhisperModel
             import ctranslate2
 
-            # faster-whisper uses ctranslate2, NOT torch — detect CUDA via ct2.
             try:
                 cuda_types = ctranslate2.get_supported_compute_types("cuda")
                 device = "cuda" if cuda_types else "cpu"
@@ -139,7 +206,6 @@ class TranscriptionStage(BaseStage):
                 cuda_types = set()
 
             if device == "cuda":
-                # Select best compute_type supported by target GPU hardware (e.g. float16, int8_float32, int8, float32)
                 for preferred in ("float16", "int8_float32", "int8", "float32"):
                     if preferred in cuda_types:
                         compute_type = preferred
@@ -157,15 +223,13 @@ class TranscriptionStage(BaseStage):
                 )
 
                 segments_iter, info = model.transcribe(
-                    audio_path,
+                    chunk_path,
                     language=source_lang,
                     task="transcribe",
                     beam_size=5,
-                    # ── Anti-hallucination ───────────────────────────────── #
                     no_speech_threshold=0.6,
                     compression_ratio_threshold=2.4,
                     condition_on_previous_text=False,
-                    # ── Silero VAD — ignores non-speech bursts (ADR 0001) ── #
                     vad_filter=True,
                     vad_parameters=dict(
                         min_speech_duration_ms=250,
@@ -177,7 +241,6 @@ class TranscriptionStage(BaseStage):
 
                 result: List[Dict[str, Any]] = []
                 for seg in segments_iter:
-                    # Snap to first/last spoken word boundaries for tight timing.
                     if seg.words and len(seg.words) > 0:
                         start_time = seg.words[0].start
                         end_time = seg.words[-1].end
@@ -191,36 +254,48 @@ class TranscriptionStage(BaseStage):
                         "source_text": seg.text.strip(),
                     })
 
-                # Release ctranslate2 model from memory
                 del model
                 return result, info.language
 
             if device == "cuda":
                 try:
                     return _transcribe_with_model(dev="cuda", comp=compute_type)
-                except Exception as cuda_err:
-                    import logging
-                    logging.warning(
-                        f"[TranscriptionStage] CUDA Whisper execution failed ({cuda_err}). "
-                        f"Transparently falling back to CPU (int8) inference."
-                    )
+                except Exception:
                     return _transcribe_with_model(dev="cpu", comp="int8")
             else:
                 return _transcribe_with_model(dev="cpu", comp="int8")
 
-        try:
-            loop = asyncio.get_running_loop()
-            await progress_cb(50.0, "Transcribing speech segments with word timestamps")
-            segments, detected_lang = await loop.run_in_executor(None, _whisper_sync)
-            await log_cb(
-                "INFO",
-                f"Whisper done. Detected language: {detected_lang}, "
-                f"segments: {len(segments)}",
-            )
-            return segments
-        except Exception as exc:
-            await log_cb("ERROR", f"Whisper transcription failed: {exc}")
-            raise
+        loop = asyncio.get_running_loop()
+        return await loop.run_in_executor(None, _whisper_sync)
+
+    # ------------------------------------------------------------------ #
+    #  Checkpoint Persistence Helpers                                     #
+    # ------------------------------------------------------------------ #
+
+    @staticmethod
+    def _save_checkpoint(
+        checkpoint_json: Path,
+        total_chunks: int,
+        completed_chunks: List[int],
+        progress_percent: float,
+        last_completed_offset_s: float,
+        accumulated_segments: List[Dict[str, Any]],
+    ) -> None:
+        """
+        Atomically saves transcription checkpoint state to disk.
+        Uses sibling .tmp.json + os.replace to prevent corruption on Windows.
+        """
+        tmp_file = checkpoint_json.with_suffix(".tmp.json")
+        data = {
+            "total_chunks": total_chunks,
+            "completed_chunks": completed_chunks,
+            "progress_percent": progress_percent,
+            "last_completed_offset_s": last_completed_offset_s,
+            "accumulated_segments": accumulated_segments,
+        }
+        with open(tmp_file, "w", encoding="utf-8") as fh:
+            json.dump(data, fh, indent=2, ensure_ascii=False)
+        os.replace(tmp_file, checkpoint_json)
 
     # ------------------------------------------------------------------ #
     #  Helpers                                                            #
@@ -231,18 +306,14 @@ class TranscriptionStage(BaseStage):
         input_artifacts: Dict[str, Any],
         run_dir: Path,
     ) -> Optional[str]:
-        """
-        Prefer the isolated vocals stem from DenoiseStage; fall back to
-        denoised or raw extracted audio if vocals.wav is absent.
-        """
         path = input_artifacts.get("vocals_path") or input_artifacts.get("audio_path")
         if path and Path(path).exists():
             return str(path)
 
         for candidate in (
             run_dir / "vocals.wav",
-            run_dir / "denoised_audio.wav",
             run_dir / "extracted_audio.wav",
+            run_dir / "denoised_audio.wav",
         ):
             if candidate.exists():
                 return str(candidate)
@@ -251,7 +322,6 @@ class TranscriptionStage(BaseStage):
 
     @staticmethod
     def _placeholder_segments() -> List[Dict[str, Any]]:
-        """Demo data used when real transcription is unavailable."""
         return [
             {
                 "start_s": 0.5,
