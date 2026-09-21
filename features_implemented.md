@@ -52,11 +52,12 @@ This document tracks the current functionality and implementation status of LOCA
   - **Modules**: `backend/app/engine/stages/mixer.py`, `backend/tests/test_scalable_filtergraph.py`, `backend/tests/test_acoustic_mixer.py`.
   - **Verification**: `pytest backend/tests/test_scalable_filtergraph.py` (150-stem scale test passed), `pytest backend/tests/test_acoustic_mixer.py` (10/10 passed), and targeted integration suites (26/26 passed).
 
-- **Hindi TTS Localization & Resilient Stem Persistence Pipeline (Wayfinder Map / TICKET-36)**:
-  - **Status**: Planned / Active Frontier (Decomposed & Tested)
-  - **Details**: Specification for deliverable file object preview streaming (TICKET-36).
-  - **Modules**: `frontend/lib/mediaTrackHelpers.ts`.
-  - **Verification**: Wayfinder Map (`Docs/tickets/WAYFINDER_MAP_HINDI_TTS_AND_STEM_PERSISTENCE.md`) and unit test specifications authored.
+- **Frontend Deliverables File Object Streaming Bridge (TICKET-36)**:
+  - **Status**: Implemented & Verified
+  - **Details**: `getPreviewStreamUrl` in `frontend/lib/mediaTrackHelpers.ts` accepts `StreamablePathInput` objects, safely extracting `storage_path`, `url`, `path`, `relative_path`, or `filename`. Automatically expands isolated relative deliverable paths with `fallbackRunId`. Normalizes Windows slashes, guarantees idempotency for HTTP/blob/API URLs, and strips whitespace. `BroadcastDeliverablesExporter` in `backend/app/engine/stages/exporter.py` outputs `storage_path` for direct backend resolution, preventing `[object Object]` and 404 streaming errors.
+  - **Modules**: `frontend/lib/mediaTrackHelpers.ts`, `frontend/__tests__/mediaTrackHelpers.test.ts`, `backend/app/engine/stages/exporter.py`, `backend/tests/test_deliverables_exporter.py`.
+  - **Verification**: `npm test -- mediaTrackHelpers.test.ts` (15/15 passed) and `pytest backend/tests/test_deliverables_exporter.py` (3/3 passed).
+
 
 
 - **Multilingual Translation Engine & Multitrack Audio Duration Preservation (TICKET-30)**:

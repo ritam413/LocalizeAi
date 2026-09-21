@@ -204,6 +204,7 @@ class BroadcastDeliverablesExporter:
                 files_dict[key] = {
                     "filename": p.name,
                     "relative_path": f"./deliverables/{p.name}",
+                    "storage_path": f"storage/runs/{job_id}/deliverables/{p.name}",
                     "size_bytes": p.stat().st_size,
                     "sha256": sha,
                 }

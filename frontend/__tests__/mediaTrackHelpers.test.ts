@@ -30,10 +30,45 @@ describe('mediaTrackHelpers', () => {
       expect(result).toBe('/api/v1/clips/preview-stream?path=storage%2Fmedia%20with%20spaces%2Fvideo.mp4');
     });
 
-    it('returns undefined when path is null or undefined', () => {
+    it('returns undefined when path is null or undefined or whitespace', () => {
       expect(getPreviewStreamUrl(null)).toBeUndefined();
       expect(getPreviewStreamUrl(undefined)).toBeUndefined();
       expect(getPreviewStreamUrl('')).toBeUndefined();
+      expect(getPreviewStreamUrl('   ')).toBeUndefined();
+    });
+
+    it('extracts path safely when an object is passed', () => {
+      const fileObj = {
+        filename: 'mastered_soundtrack.wav',
+        relative_path: './deliverables/mastered_soundtrack.wav',
+        storage_path: 'storage/runs/run_123/deliverables/mastered_soundtrack.wav',
+        size_bytes: 3304758,
+      };
+      expect(getPreviewStreamUrl(fileObj)).toBe(
+        '/api/v1/clips/preview-stream?path=storage%2Fruns%2Frun_123%2Fdeliverables%2Fmastered_soundtrack.wav'
+      );
+    });
+
+    it('resolves isolated relative path using fallbackRunId', () => {
+      const fileObj = {
+        filename: 'mastered_soundtrack.wav',
+        relative_path: './deliverables/mastered_soundtrack.wav',
+      };
+      expect(getPreviewStreamUrl(fileObj, 'run_456')).toBe(
+        '/api/v1/clips/preview-stream?path=storage%2Fruns%2Frun_456%2Fdeliverables%2Fmastered_soundtrack.wav'
+      );
+    });
+
+    it('normalizes Windows backslashes', () => {
+      expect(getPreviewStreamUrl('storage\\runs\\run_1\\video.mp4')).toBe(
+        '/api/v1/clips/preview-stream?path=storage%2Fruns%2Frun_1%2Fvideo.mp4'
+      );
+    });
+
+    it('is idempotent for full URLs and existing preview stream endpoints', () => {
+      expect(getPreviewStreamUrl('https://cdn.example.com/audio.mp3')).toBe('https://cdn.example.com/audio.mp3');
+      expect(getPreviewStreamUrl('blob:http://localhost:3000/xyz')).toBe('blob:http://localhost:3000/xyz');
+      expect(getPreviewStreamUrl('/api/v1/clips/preview-stream?path=test.mp4')).toBe('/api/v1/clips/preview-stream?path=test.mp4');
     });
   });
 

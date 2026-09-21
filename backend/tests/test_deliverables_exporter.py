@@ -79,6 +79,8 @@ async def test_package_release_complete_bundle(sample_media_bundle):
     assert manifest_data["target_language"] == "es"
     assert "checksums" in manifest_data["metadata"]
     assert "files" in manifest_data
+    assert "storage_path" in manifest_data["files"]["mastered_soundtrack_wav"]
+    assert manifest_data["files"]["mastered_soundtrack_wav"]["storage_path"] == "storage/runs/test-release-001/deliverables/mastered_audio.wav"
 
 
 @pytest.mark.asyncio
@@ -106,8 +108,11 @@ async def test_package_release_missing_video_graceful_export(tmp_path, sample_me
 
 
 def test_deliverables_api_endpoints(tmp_path, monkeypatch):
-    from fastapi.testclient import TestClient
-    from app.main import app
+    try:
+        from fastapi.testclient import TestClient
+        from app.main import app
+    except ImportError:
+        pytest.skip("FastAPI not installed in current environment")
 
     run_dir = Path("./storage/runs/test_api_deliverable_run")
     run_dir.mkdir(parents=True, exist_ok=True)

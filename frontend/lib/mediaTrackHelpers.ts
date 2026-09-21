@@ -24,12 +24,61 @@ export function isGpuAcceleratedStage(stageName: string): boolean {
   return GPU_ACCELERATED_STAGES.has(stageName);
 }
 
+export type StreamablePathInput =
+  | string
+  | {
+      relative_path?: string;
+      storage_path?: string;
+      path?: string;
+      filename?: string;
+      url?: string;
+    }
+  | null
+  | undefined;
+
 /**
  * Constructs a safe preview streaming URL for backend media files, or returns undefined if falsy.
+ * Idempotently handles already-formed URLs, normalizes Windows slashes, and unwraps manifest file objects.
  */
-export function getPreviewStreamUrl(filePath?: string | null): string | undefined {
+export function getPreviewStreamUrl(
+  filePath?: StreamablePathInput,
+  fallbackRunId?: string
+): string | undefined {
   if (!filePath) return undefined;
-  return `/api/v1/clips/preview-stream?path=${encodeURIComponent(filePath)}`;
+
+  let raw: string | undefined;
+  if (typeof filePath === 'object') {
+    raw =
+      filePath.storage_path ||
+      filePath.url ||
+      filePath.path ||
+      filePath.relative_path ||
+      filePath.filename;
+
+    if (raw && raw.startsWith('./deliverables/') && fallbackRunId) {
+      raw = `storage/runs/${fallbackRunId}/${raw.replace('./', '')}`;
+    }
+  } else {
+    raw = filePath;
+  }
+
+  if (!raw || typeof raw !== 'string') return undefined;
+
+  const trimmed = raw.trim().replace(/\\/g, '/');
+  if (!trimmed) return undefined;
+
+  // Idempotent: return full URLs or existing stream endpoints as-is
+  if (
+    trimmed.startsWith('http://') ||
+    trimmed.startsWith('https://') ||
+    trimmed.startsWith('blob:') ||
+    trimmed.startsWith('data:') ||
+    trimmed.startsWith('/api/v1/clips/preview-stream')
+  ) {
+    return trimmed;
+  }
+
+  return `/api/v1/clips/preview-stream?path=${encodeURIComponent(trimmed)}`;
 }
 
 /**
@@ -62,16 +111,18 @@ export function getLanguageMetadata(languageCode: string): LanguageMetadata {
 }
 
 export interface BuildRunAudioTracksOptions {
-  sourceVideoPath?: string | null;
+  sourceVideoPath?: StreamablePathInput;
   sourceLanguage?: string | null;
   targetLanguagesJson?: string | null;
   artifacts?: Array<{ path?: string }>;
   deliverables?: {
+    job_id?: string;
     files?: {
-      release_video_mp4?: string;
-      mastered_soundtrack_wav?: string;
-      subtitles_vtt?: string;
-      subtitles_srt?: string;
+      release_video_mp4?: StreamablePathInput;
+      mastered_soundtrack_wav?: StreamablePathInput;
+      subtitles_vtt?: StreamablePathInput;
+      subtitles_srt?: StreamablePathInput;
+      dialogue_bus_wav?: StreamablePathInput;
     };
   } | null;
 }

@@ -43,8 +43,37 @@ Last updated: 2026-09-06 by antigravity
 | **TICKET-32** | Translation Stage Disk Persistence & Multi-Language JSON Manifests | Completed | Pytest (3/3 Passed, 22/22 Chain) | Yes | Persists `translated_text` to `transcript.json` and `transcript_{lang}.json` |
 | **TICKET-33** | Voice Director Segment Timeline Preservation & Stems Manifest | Completed | Pytest (3/3 Passed, 117/117 Full) | Yes | Preserves `start_s`/`end_s` and writes `stems.json` |
 | **TICKET-34** | Resilient Stems & Aligned Audio Rehydration (`RunExecutor` Mutex) | Completed | Pytest (5/5 Passed, 27/27 Chain) | Yes | Rehydrates stems by `segment_id` map lookup & single-flight mutex |
-| **TICKET-35** | Scalable Filtergraph Script Generation & Windows 8k-Char Buffer Defense | Completed | Pytest (150-Stem Scale Test Passed) | Yes | Writes `-filter_complex_script` avoiding Windows 8,191-char limit |
-| **TICKET-36** | Frontend Deliverables File Object Streaming Bridge (`preview-stream`) | Planned | Vitest | No | Fixes `[object Object]` preview stream 404s |
+| **TICKET-36** | Frontend Deliverables File Object Streaming Bridge (`preview-stream`) | Completed | Vitest (15/15 Passed) | No | Fixes `[object Object]` & relative path preview stream 404s |
+
+---
+
+## 2026-09-21 — Frontend Deliverables File Object Streaming Bridge (TICKET-36)
+
+### Objective
+Safely handle manifest file metadata objects (`{ filename, relative_path, storage_path, size_bytes }`) passed to `getPreviewStreamUrl()`, preventing `GET /api/v1/clips/preview-stream?path=%5Bobject%20Object%5D` (404 Not Found) and orphaned relative subpath errors in the browser player and backend streaming logs.
+
+### Changes Made
+- **Hardened Frontend Stream URL Resolver**: Updated `getPreviewStreamUrl` in `frontend/lib/mediaTrackHelpers.ts` to accept `StreamablePathInput` objects, safely extracting `storage_path`, `url`, `path`, `relative_path`, or `filename`.
+- **Run-Context Relative Path Expansion**: Added automatic path expansion if an isolated `./deliverables/...` path is passed with an optional `fallbackRunId`.
+- **Idempotency & Platform Normalization**: Added immediate return guards for `http://`, `https://`, `blob:`, `data:`, and existing `/api/v1/clips/preview-stream` URLs. Normalized Windows backslashes (`\`) to POSIX (`/`) and stripped empty/whitespace strings.
+- **Backend Storage Path Generation**: Updated `BroadcastDeliverablesExporter` in `backend/app/engine/stages/exporter.py` to serialize `storage_path: f"storage/runs/{job_id}/deliverables/{p.name}"` in `deliverables.json`.
+
+### Files Changed
+- `frontend/lib/mediaTrackHelpers.ts`
+- `frontend/__tests__/mediaTrackHelpers.test.ts`
+- `backend/app/engine/stages/exporter.py`
+- `backend/tests/test_deliverables_exporter.py`
+- `Docs/tickets/TICKET-36-frontend-preview-stream-object-bridge.md`
+
+### Verification
+- `npm test -- mediaTrackHelpers.test.ts` — 15/15 passed (100%).
+- `python -m pytest tests/test_deliverables_exporter.py` — Passed (3/3).
+
+### Current State
+Deliverables files and manifest objects stream cleanly in the media player without `[object Object]` or 404 errors.
+
+### Next Agent Instructions
+1. Check if any additional tickets remain in `Docs/tickets/` or if ready to push to remote.
 
 ## 2026-09-21 — GitHub Push & Repository Synchronization (TICKET-32 to TICKET-35)
 
