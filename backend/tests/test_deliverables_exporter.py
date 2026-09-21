@@ -80,7 +80,7 @@ async def test_package_release_complete_bundle(sample_media_bundle):
     assert "checksums" in manifest_data["metadata"]
     assert "files" in manifest_data
     assert "storage_path" in manifest_data["files"]["mastered_soundtrack_wav"]
-    assert manifest_data["files"]["mastered_soundtrack_wav"]["storage_path"] == "storage/runs/test-release-001/deliverables/mastered_audio.wav"
+    assert manifest_data["files"]["mastered_soundtrack_wav"]["storage_path"] == "storage/runs/test-release-001/deliverables/mastered_soundtrack.wav"
 
 
 @pytest.mark.asyncio

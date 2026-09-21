@@ -138,12 +138,15 @@ class TranslationStage(BaseStage):
                 await log_cb("INFO", f"Ollama translation successful using model '{target_model}' ({len(translated_map)} lines)")
                 break
 
+        if not translated_map and not any(bool(seg.get("translated_text")) for seg in segments):
+            return []
+
         # Recombine with original segment timings and metadata
         result = []
         for idx, seg in enumerate(segments):
             seg_id = idx + 1
             src_text = seg.get("source_text", "")
-            trans_text = translated_map.get(seg_id) or src_text
+            trans_text = translated_map.get(seg_id) or seg.get("translated_text") or src_text
             
             # Apply numeral localization (e.g. 2.4k -> 2.4 hazar)
             adapted_text, _ = adapt_spoken_numerals(trans_text, target_lang=target_lang)
