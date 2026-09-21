@@ -1,8 +1,10 @@
 import json
 import re
+import uuid
 import asyncio
 from datetime import datetime
 from pathlib import Path
+from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
 from fastapi.responses import JSONResponse
 from sqlalchemy.future import select
@@ -18,6 +20,36 @@ from app.api.websocket import manager
 
 runs_router = APIRouter(prefix="/runs", tags=["Runs"])
 
+def generate_run_slug(filename: Optional[str] = None, fallback_id: Optional[str] = None) -> str:
+    """
+    Generates a deterministic, human-readable run slug:
+    - Normal: '{clean_stem}_{6char_uuid}' (e.g., 'trial1_a1b2c3')
+    - Fallback: '{date_time_slug}_{6char_uuid}' (e.g., '22_tuesday_september_10_45pm_a1b2c3')
+    
+    Safety:
+    - Windows MAX_PATH defense: capped at 32 chars
+    - NTFS path safety: zero colons, commas, or special symbols
+    - Clean underscore deduplication
+    """
+    stem = ""
+    if filename:
+        raw_stem = Path(filename).stem.strip()
+        stem = re.sub(r'[^a-zA-Z0-9_-]+', '_', raw_stem).strip('_')
+
+    if not stem:
+        if fallback_id:
+            clean_fallback = re.sub(r'[^a-zA-Z0-9_-]+', '_', str(fallback_id).strip()).strip('_')
+            stem = clean_fallback[:32] if clean_fallback else ""
+
+    if not stem:
+        now = datetime.now()
+        time_str = now.strftime("%d_%A_%B_%I_%M%p").lower()
+        stem = re.sub(r'[^a-zA-Z0-9_-]+', '_', time_str).strip('_')
+
+    stem = stem[:32].rstrip('_') or "run"
+    short_uid = uuid.uuid4().hex[:6]
+    return f"{stem}_{short_uid}"
+
 @runs_router.post("")
 async def create_run(
     payload: dict,
@@ -32,6 +64,15 @@ async def create_run(
     subtitle_only = payload.get("subtitle_only")
     use_demucs = payload.get("use_demucs")
     whisper_model = payload.get("whisper_model") or payload.get("asr_model")
+
+    # Fetch clip and validate existence
+    clip_res = None
+    if clip_id:
+        clip_res = await db.get(Clip, clip_id)
+        if not clip_res:
+            raise HTTPException(status_code=404, detail=f"Clip '{clip_id}' not found")
+
+    clip_filename = clip_res.filename if clip_res else None
 
     # If preset_id provided, fetch and override empty settings
     if preset_id:
@@ -53,18 +94,12 @@ async def create_run(
     if whisper_model is None:
         whisper_model = "medium"
 
-    # Deterministic Run ID generation: {clip_id}_dub_{target_lang}_01
-    target_lang_str = target_languages[0] if target_languages else "en"
-    base_id = f"{clip_id}_dub_{target_lang_str}"
-    counter = 1
-    candidate_id = f"{base_id}_{counter:02d}"
-
+    # Human-readable Run ID generation: {filename_stem}_{6char_uuid}
     while True:
+        candidate_id = generate_run_slug(clip_filename, fallback_id=clip_id)
         existing = await db.execute(select(Run).where(Run.id == candidate_id))
         if not existing.scalar_one_or_none():
             break
-        candidate_id = f"{base_id}_{counter}"
-        counter += 1
 
     run_id = candidate_id
 

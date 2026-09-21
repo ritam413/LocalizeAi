@@ -158,14 +158,24 @@ async def preview_stream(path: str = Query(..., description="File path to previe
 
     resolved_path: Optional[Path] = None
     
+    ALLOWED_MEDIA_EXTENSIONS = {
+        ".mp4": "video/mp4",
+        ".mov": "video/quicktime",
+        ".quicktime": "video/quicktime",
+        ".webm": "video/webm",
+        ".mkv": "video/x-matroska",
+        ".mp3": "audio/mpeg",
+        ".wav": "audio/wav",
+        ".vtt": "text/vtt",
+        ".srt": "text/plain",
+    }
+
     # Test candidates in order of specificity
     candidates = [
         Path(path_str),
         settings.STORAGE_DIR / rel_storage,
         settings.STORAGE_DIR / clean_path,
-        settings.BASE_DIR / clean_path,
         settings.STORAGE_DIR / "uploads" / Path(clean_path).name,
-        Path.cwd() / clean_path,
     ]
 
     for cand in candidates:
@@ -176,34 +186,22 @@ async def preview_stream(path: str = Query(..., description="File path to previe
     if not resolved_path or not resolved_path.exists():
         raise HTTPException(status_code=404, detail=f"File does not exist: {path_str}")
 
-    # Security check: ensure file is within BASE_DIR, STORAGE_DIR, or CWD
-    allowed_roots = [settings.BASE_DIR.resolve(), settings.STORAGE_DIR.resolve(), Path.cwd().resolve()]
+    ext = resolved_path.suffix.lower()
+    if ext not in ALLOWED_MEDIA_EXTENSIONS:
+        raise HTTPException(status_code=403, detail="File type not permitted for media streaming")
+
+    # Security check: ensure file is strictly within STORAGE_DIR or system temp directory
+    import tempfile
+    allowed_roots = [settings.STORAGE_DIR.resolve(), Path(tempfile.gettempdir()).resolve()]
     if not any(resolved_path.is_relative_to(root) for root in allowed_roots if root.exists()):
         raise HTTPException(status_code=403, detail="Access to file path is restricted")
 
-    path_obj = resolved_path
-
-    media_type = "video/mp4"
-    ext = path_obj.suffix.lower()
-    if ext in [".mov", ".quicktime"]:
-        media_type = "video/quicktime"
-    elif ext in [".webm"]:
-        media_type = "video/webm"
-    elif ext in [".mkv"]:
-        media_type = "video/x-matroska"
-    elif ext in [".mp3"]:
-        media_type = "audio/mpeg"
-    elif ext in [".wav"]:
-        media_type = "audio/wav"
-    elif ext in [".vtt"]:
-        media_type = "text/vtt"
-    elif ext in [".srt"]:
-        media_type = "text/plain"
+    media_type = ALLOWED_MEDIA_EXTENSIONS[ext]
 
     return FileResponse(
-        path=str(path_obj),
+        path=str(resolved_path),
         media_type=media_type,
-        filename=path_obj.name
+        filename=resolved_path.name
     )
 
 @clips_router.get("/{clip_id}")

@@ -44,9 +44,69 @@ Last updated: 2026-09-06 by antigravity
 | **TICKET-33** | Voice Director Segment Timeline Preservation & Stems Manifest | Completed | Pytest (3/3 Passed, 117/117 Full) | Yes | Preserves `start_s`/`end_s` and writes `stems.json` |
 | **TICKET-34** | Resilient Stems & Aligned Audio Rehydration (`RunExecutor` Mutex) | Completed | Pytest (5/5 Passed, 27/27 Chain) | Yes | Rehydrates stems by `segment_id` map lookup & single-flight mutex |
 | **TICKET-36** | Frontend Deliverables File Object Streaming Bridge (`preview-stream`) | Completed | Vitest (15/15 Passed) | No | Fixes `[object Object]` & relative path preview stream 404s |
+| **TICKET-37** | Custom Run Slug Generation & Human-Readable Storage Directories | Completed | Pytest (9/9 Passed, 132/132 Full) | Yes | Formats run IDs and storage directories as `{filename_stem}_{6char_uuid}` with timestamp fallback |
+| **TICKET-38** | English-to-English Translation Skip & Preview Stream Security Hardening | Completed | Pytest (9/9 Passed) | Yes | Bypasses Ollama for same-language pipelines, emits user checkpoint prompt, isolates candidate models, restricts preview-stream path roots |
 
 ---
 
+## 2026-09-22 — English-to-English Translation Skip & Security Hardening (TICKET-38)
+
+### Objective
+Bypass redundant external Ollama LLM requests when source and target languages are identical (e.g. `en -> en`), directly generate subtitle files (`subtitles_en.srt`, `subtitles_en.vtt`) and `transcript.json` with zero-cost latency, emit a prompt log checkpoint for the client/user, isolate candidate model translation batches to prevent cross-model state pollution, and secure `/api/v1/clips/preview-stream` against path traversal and arbitrary file reads.
+
+### Changes Made
+- **Same-Language Passthrough & User Checkpoint**: Added Pathway 0 in `TranslationStage.execute()` (`backend/app/engine/stages/translation.py`) checking `if source_lang == target_lang:`. Unless `force_ollama_translation: True` is configured, it bypasses Ollama/Whisper calls, builds `translated_segments` directly from transcribed source text, formats subtitles, and emits a `PROMPT` log event (`"Subtitles generated in English. Ready to proceed to dubbing or trigger Ollama rephrasing with force_ollama_translation=True."`).
+- **Candidate Model State Isolation**: Initialized `model_translated_map = {}` inside the candidate models loop in `_call_ollama_translation()`, ensuring that partial batch failures from one candidate model do not contaminate subsequent fallback models.
+- **Preview Stream Path Traversal Defense**: Hardened `/api/v1/clips/preview-stream` in `backend/app/api/clips.py` by removing `Path.cwd()` and `BASE_DIR` from `allowed_roots`, restricting allowed directory roots to `settings.STORAGE_DIR` and temporary directories, and enforcing strict media extensions (`.mp4`, `.mov`, `.webm`, `.mkv`, `.mp3`, `.wav`, `.vtt`, `.srt`) with HTTP 403 guards against arbitrary system/secret file reads.
+- **Automated Verification**: Added comprehensive unit and integration tests in `backend/tests/test_translation_multilingual.py` and `backend/tests/test_clip_streaming.py`.
+
+### Files Changed
+- `backend/app/engine/stages/translation.py`
+- `backend/app/api/clips.py`
+- `backend/tests/test_translation_multilingual.py`
+- `backend/tests/test_clip_streaming.py`
+- `features_implemented.md`
+- `TRACKER.md`
+
+### Verification
+- `pytest backend/tests/test_translation_multilingual.py backend/tests/test_clip_streaming.py backend/tests/test_translation_persistence.py` — 9/9 passed in 7.14s.
+
+### Current State
+English-to-English pipelines now complete the translation stage instantaneously without requiring Ollama, and preview stream routes are fortified against path traversal.
+
+### Next Agent Instructions
+1. Inspect `frontend/` UI components if an interactive modal/checkpoint dialog is desired when `PROMPT` log event arrives over WebSocket.
+2. Run standard full test suites (`pytest backend/tests`, `cd frontend && npm test`).
+
+### Objective
+Replace raw generic UUID run IDs with human-readable, deterministic slugs formatted as `{filename_stem}_{6char_uuid}` (e.g., `trial1.mp4` -> `trial1_a1b2c3` -> `/runs/trial1_a1b2c3`), while defending against Windows `MAX_PATH` overflow, special character clusters, and non-Latin filename annihilation via safe timestamp fallbacks (`22_tuesday_september_10_45pm_a1b2c3`).
+
+### Changes Made
+- **Hardened Slug Generator**: Implemented `generate_run_slug(filename, fallback_id)` in `backend/app/api/runs.py` using Python stdlib (`pathlib.Path`, `re`, `uuid`, `datetime`). Sanitizes filenames against non-alphanumerics, deduplicates underscores (`+`), caps stems at 32 characters for Windows `MAX_PATH` defense, and falls back to a clean timestamp slug (with zero colons for Windows NTFS compatibility) on empty or non-Latin inputs.
+- **Run Creation Integration & 404 Guard**: Updated `POST /runs` endpoint in `backend/app/api/runs.py` to validate `clip_id` existence (`404 Clip not found`), fetch the original filename, and run a candidate existence loop to guarantee zero database key collisions.
+- **Unit & Integration Test Suite**: Created `backend/tests/test_run_slug.py` covering standard names, special characters/spaces, stem truncation (>100 chars), non-Latin/emoji fallback, and asynchronous `create_run` endpoint integration.
+
+### Files Changed
+- `backend/app/api/runs.py`
+- `backend/tests/test_run_slug.py`
+- `backend/tests/test_deliverables_exporter.py`
+- `features_implemented.md`
+- `TRACKER.md`
+
+### Verification
+- `pytest backend/tests/test_run_slug.py` — 6/6 passed in 5.67s.
+- `pytest backend/tests/test_deliverables_exporter.py` — 3/3 passed in 0.88s.
+- Full suite `pytest backend/tests/` — 132 passed.
+
+### Current State
+Run IDs and physical directory paths under `storage/runs/` now reflect the uploaded clip's filename stem and a 6-character hex suffix (e.g. `storage/runs/trial1_a1b2c3/`).
+
+### Next Agent Instructions
+1. When uploading media via `POST /api/v1/clips/upload` and launching runs via `POST /api/v1/runs`, the resulting `run.id` will naturally be `{filename_stem}_{6char_uuid}`.
+2. Frontend routing automatically directs to `/runs/{filename_stem}_{6char_uuid}` with zero client changes required.
+
+---
+
 ## 2026-09-22 — Local Codebase Sync & Verification
 
 ### Objective
@@ -75,7 +135,6 @@ Continue with any scheduled development tasks or feature builds.
 ---
 
 ## 2026-09-21 — Frontend Deliverables File Object Streaming Bridge (TICKET-36)
-
 ### Objective
 Safely handle manifest file metadata objects (`{ filename, relative_path, storage_path, size_bytes }`) passed to `getPreviewStreamUrl()`, preventing `GET /api/v1/clips/preview-stream?path=%5Bobject%20Object%5D` (404 Not Found) and orphaned relative subpath errors in the browser player and backend streaming logs.
 

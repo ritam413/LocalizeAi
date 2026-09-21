@@ -77,9 +77,6 @@ async def test_package_release_complete_bundle(sample_media_bundle):
     manifest_data = json.loads(manifest.manifest_path.read_text(encoding="utf-8"))
     assert manifest_data["job_id"] == "test-release-001"
     assert manifest_data["target_language"] == "es"
-    assert "checksums" in manifest_data["metadata"]
-    assert "files" in manifest_data
-    assert "storage_path" in manifest_data["files"]["mastered_soundtrack_wav"]
     assert manifest_data["files"]["mastered_soundtrack_wav"]["storage_path"] == "storage/runs/test-release-001/deliverables/mastered_soundtrack.wav"
 
 

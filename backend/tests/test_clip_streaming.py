@@ -50,3 +50,7 @@ async def test_clip_streaming_endpoints(tmp_path):
         # 4. Test non-existent path returns 404
         bad_path_res = await ac.get("/api/v1/clips/preview-stream", params={"path": "/non/existent/file.mp4"})
         assert bad_path_res.status_code == 404
+
+        # 5. Security test: Disallowed file extension (.env / .py) returns 403
+        disallowed_res = await ac.get("/api/v1/clips/preview-stream", params={"path": ".env"})
+        assert disallowed_res.status_code in (403, 404)

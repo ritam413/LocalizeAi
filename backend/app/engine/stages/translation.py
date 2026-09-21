@@ -79,6 +79,7 @@ class TranslationStage(BaseStage):
         batch_size = 8
         translated_map = {}
         for target_model in candidate_models:
+            model_translated_map = {}
             all_batches_succeeded = True
             for batch_start in range(0, len(segments), batch_size):
                 batch_segments = segments[batch_start:batch_start + batch_size]
@@ -119,7 +120,7 @@ class TranslationStage(BaseStage):
                                     try:
                                         parsed = json.loads(json_match.group(0))
                                         for item in parsed:
-                                            translated_map[item.get("id")] = item.get("translated_text", "")
+                                            model_translated_map[item.get("id")] = item.get("translated_text", "")
                                         batch_ok = True
                                         break
                                     except Exception as json_err:
@@ -134,7 +135,8 @@ class TranslationStage(BaseStage):
                     all_batches_succeeded = False
                     break
 
-            if all_batches_succeeded and len(translated_map) > 0:
+            if all_batches_succeeded and len(model_translated_map) > 0:
+                translated_map = model_translated_map
                 await log_cb("INFO", f"Ollama translation successful using model '{target_model}' ({len(translated_map)} lines)")
                 break
 
@@ -192,8 +194,21 @@ class TranslationStage(BaseStage):
         raw_segments: List[Dict[str, Any]] = input_artifacts.get("segments", [])
         translated_segments: List[Dict[str, Any]] = []
 
+        # ── Pathway 0: Same Language / English-to-English Passthrough ───────── #
+        if source_lang == target_lang:
+            force_ollama = bool(config.get("force_ollama_translation", False))
+            if not force_ollama:
+                await log_cb("INFO", f"Source and target languages are both '{target_lang}'. Skipping Ollama LLM translation.")
+                await progress_cb(45.0, f"Generating subtitles directly in {target_lang_name} from transcribed dialogue.")
+                for seg in raw_segments:
+                    seg_copy = dict(seg)
+                    seg_copy["translated_text"] = seg.get("source_text", "")
+                    seg_copy["target_language"] = target_lang
+                    translated_segments.append(seg_copy)
+                await log_cb("PROMPT", f"Subtitles generated in {target_lang_name}. Ready to proceed to dubbing or trigger Ollama rephrasing with force_ollama_translation=True.")
+
         # ── Pathway 1: Target is English & foreign audio is available ──────── #
-        if audio_path and Path(audio_path).exists() and target_lang == "en" and source_lang != "en":
+        if not translated_segments and audio_path and Path(audio_path).exists() and target_lang == "en" and source_lang != "en":
             def run_whisper_translation():
                 from faster_whisper import WhisperModel
                 import ctranslate2
