@@ -35,7 +35,7 @@ def test_build_composite_dialogue_filtergraph_multiple_stems(mixer):
     assert inputs == ["-i", "/tmp/stem_0.wav", "-i", "/tmp/stem_1.wav"]
     assert "[0:a]adelay=500|500[d0]" in filter_str
     assert "[1:a]adelay=3250|3250[d1]" in filter_str
-    assert "amix=inputs=2:dropout_transition=0:normalize=0[dialogue_bus]" in filter_str
+    assert "amix=inputs=2:dropout_transition=0:normalize=0:duration=longest[dialogue_bus]" in filter_str
 
 
 def test_build_composite_dialogue_filtergraph_with_dataclass(mixer):
@@ -46,7 +46,7 @@ def test_build_composite_dialogue_filtergraph_with_dataclass(mixer):
 
     assert inputs == ["-i", "/tmp/stem_0.wav"]
     assert "[0:a]adelay=1000|1000[d0]" in filter_str
-    assert "amix=inputs=1:dropout_transition=0:normalize=0[dialogue_bus]" in filter_str
+    assert "amix=inputs=1:dropout_transition=0:normalize=0:duration=longest[dialogue_bus]" in filter_str
 
 
 def test_build_sidechain_ducking_filtergraph(mixer):
@@ -73,15 +73,17 @@ async def test_composite_dialogue_bus_empty(mixer, tmp_path):
 @pytest.mark.asyncio
 async def test_composite_dialogue_bus_stems(mixer, tmp_path):
     out_file = tmp_path / "dialogue_bus.wav"
+    stem = tmp_path / "stem_0.wav"
+    stem.write_bytes(b"RIFF....WAVEfmt ....data....")
     segments = [
-        {"audio_path": "/tmp/stem_0.wav", "start_s": 0.5, "end_s": 2.0},
+        {"audio_path": str(stem), "start_s": 0.5, "end_s": 2.0},
     ]
     with patch.object(mixer, "_run_command", new_callable=AsyncMock) as mock_run:
         res = await mixer.composite_dialogue_bus(segments, out_file)
         assert res == out_file
         mock_run.assert_awaited_once()
         cmd = mock_run.await_args[0][0]
-        assert "-filter_complex" in cmd
+        assert "-filter_complex_script" in cmd
         assert "[dialogue_bus]" in cmd
 
 

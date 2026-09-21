@@ -71,12 +71,25 @@ SUPPORTED_LANGUAGES: Dict[str, LanguageSpec] = {
 }
 
 
+LANGUAGE_ALIASES: Dict[str, str] = {
+    "jp": "ja",
+    "sp": "es",
+    "japanese": "ja",
+    "spanish": "es",
+    "hindi": "hi",
+    "english": "en",
+    "french": "fr",
+    "german": "de",
+}
+
+
 def resolve_language(lang_code: Optional[str]) -> LanguageSpec:
     """
-    Normalizes compound locale tags (e.g. 'hi-IN' -> 'hi', 'es_ES' -> 'es')
+    Normalizes compound locale tags (e.g. 'hi-IN' -> 'hi', 'es_ES' -> 'es', 'jp' -> 'ja', 'sp' -> 'es')
     and returns the matching LanguageSpec, gracefully falling back to English ('en').
     """
     if not lang_code or not isinstance(lang_code, str):
         return SUPPORTED_LANGUAGES["en"]
     normalized = lang_code.strip().replace("_", "-").split("-")[0].lower()
-    return SUPPORTED_LANGUAGES.get(normalized, SUPPORTED_LANGUAGES["en"])
+    canonical = LANGUAGE_ALIASES.get(normalized, normalized)
+    return SUPPORTED_LANGUAGES.get(canonical, SUPPORTED_LANGUAGES["en"])

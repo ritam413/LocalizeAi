@@ -285,11 +285,16 @@ class VoiceDirectorAgent(BaseAgent):
         stems_dir.mkdir(parents=True, exist_ok=True)
         synthesized_stems = []
 
-        for line in localized_lines:
-            seg_id = line.get("segment_id", 1)
-            speaker_id = line.get("speaker_id", "speaker_1")
-            text = line.get("translated_text", "")
-            target_duration_s = max(0.5, float(line.get("end_s", 2.0)) - float(line.get("start_s", 0.0)))
+        for idx, line in enumerate(localized_lines):
+            raw_seg_id = line.get("segment_id", idx + 1)
+            seg_id = int(raw_seg_id) if str(raw_seg_id).isdigit() else (idx + 1)
+            speaker_id = str(line.get("speaker_id", f"speaker_{(idx % 2) + 1}"))
+            text = str(line.get("translated_text", ""))
+
+            start_s = round(max(0.0, float(line.get("start_s", 0.0))), 3)
+            end_s = round(max(start_s + 0.1, float(line.get("end_s", start_s + 2.0))), 3)
+            target_duration_s = round(max(0.5, end_s - start_s), 3)
+
             voice_id = speaker_voice_map.get(speaker_id, voice_cast[0]["voice_id"] if voice_cast else spec.edge_male_voice)
 
             stem_path = stems_dir / f"seg_{seg_id}.wav"
@@ -307,9 +312,11 @@ class VoiceDirectorAgent(BaseAgent):
             synthesized_stems.append({
                 "segment_id": seg_id,
                 "speaker_id": speaker_id,
+                "start_s": start_s,
+                "end_s": end_s,
                 "audio_path": str(stem_path),
                 "synthesized_duration_s": synthesized_duration_s,
-                "target_duration_s": round(target_duration_s, 3)
+                "target_duration_s": target_duration_s
             })
 
         decision = (

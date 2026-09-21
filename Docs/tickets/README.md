@@ -34,4 +34,16 @@ This directory contains individual specification and execution tickets for the L
 | [TICKET-26](./TICKET-26-tts-stage-executor-gpu-lock-wiring.md) | TTS Stage, Executor Seam & GPU Mutex Wiring | Completed | `backend/app/engine/stages/tts.py` | Pytest (16/16 Passed) | TICKET-24, TICKET-25 |
 | [TICKET-27](./TICKET-27-downstream-audio-seams-and-qa-verification.md) | Downstream Audio Seams & Acoustic QA Verification | Completed | `backend/app/agents/qa_agent.py` | Pytest (9/9 Passed) | TICKET-25, TICKET-26 |
 | [TICKET-28](./TICKET-28-kokoro-tts-automated-test-harness.md) | Kokoro TTS Automated Test Harness & CI Gatekeeper | Completed | `backend/tests/test_voice_director.py` | Pytest (9/9 Passed) | TICKET-24, TICKET-25, TICKET-26, TICKET-27 |
+| [TICKET-29](./TICKET-29-demucs-removal-resumable-asr.md) | Demucs Removal & Resumable Chunked Faster-Whisper ASR | Completed | `backend/app/engine/stages/transcription.py` | Pytest (106/106 Passed) | None |
+| [TICKET-30](./TICKET-30-multilingual-translation-audio-duration.md) | Multilingual Translation Engine & Audio Duration Preservation | Completed | `backend/app/engine/stages/translation.py` | Pytest (114/114 Passed) | None |
+| [TICKET-31](./TICKET-31-japanese-neural-voiceover.md) | Japanese Neural Voiceover & Phonemizer Integration | Deferred | `backend/app/agents/voice_director.py` | Pytest | TICKET-30 |
+| [TICKET-32](./TICKET-32-translation-stage-disk-persistence.md) | Translation Stage Disk Persistence & Multi-Language Manifests | Planned | `backend/app/engine/stages/translation.py` | Pytest | None (Unblocked) |
+| [TICKET-33](./TICKET-33-voice-director-timeline-and-stems-manifest.md) | Voice Director Timeline Preservation & Stems Manifest | Planned | `backend/app/agents/voice_director.py` | Pytest | TICKET-32 |
+| [TICKET-34](./TICKET-34-executor-state-rehydration-and-mutex.md) | Executor State Rehydration & Single-Flight Stage Mutex | Planned | `backend/app/engine/executor.py` | Pytest | TICKET-32, TICKET-33 |
+| [TICKET-35](./TICKET-35-scalable-filtergraph-script-generation.md) | Scalable Filtergraph Script Generation & Windows 8k Buffer Defense | Planned | `backend/app/engine/stages/mixer.py` | Pytest | TICKET-33, TICKET-34 |
+| [TICKET-36](./TICKET-36-frontend-preview-stream-object-bridge.md) | Frontend Deliverables File Object Streaming Bridge | Planned | `frontend/lib/mediaTrackHelpers.ts` | Vitest | None (Unblocked) |
+
+## Active Wayfinder Maps
+- [WAYFINDER MAP: Hindi TTS Localization & Resilient Stem Persistence Pipeline](./WAYFINDER_MAP_HINDI_TTS_AND_STEM_PERSISTENCE.md)
+
 

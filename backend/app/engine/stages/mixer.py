@@ -73,7 +73,7 @@ class AcousticMasteringEngine:
             return [], ""
 
         delayed_labels = "".join([f"[d{i}]" for i in range(n_inputs)])
-        amix_filter = f"{delayed_labels}amix=inputs={n_inputs}:dropout_transition=0:normalize=0[dialogue_bus]"
+        amix_filter = f"{delayed_labels}amix=inputs={n_inputs}:dropout_transition=0:normalize=0:duration=longest[dialogue_bus]"
         filter_str = ";".join(delay_filters) + ";" + amix_filter
 
         return inputs, filter_str
@@ -85,13 +85,24 @@ class AcousticMasteringEngine:
     ) -> Path:
         """
         Composite multiple timestamped dialogue audio stems into a single
-        continuous dialogue bus.
+        continuous dialogue bus using scalable -filter_complex_script.
         """
+        import uuid
+
         out = Path(output_path)
         out.parent.mkdir(parents=True, exist_ok=True)
 
-        if not dialogue_segments:
-            # Generate 1 second silence fallback if empty
+        # 1. Defensively filter for valid, existing stem files
+        valid_segments: List[Union[Dict[str, Any], DialogueSegmentInput]] = []
+        for s in dialogue_segments:
+            path_str = str(s.audio_path if isinstance(s, DialogueSegmentInput) else s.get("audio_path", ""))
+            if path_str:
+                p = Path(path_str)
+                if p.exists() and p.stat().st_size > 0:
+                    valid_segments.append(s)
+
+        if not valid_segments:
+            # 1.0s silence fallback if empty or all stems invalid
             cmd = [
                 self.ffmpeg_bin,
                 "-y",
@@ -103,17 +114,28 @@ class AcousticMasteringEngine:
             await self._run_command(cmd)
             return out
 
-        inputs, filter_str = self.build_composite_dialogue_filtergraph(dialogue_segments)
-        cmd = [
-            self.ffmpeg_bin,
-            "-y",
-            *inputs,
-            "-filter_complex", filter_str,
-            "-map", "[dialogue_bus]",
-            "-c:a", "pcm_s16le",
-            str(out),
-        ]
-        await self._run_command(cmd)
+        inputs, filter_str = self.build_composite_dialogue_filtergraph(valid_segments)
+
+        # 2. UUID-isolated temporary script file with strict LF encoding
+        script_file = out.parent / f".filtergraph_{uuid.uuid4().hex[:8]}.tmp.txt"
+        try:
+            with open(script_file, "w", encoding="utf-8", newline="\n") as f:
+                f.write(filter_str)
+
+            cmd = [
+                self.ffmpeg_bin,
+                "-y",
+                *inputs,
+                "-filter_complex_script", str(script_file),
+                "-map", "[dialogue_bus]",
+                "-c:a", "pcm_s16le",
+                str(out),
+            ]
+            await self._run_command(cmd)
+        finally:
+            if script_file.exists():
+                script_file.unlink(missing_ok=True)
+
         return out
 
     def build_sidechain_ducking_filtergraph(
@@ -134,32 +156,6 @@ class AcousticMasteringEngine:
             f"release=250:"
             f"level_in=1[ducked_bg]"
         )
-
-    def build_master_filtergraph(
-        self,
-        has_background: bool,
-        n_dialogue_segments: int,
-        ducking_db: float = -6.0,
-        target_lufs: float = -24.0,
-        true_peak: float = -2.0,
-    ) -> tuple[List[str], str]:
-        """
-        Construct unified single-pass filtergraph combining adelay compositing,
-        sidechain ducking, stem summing, and EBU R128 loudness mastering.
-        """
-        filter_parts: List[str] = []
-
-        if has_background:
-            # Input 0: Background M&E
-            # Inputs 1..N: Dialogue segments
-            delay_filters: List[str] = []
-            for i in range(n_dialogue_segments):
-                # We will construct adelay in caller or full pipeline
-                pass
-
-        # Build EBU R128 loudnorm filter
-        loudnorm = f"loudnorm=I={target_lufs:.1f}:LRA=7.0:TP={true_peak:.1f}"
-        return [], loudnorm
 
     async def apply_sidechain_ducking(
         self,
@@ -183,7 +179,7 @@ class AcousticMasteringEngine:
         sidechain_filter = self.build_sidechain_ducking_filtergraph(ducking_db=ducking_db)
         filter_complex = (
             f"{sidechain_filter};"
-            f"[ducked_bg][1:a]amix=inputs=2:dropout_transition=0:normalize=0[mixed]"
+            f"[ducked_bg][1:a]amix=inputs=2:dropout_transition=0:normalize=0:duration=first[mixed]"
         )
 
         cmd = [

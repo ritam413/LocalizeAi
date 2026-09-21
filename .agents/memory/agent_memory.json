@@ -1,6 +1,6 @@
 {
-  "version": "1.1.0",
-  "last_updated": "2026-09-20T23:25:00+05:30",
+  "version": "1.2.0",
+  "last_updated": "2026-09-21T08:56:00+05:30",
   "categories": {
     "domain_invariants": [
       {
@@ -90,6 +90,48 @@
           "ticket": "TICKET-27",
           "components": ["backend/app/agents/qa_agent.py", "backend/app/engine/stages/duration_align.py", "backend/app/agents/sync_engineer.py", "backend/app/engine/stages/mixer.py"]
         }
+      },
+      {
+        "id": "inv_010_translation_transcript_persistence",
+        "title": "Translation Stage Transcript & Target Language Persistence",
+        "text": "TranslationStage must persist dialogue segments containing translated_text, target_language, and subtitle metadata into transcript.json and transcript_{lang}.json atomically via .tmp file replacement. Downstream stages (TTSStage, QA) must always read translated_text when target_language is non-English.",
+        "metadata": {
+          "source": "Docs/tickets/TICKET-32-translation-stage-disk-persistence.md",
+          "ticket": "TICKET-32",
+          "components": ["backend/app/engine/stages/translation.py", "backend/app/engine/stages/tts.py"]
+        }
+      },
+      {
+        "id": "inv_011_stems_manifest_and_segment_id_lookup",
+        "title": "Stems Manifest & Segment ID Lookup Invariant",
+        "text": "TTSStage must persist stems.json with segment_id, speaker_id, start_s, end_s, audio_path, and duration metrics. Rehydration of stems must map strictly by segment_id lookup (seg_map[seg_id]) rather than list index enumeration to prevent audio timeline desynchronization when segments are filtered.",
+        "metadata": {
+          "source": "Docs/tickets/TICKET-33-voice-director-timeline-and-stems-manifest.md",
+          "ticket": "TICKET-33",
+          "components": ["backend/app/agents/voice_director.py", "backend/app/engine/stages/tts.py", "backend/app/engine/executor.py"]
+        }
+      },
+      {
+        "id": "inv_012_scalable_ffmpeg_filtergraph_script",
+        "title": "Scalable Filtergraph Script & Windows 8k Limit Defense",
+        "text": "When compositing dialogue audio stems in AcousticMasteringEngine, the complex adelay and amix filtergraph must be passed via -filter_complex_script written to a UUID-isolated temporary script file with strict UTF-8/LF line endings, eliminating Windows CreateProcess 8,191-character command line buffer overflow errors and file-lock collisions.",
+        "metadata": {
+          "source": "Docs/tickets/TICKET-35-scalable-filtergraph-script-generation.md",
+          "adr": "ADR-014",
+          "ticket": "TICKET-35",
+          "components": ["backend/app/engine/stages/mixer.py"]
+        }
+      },
+      {
+        "id": "inv_013_single_flight_stage_mutex",
+        "title": "Single-Flight Stage Execution Mutex Invariant",
+        "text": "RunExecutor must guard stage execution with a class-level single-flight mutex (_active_stage_locks: Dict[str, asyncio.Lock]) per (run_id, stage_name) pair, serializing concurrent duplicate stage requests and eliminating Windows [WinError 32] file sharing collisions.",
+        "metadata": {
+          "source": "context.md",
+          "adr": "ADR-013",
+          "ticket": "TICKET-34",
+          "components": ["backend/app/engine/executor.py"]
+        }
       }
     ],
     "bug_resolution_traces": [
@@ -162,6 +204,34 @@
         "root_cause": "Ollama is already running in the background as the Windows system tray application (ollama app.exe / ollama.exe), occupying port 11434 with default 127.0.0.1 binding.",
         "resolution": "Terminate background instances via Stop-Process -Name 'ollama', 'ollama app' -Force (or right-click Tray Icon -> Quit Ollama), set env variables ($env:OLLAMA_HOST='0.0.0.0:11434', etc.), and re-run ollama serve.",
         "verification_suite": "Get-Process -Name 'ollama*' and ollama serve"
+      },
+      {
+        "id": "trace_011_translation_transcript_missing_hindi_tts",
+        "symptom": "TTS synthesized dialogue in English instead of Hindi despite successful translation stage completion.",
+        "root_cause": "TranslationStage wrote subtitles_hi.srt/.vtt but never persisted translated_text to transcript.json on disk. When TTSStage was retried as a single stage, RunExecutor reloaded transcript.json containing only English source_text.",
+        "resolution": "Updated TranslationStage to atomically write qa_segments with translated_text to transcript.json and transcript_{lang}.json.",
+        "verification_suite": "backend/tests/test_translation_persistence.py"
+      },
+      {
+        "id": "trace_012_stage_retry_zero_stems_duration_align",
+        "symptom": "Retrying duration_align logged 'Reconciling duration for 0 speech stems...' and generated no aligned stems.",
+        "root_cause": "RunExecutor._run_pipeline only loaded vocals, background, and transcript from disk, omitting synthesized_stems from current_artifacts on single stage retries.",
+        "resolution": "Implemented _rehydrate_disk_artifacts in RunExecutor to load stems.json or scan stems/ directory using segment_id mapping.",
+        "verification_suite": "backend/tests/test_executor_rehydration.py"
+      },
+      {
+        "id": "trace_013_frontend_preview_stream_object_404",
+        "symptom": "Backend logged GET /api/v1/clips/preview-stream?path=%5Bobject%20Object%5D 404 Not Found.",
+        "root_cause": "BeforeAfterPlayer passed deliverables.files.mastered_soundtrack_wav (a file metadata object) directly to getPreviewStreamUrl().",
+        "resolution": "Updated getPreviewStreamUrl to extract rawPath = typeof filePath === 'object' ? (filePath.relative_path || filePath.path) : filePath.",
+        "verification_suite": "frontend/__tests__/mediaTrackHelpers.test.ts"
+      },
+      {
+        "id": "trace_014_windows_filtergraph_buffer_overflow",
+        "symptom": "FFmpeg audio mastering threw WinError 206 command-line string length exceeds 8,191 characters when compositing 150+ dialogue stems.",
+        "root_cause": "Passing giant inline -filter_complex strings on the Windows subprocess CLI exceeded the OS CreateProcess buffer ceiling.",
+        "resolution": "Wrote filter expressions to a UUID-isolated script file (.filtergraph_{uuid}.tmp.txt) and executed FFmpeg with -filter_complex_script.",
+        "verification_suite": "backend/tests/test_scalable_filtergraph.py"
       }
     ],
     "clean_code_patterns": [
@@ -188,6 +258,12 @@
         "rule": "Use atomic temporary file substitution to bypass Windows file locks.",
         "implementation": "Write to sibling .tmp.* file first and atomically replace with os.replace().",
         "benefit": "Immunity to WinError 32 permission errors during live playback and targeted retries."
+      },
+      {
+        "id": "pattern_005_strict_lf_script_encoding",
+        "rule": "Always write generated subprocess script files with explicit newline='\\n' and UTF-8 encoding on Windows.",
+        "implementation": "with open(script_file, 'w', encoding='utf-8', newline='\\n') as f: f.write(filter_str)",
+        "benefit": "Prevents Windows CRLF carriage returns from corrupting FFmpeg script lexers."
       }
     ],
     "operational_runbooks": [

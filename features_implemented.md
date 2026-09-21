@@ -23,10 +23,47 @@ This document tracks the current functionality and implementation status of LOCA
   - `emil-prototype`: Multi-variant UI divergence with a live visual switcher.
   - `taste-skill`: Anti-slop frontend design system and aesthetic standards.
 - **Codebase Memory Index & Gated Inspection Engine (`/agentmemory`, `/repomix`, `/context7`)**:
-  - **Status**: Implemented & Updated (v1.1.0)
-  - **Details**: Enforces zero-tool fast bypass on non-codebase queries and a deterministic tiered inspection pipeline on repo inquiries. Includes streaming $O(1)$ RAM parser (`ingest_repomix.py`) extracting 6,580 exported symbols, interfaces, and function signatures across 306 files into an instant $O(1)$ dictionary (`symbols_manifest.json`). Implements structured episodic memory store (`.agents/memory/agent_memory.json` & `query_memory.py`) holding domain invariants (temporal continuity, 4GB VRAM limits, Kokoro 24kHz PCM_16 standard, Demucs bypass pass-through, atomic ASR checkpointing, downstream defensive duration clamping), bug resolution traces, and clean code patterns. Implements Windows SQLite WAL isolation, hash-based cache invalidation (`.indexed_hash`), Turn-1 proactive handoff briefings (`tracker.md`, `context.md`, `features_implemented.md`), and strict bans on blind directory walking (`list_dir`) and uninspected whole-file dumping.
+  - **Status**: Implemented & Updated (v1.2.0)
+  - **Details**: Enforces zero-tool fast bypass on non-codebase queries and a deterministic tiered inspection pipeline on repo inquiries. Includes streaming $O(1)$ RAM parser (`ingest_repomix.py`) extracting 5,835 exported symbols across 196 files into an instant $O(1)$ dictionary (`symbols_manifest.json`). Implements structured episodic memory store (`.agents/memory/agent_memory.json` & `query_memory.py`) holding 12 domain invariants (temporal continuity, 4GB VRAM limits, Kokoro 24kHz PCM_16 standard, Demucs bypass pass-through, atomic ASR checkpointing, downstream defensive duration clamping, translation transcript persistence, stems manifest rehydration, scalable FFmpeg filtergraph scripts), 13 bug resolution traces, and clean code patterns.
   - **Modules**: `.agents/scripts/ingest_repomix.py`, `.agents/memory/agent_memory.json`, `.agents/memory/query_memory.py`, `.agents/skills/agentmemory/SKILL.md`, `.agents/rules/codebase-indexing.md`, `.agents/rules/session-init.md`, `.agents/memory/symbols_manifest.json`, `.agents/memory/.indexed_hash`.
-  - **Verification**: `python .agents/memory/query_memory.py "kokoro"` and `python .agents/memory/query_memory.py "temporal" domain_invariants` verified; Ingestion executed successfully on 13.2MB Repomix XML in 4.1s.
+  - **Verification**: `python .agents/scripts/ingest_repomix.py --local` regenerated 5,835 symbols; `python .agents/memory/query_memory.py "hindi"` and `query_memory.py "stems"` verified.
+
+- **Translation Stage Disk Persistence & Multi-Language Manifests (TICKET-32)**:
+  - **Status**: Implemented & Verified
+  - **Details**: `TranslationStage` atomically persists sanitized dialogue segments with `translated_text` into `transcript.json` (active hot state pointer) and `transcript_{target_lang}.json` (immutable multi-language audit deliverable). Utilizes a 4-line standard library helper `_atomic_write_json` with `.tmp.json` + `os.replace` (`MoveFileExW`) to eliminate partial-write race conditions and Windows `[WinError 32]` file-lock crashes. Guarantees 100% UTF-8 Devanagari script preservation (`ensure_ascii=False`) and incorporates defensive `run_dir.mkdir(parents=True, exist_ok=True)` guards.
+  - **Modules**: `backend/app/engine/stages/translation.py`, `backend/tests/test_translation_persistence.py`.
+  - **Verification**: `pytest backend/tests/test_translation_persistence.py` (3/3 passed).
+
+- **Voice Director Timeline Preservation & Stems Manifest (TICKET-33)**:
+  - **Status**: Implemented & Verified
+  - **Details**: `VoiceDirectorAgent` and `TTSStage` preserve exact dialogue segment timing boundaries (`start_s`, `end_s`, `target_duration_s`) with defensive timestamp clamping (`max(start_s + 0.1, end_s)`), integer `segment_id` coercion, and standard 3-decimal float rounding. `TTSStage` atomically writes `stems.json` to the active `run_dir` via `_atomic_write_json()` (`.tmp.json` + `os.replace`), providing disk-backed stem persistence and eliminating downstream audio desync during multi-stage execution and targeted retries.
+  - **Modules**: `backend/app/agents/voice_director.py`, `backend/app/engine/stages/tts.py`, `backend/tests/test_tts_stems_manifest.py`.
+  - **Verification**: `pytest backend/tests/test_tts_stems_manifest.py` (3/3 passed in 1.92s).
+
+- **Executor State Rehydration & Single-Flight Stage Mutex (TICKET-34)**:
+  - **Status**: Implemented & Verified
+  - **Details**: `RunExecutor` rehydrates in-memory stage artifacts from disk manifests (`stems.json`, `transcript.json`) and disk directories (`stems/seg_*.wav`, `aligned/aligned_seg_*.wav`) via `_rehydrate_disk_artifacts()`. Stems are matched strictly by `segment_id` map lookup (`seg_map[seg_id]`) extracted via regex (`re.search(r"seg_(\d+)", sf.stem)`), preventing timeline desynchronization when segments are filtered. Implements class-level single-flight mutex locking (`_active_stage_locks: Dict[str, asyncio.Lock]`) with `cleanup_stage_locks()` on run termination, serializing concurrent duplicate stage retry requests and eliminating Windows `[WinError 32]` file access collisions.
+  - **Modules**: `backend/app/engine/executor.py`, `backend/tests/test_executor_rehydration.py`.
+  - **Verification**: `pytest backend/tests/test_executor_rehydration.py` (5/5 passed in 0.87s) and full chain regression (27/27 passed).
+
+- **Scalable Filtergraph Script Generation & Windows 8k-Buffer Defense (TICKET-35)**:
+  - **Status**: Implemented & Verified
+  - **Details**: `AcousticMasteringEngine.composite_dialogue_bus` passes FFmpeg multitrack compositing filtergraphs via `-filter_complex_script` written to isolated temporary files (`.filtergraph_{uuid}.tmp.txt`), eliminating Windows `CreateProcess` 8,191-character command-line buffer overflow crashes (`[WinError 206]`) when compositing 150+ stems. Features strict UTF-8 with `newline="\n"` formatting to defend against Windows CRLF parser errors, defensive stem file validation filtering out non-existent or zero-byte audio stems, a 1.0s silence generator fallback, and deterministic `try ... finally` script file deletion.
+  - **Modules**: `backend/app/engine/stages/mixer.py`, `backend/tests/test_scalable_filtergraph.py`, `backend/tests/test_acoustic_mixer.py`.
+  - **Verification**: `pytest backend/tests/test_scalable_filtergraph.py` (150-stem scale test passed), `pytest backend/tests/test_acoustic_mixer.py` (10/10 passed), and targeted integration suites (26/26 passed).
+
+- **Hindi TTS Localization & Resilient Stem Persistence Pipeline (Wayfinder Map / TICKET-36)**:
+  - **Status**: Planned / Active Frontier (Decomposed & Tested)
+  - **Details**: Specification for deliverable file object preview streaming (TICKET-36).
+  - **Modules**: `frontend/lib/mediaTrackHelpers.ts`.
+  - **Verification**: Wayfinder Map (`Docs/tickets/WAYFINDER_MAP_HINDI_TTS_AND_STEM_PERSISTENCE.md`) and unit test specifications authored.
+
+
+- **Multilingual Translation Engine & Multitrack Audio Duration Preservation (TICKET-30)**:
+  - **Status**: Implemented & Verified
+  - **Details**: Full multilingual translation and subtitle pipeline supporting English, Hindi, Spanish, and Japanese (`en➔hi`, `es➔en➔hi`, `ja➔en➔hi`, `hi➔en➔ja`). Connected `TranslationStage` to Ollama LLM endpoint with automatic intermediate English pivot for foreign-to-foreign audio translation. Fixed FFmpeg multitrack audio duration truncation by enforcing `duration=longest` in `composite_dialogue_bus` and `duration=first` in `apply_sidechain_ducking`, ensuring mastered audio and multiplexed release video preserve the full 20.4-minute media length. Added language code alias normalization (`"jp" ➔ "ja"`, `"sp" ➔ "es"`).
+  - **Modules**: `backend/app/engine/stages/translation.py`, `backend/app/engine/stages/mixer.py`, `backend/app/core/languages.py`.
+  - **Verification**: `pytest backend/tests/test_translation_multilingual.py`, `pytest backend/tests/test_acoustic_mixer.py`, and `pytest backend/tests/` (114/114 tests passed).
 
 - **Centralized Language & Voice Persona Registry (TICKET-24)**:
   - **Status**: Implemented & Verified
