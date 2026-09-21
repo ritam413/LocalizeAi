@@ -85,3 +85,60 @@ async def test_translation_alias_normalization(translation_stage, tmp_path):
     assert result["status"] == "success"
     assert (tmp_path / "subtitles_ja.srt").exists()
     assert (tmp_path / "subtitles_ja.vtt").exists()
+
+
+@pytest.mark.asyncio
+async def test_translation_en_to_en_skips_ollama_and_prompts_user(translation_stage, tmp_path):
+    segments = [
+        {"start_s": 0.0, "end_s": 2.0, "source_text": "Welcome to the studio show."},
+    ]
+    input_artifacts = {"segments": segments}
+    config = {
+        "run_dir": str(tmp_path),
+        "source_language": "en",
+        "target_language": "en",
+    }
+    progress_cb = AsyncMock()
+    log_cb = AsyncMock()
+
+    with patch.object(translation_stage, "_call_ollama_translation") as mock_ollama:
+        result = await translation_stage.execute(input_artifacts, config, progress_cb, log_cb)
+
+    # Asserts Ollama is NOT called when source and target are both English
+    mock_ollama.assert_not_called()
+    assert result["status"] == "success"
+    assert result["segments"][0]["translated_text"] == "Welcome to the studio show."
+    assert (tmp_path / "subtitles_en.srt").exists()
+    assert (tmp_path / "subtitles_en.vtt").exists()
+    assert (tmp_path / "transcript.json").exists()
+
+    # Asserts prompt log callback was triggered for user checkpoint
+    log_calls = [call.args for call in log_cb.call_args_list]
+    assert any(args[0] == "PROMPT" for args in log_calls)
+
+
+@pytest.mark.asyncio
+async def test_translation_en_to_en_force_ollama(translation_stage, tmp_path):
+    segments = [
+        {"start_s": 0.0, "end_s": 2.0, "source_text": "Welcome to the studio show."},
+    ]
+    input_artifacts = {"segments": segments}
+    config = {
+        "run_dir": str(tmp_path),
+        "source_language": "en",
+        "target_language": "en",
+        "force_ollama_translation": True,
+    }
+    progress_cb = AsyncMock()
+    log_cb = AsyncMock()
+
+    with patch.object(translation_stage, "_call_ollama_translation", return_value=[
+        {"start_s": 0.0, "end_s": 2.0, "source_text": "Welcome to the studio show.", "translated_text": "Welcome into our studio broadcast.", "target_language": "en"}
+    ]) as mock_ollama:
+        result = await translation_stage.execute(input_artifacts, config, progress_cb, log_cb)
+
+    # Asserts Ollama IS called when explicitly forced
+    mock_ollama.assert_called_once()
+    assert result["status"] == "success"
+    assert result["segments"][0]["translated_text"] == "Welcome into our studio broadcast."
+

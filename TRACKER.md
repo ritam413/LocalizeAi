@@ -45,10 +45,38 @@ Last updated: 2026-09-06 by antigravity
 | **TICKET-34** | Resilient Stems & Aligned Audio Rehydration (`RunExecutor` Mutex) | Completed | Pytest (5/5 Passed, 27/27 Chain) | Yes | Rehydrates stems by `segment_id` map lookup & single-flight mutex |
 | **TICKET-36** | Frontend Deliverables File Object Streaming Bridge (`preview-stream`) | Completed | Vitest (15/15 Passed) | No | Fixes `[object Object]` & relative path preview stream 404s |
 | **TICKET-37** | Custom Run Slug Generation & Human-Readable Storage Directories | Completed | Pytest (9/9 Passed, 132/132 Full) | Yes | Formats run IDs and storage directories as `{filename_stem}_{6char_uuid}` with timestamp fallback |
+| **TICKET-38** | English-to-English Translation Skip & Preview Stream Security Hardening | Completed | Pytest (9/9 Passed) | Yes | Bypasses Ollama for same-language pipelines, emits user checkpoint prompt, isolates candidate models, restricts preview-stream path roots |
 
 ---
 
-## 2026-09-22 — Custom Run Slug Generation & Storage Directories (TICKET-37)
+## 2026-09-22 — English-to-English Translation Skip & Security Hardening (TICKET-38)
+
+### Objective
+Bypass redundant external Ollama LLM requests when source and target languages are identical (e.g. `en -> en`), directly generate subtitle files (`subtitles_en.srt`, `subtitles_en.vtt`) and `transcript.json` with zero-cost latency, emit a prompt log checkpoint for the client/user, isolate candidate model translation batches to prevent cross-model state pollution, and secure `/api/v1/clips/preview-stream` against path traversal and arbitrary file reads.
+
+### Changes Made
+- **Same-Language Passthrough & User Checkpoint**: Added Pathway 0 in `TranslationStage.execute()` (`backend/app/engine/stages/translation.py`) checking `if source_lang == target_lang:`. Unless `force_ollama_translation: True` is configured, it bypasses Ollama/Whisper calls, builds `translated_segments` directly from transcribed source text, formats subtitles, and emits a `PROMPT` log event (`"Subtitles generated in English. Ready to proceed to dubbing or trigger Ollama rephrasing with force_ollama_translation=True."`).
+- **Candidate Model State Isolation**: Initialized `model_translated_map = {}` inside the candidate models loop in `_call_ollama_translation()`, ensuring that partial batch failures from one candidate model do not contaminate subsequent fallback models.
+- **Preview Stream Path Traversal Defense**: Hardened `/api/v1/clips/preview-stream` in `backend/app/api/clips.py` by removing `Path.cwd()` and `BASE_DIR` from `allowed_roots`, restricting allowed directory roots to `settings.STORAGE_DIR` and temporary directories, and enforcing strict media extensions (`.mp4`, `.mov`, `.webm`, `.mkv`, `.mp3`, `.wav`, `.vtt`, `.srt`) with HTTP 403 guards against arbitrary system/secret file reads.
+- **Automated Verification**: Added comprehensive unit and integration tests in `backend/tests/test_translation_multilingual.py` and `backend/tests/test_clip_streaming.py`.
+
+### Files Changed
+- `backend/app/engine/stages/translation.py`
+- `backend/app/api/clips.py`
+- `backend/tests/test_translation_multilingual.py`
+- `backend/tests/test_clip_streaming.py`
+- `features_implemented.md`
+- `TRACKER.md`
+
+### Verification
+- `pytest backend/tests/test_translation_multilingual.py backend/tests/test_clip_streaming.py backend/tests/test_translation_persistence.py` — 9/9 passed in 7.14s.
+
+### Current State
+English-to-English pipelines now complete the translation stage instantaneously without requiring Ollama, and preview stream routes are fortified against path traversal.
+
+### Next Agent Instructions
+1. Inspect `frontend/` UI components if an interactive modal/checkpoint dialog is desired when `PROMPT` log event arrives over WebSocket.
+2. Run standard full test suites (`pytest backend/tests`, `cd frontend && npm test`).
 
 ### Objective
 Replace raw generic UUID run IDs with human-readable, deterministic slugs formatted as `{filename_stem}_{6char_uuid}` (e.g., `trial1.mp4` -> `trial1_a1b2c3` -> `/runs/trial1_a1b2c3`), while defending against Windows `MAX_PATH` overflow, special character clusters, and non-Latin filename annihilation via safe timestamp fallbacks (`22_tuesday_september_10_45pm_a1b2c3`).

@@ -58,6 +58,12 @@ This document tracks the current functionality and implementation status of LOCA
   - **Modules**: `backend/app/api/runs.py`, `backend/tests/test_run_slug.py`.
   - **Verification**: `pytest backend/tests/test_run_slug.py` (6/6 passed) and full test suite passing (132/132).
 
+- **English-to-English Translation Skip & Preview Stream Security Hardening (TICKET-38)**:
+  - **Status**: Implemented & Verified
+  - **Details**: When `source_lang == target_lang` (e.g. English-to-English), `TranslationStage` bypasses external Ollama LLM requests by default, directly generating synchronized subtitle tracks (`subtitles_en.srt`, `subtitles_en.vtt`) and `transcript.json` from transcription segments with zero latency hang. Emits a `PROMPT` log event allowing clients to checkpoint or force colloquial rephrasing via `force_ollama_translation=True`. Isolates batch translation maps per candidate model in `_call_ollama_translation()` to prevent cross-model state contamination on partial failures. Hardens `/api/v1/clips/preview-stream` by strictly restricting path roots to `settings.STORAGE_DIR` and allowed media extensions (`.mp4`, `.mov`, `.webm`, `.mkv`, `.mp3`, `.wav`, `.vtt`, `.srt`), blocking arbitrary file disclosure.
+  - **Modules**: `backend/app/engine/stages/translation.py`, `backend/app/api/clips.py`, `backend/tests/test_translation_multilingual.py`, `backend/tests/test_clip_streaming.py`.
+  - **Verification**: `pytest backend/tests/test_translation_multilingual.py backend/tests/test_clip_streaming.py` (9/9 passed).
+
 
 
 
