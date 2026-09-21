@@ -52,11 +52,12 @@ This document tracks the current functionality and implementation status of LOCA
   - **Modules**: `backend/app/engine/stages/mixer.py`, `backend/tests/test_scalable_filtergraph.py`, `backend/tests/test_acoustic_mixer.py`.
   - **Verification**: `pytest backend/tests/test_scalable_filtergraph.py` (150-stem scale test passed), `pytest backend/tests/test_acoustic_mixer.py` (10/10 passed), and targeted integration suites (26/26 passed).
 
-- **Frontend Deliverables File Object Streaming Bridge (TICKET-36)**:
+- **Custom Run Slug Generation & Human-Readable Storage Directories (TICKET-37)**:
   - **Status**: Implemented & Verified
-  - **Details**: `getPreviewStreamUrl` in `frontend/lib/mediaTrackHelpers.ts` accepts `StreamablePathInput` objects, safely extracting `storage_path`, `url`, `path`, `relative_path`, or `filename`. Automatically expands isolated relative deliverable paths with `fallbackRunId`. Normalizes Windows slashes, guarantees idempotency for HTTP/blob/API URLs, and strips whitespace. `BroadcastDeliverablesExporter` in `backend/app/engine/stages/exporter.py` outputs `storage_path` for direct backend resolution, preventing `[object Object]` and 404 streaming errors.
-  - **Modules**: `frontend/lib/mediaTrackHelpers.ts`, `frontend/__tests__/mediaTrackHelpers.test.ts`, `backend/app/engine/stages/exporter.py`, `backend/tests/test_deliverables_exporter.py`.
-  - **Verification**: `npm test -- mediaTrackHelpers.test.ts` (15/15 passed) and `pytest backend/tests/test_deliverables_exporter.py` (3/3 passed).
+  - **Details**: `generate_run_slug` in `backend/app/api/runs.py` replaces raw generic UUIDs with human-readable slugs `{clean_filename_stem}_{6char_uuid}` (e.g., `trial1_a1b2c3`). Sanitizes filename stems against special characters, deduplicates and strips underscores, bounds stems to 32 characters for Windows `MAX_PATH` safety, and falls back to safe NTFS timestamp strings (`22_tuesday_september_10_45pm_a1b2c3`, zero colons) on empty or non-Latin inputs. `create_run` endpoint validates clip existence with HTTP 404 guards and guarantees uniqueness via database candidate checks.
+  - **Modules**: `backend/app/api/runs.py`, `backend/tests/test_run_slug.py`.
+  - **Verification**: `pytest backend/tests/test_run_slug.py` (6/6 passed) and full test suite passing (132/132).
+
 
 
 

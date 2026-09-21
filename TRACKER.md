@@ -44,10 +44,39 @@ Last updated: 2026-09-06 by antigravity
 | **TICKET-33** | Voice Director Segment Timeline Preservation & Stems Manifest | Completed | Pytest (3/3 Passed, 117/117 Full) | Yes | Preserves `start_s`/`end_s` and writes `stems.json` |
 | **TICKET-34** | Resilient Stems & Aligned Audio Rehydration (`RunExecutor` Mutex) | Completed | Pytest (5/5 Passed, 27/27 Chain) | Yes | Rehydrates stems by `segment_id` map lookup & single-flight mutex |
 | **TICKET-36** | Frontend Deliverables File Object Streaming Bridge (`preview-stream`) | Completed | Vitest (15/15 Passed) | No | Fixes `[object Object]` & relative path preview stream 404s |
+| **TICKET-37** | Custom Run Slug Generation & Human-Readable Storage Directories | Completed | Pytest (9/9 Passed, 132/132 Full) | Yes | Formats run IDs and storage directories as `{filename_stem}_{6char_uuid}` with timestamp fallback |
 
 ---
 
-## 2026-09-21 — Frontend Deliverables File Object Streaming Bridge (TICKET-36)
+## 2026-09-22 — Custom Run Slug Generation & Storage Directories (TICKET-37)
+
+### Objective
+Replace raw generic UUID run IDs with human-readable, deterministic slugs formatted as `{filename_stem}_{6char_uuid}` (e.g., `trial1.mp4` -> `trial1_a1b2c3` -> `/runs/trial1_a1b2c3`), while defending against Windows `MAX_PATH` overflow, special character clusters, and non-Latin filename annihilation via safe timestamp fallbacks (`22_tuesday_september_10_45pm_a1b2c3`).
+
+### Changes Made
+- **Hardened Slug Generator**: Implemented `generate_run_slug(filename, fallback_id)` in `backend/app/api/runs.py` using Python stdlib (`pathlib.Path`, `re`, `uuid`, `datetime`). Sanitizes filenames against non-alphanumerics, deduplicates underscores (`+`), caps stems at 32 characters for Windows `MAX_PATH` defense, and falls back to a clean timestamp slug (with zero colons for Windows NTFS compatibility) on empty or non-Latin inputs.
+- **Run Creation Integration & 404 Guard**: Updated `POST /runs` endpoint in `backend/app/api/runs.py` to validate `clip_id` existence (`404 Clip not found`), fetch the original filename, and run a candidate existence loop to guarantee zero database key collisions.
+- **Unit & Integration Test Suite**: Created `backend/tests/test_run_slug.py` covering standard names, special characters/spaces, stem truncation (>100 chars), non-Latin/emoji fallback, and asynchronous `create_run` endpoint integration.
+
+### Files Changed
+- `backend/app/api/runs.py`
+- `backend/tests/test_run_slug.py`
+- `backend/tests/test_deliverables_exporter.py`
+- `features_implemented.md`
+- `TRACKER.md`
+
+### Verification
+- `pytest backend/tests/test_run_slug.py` — 6/6 passed in 5.67s.
+- `pytest backend/tests/test_deliverables_exporter.py` — 3/3 passed in 0.88s.
+- Full suite `pytest backend/tests/` — 132 passed.
+
+### Current State
+Run IDs and physical directory paths under `storage/runs/` now reflect the uploaded clip's filename stem and a 6-character hex suffix (e.g. `storage/runs/trial1_a1b2c3/`).
+
+### Next Agent Instructions
+1. When uploading media via `POST /api/v1/clips/upload` and launching runs via `POST /api/v1/runs`, the resulting `run.id` will naturally be `{filename_stem}_{6char_uuid}`.
+2. Frontend routing automatically directs to `/runs/{filename_stem}_{6char_uuid}` with zero client changes required.
+
 
 ### Objective
 Safely handle manifest file metadata objects (`{ filename, relative_path, storage_path, size_bytes }`) passed to `getPreviewStreamUrl()`, preventing `GET /api/v1/clips/preview-stream?path=%5Bobject%20Object%5D` (404 Not Found) and orphaned relative subpath errors in the browser player and backend streaming logs.
