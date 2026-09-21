@@ -1,6 +1,6 @@
 
 # LOCALIZE — Agent Handoff Log & Task Tracker
-Last updated: 2026-09-06 by antigravity
+Last updated: 2026-09-22 by antigravity
 
 ## Current Status Overview
 - **Sprint Target**: 2-Day Implementation (Sept 6 – Sept 8, 2026)
@@ -49,7 +49,38 @@ Last updated: 2026-09-06 by antigravity
 
 ---
 
-## 2026-09-22 — English-to-English Translation Skip & Security Hardening (TICKET-38)
+## 2026-09-22 — GitHub Pull & Merge (origin/main → local main)
+
+### Objective
+Pull 2 new remote commits (`c76ff1e` TICKET-37, `3a79af1` TICKET-38) from `origin/main` and merge with local uncommitted changes from the previous sync session.
+
+### Changes Made
+- Committed local uncommitted changes (`translated_text` fallback, `mastered_soundtrack.wav` path fix, tracker entry) before merge.
+- Ran `git pull origin main --no-rebase` — two conflicts detected:
+  - `TRACKER.md`: Merged both sides (remote new entries + local sync entry) — kept all content.
+  - `backend/tests/test_deliverables_exporter.py`: Accepted remote version (`--theirs`), which already included the `mastered_soundtrack.wav` fix.
+- Committed merge resolution.
+
+### New Remote Commits Integrated
+- **`c76ff1e` (TICKET-37)**: Custom run slug generation — formats run IDs as `{filename_stem}_{6char_uuid}` with date-time fallback; new `backend/tests/test_run_slug.py` (9 tests).
+- **`3a79af1` (TICKET-38)**: English-to-English translation bypass; preview-stream path security hardening; prompt checkpoint emission; model isolation in translation candidate batches.
+
+### Files Changed
+- `TRACKER.md`
+- `backend/app/engine/stages/translation.py` (local change preserved by auto-merge)
+- `backend/tests/test_deliverables_exporter.py` (remote version accepted)
+
+### Current State
+Local `main` is fully merged and clean. Local branch is **2 commits ahead** of `origin/main` (the local sync commit + merge commit). All code is consistent.
+
+### Next Agent Instructions
+1. Optionally push local commits (`git push origin main`) to sync ahead-commits back to GitHub.
+2. Run `pytest backend/tests` and `npm --prefix frontend test` to verify full suite green.
+3. Continue development from TICKET-39 onwards.
+
+---
+
+ & Security Hardening (TICKET-38)
 
 ### Objective
 Bypass redundant external Ollama LLM requests when source and target languages are identical (e.g. `en -> en`), directly generate subtitle files (`subtitles_en.srt`, `subtitles_en.vtt`) and `transcript.json` with zero-cost latency, emit a prompt log checkpoint for the client/user, isolate candidate model translation batches to prevent cross-model state pollution, and secure `/api/v1/clips/preview-stream` against path traversal and arbitrary file reads.
@@ -103,10 +134,14 @@ Run IDs and physical directory paths under `storage/runs/` now reflect the uploa
 
 ### Next Agent Instructions
 1. When uploading media via `POST /api/v1/clips/upload` and launching runs via `POST /api/v1/runs`, the resulting `run.id` will naturally be `{filename_stem}_{6char_uuid}`.
-2. Frontend routing automatically directs to `/runs/{filename_stem}_{6char_uuid}` with zero client changes required.
-
----
-
+2. Frontend routing automatically directs to `/runs/{filename_stem}_{6char_uuid}` with zero client changes required.
+
+
+
+---
+
+
+
 ## 2026-09-22 — Local Codebase Sync & Verification
 
 ### Objective
