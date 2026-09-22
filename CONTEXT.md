@@ -33,6 +33,7 @@ Last updated: 2026-09-06
 - **Artifact Rehydration by Segment ID**: Stage resumption mechanism in `RunExecutor` that reconstructs in-memory stage collections from disk manifests (`stems.json`) and directories (`stems/seg_*.wav`, `aligned/aligned_seg_*.wav`) keyed strictly via `segment_id` map lookup (`seg_map[seg_id]`), immune to list-filtering index drift.
 - **Single-Flight Stage Mutex**: Class-level async execution lock (`_active_stage_locks: Dict[str, asyncio.Lock]`) serializing concurrent retry requests per run/stage, preventing duplicate subprocess execution and file-access race collisions on Windows.
 - **Scalable Filtergraph Script (`-filter_complex_script`)**: Disk-backed filtergraph generation pattern that writes multitrack `adelay`/`amix` filter definitions to UUID-isolated temporary script files (`.filtergraph_{uuid}.tmp.txt`) with strict UTF-8/LF line endings, eliminating Windows `CreateProcess` 8,191-character CLI buffer overflow (`[WinError 206]`) on 150+ stems.
+- **SenseVoice-Small Hybrid ASR Blueprint**: Architecture combining FunASR SenseVoice-Small (~600MB VRAM, 15x-25x speed) with Faster-Whisper `large-v3-turbo` for instant Speech Emotion Recognition (SER), Acoustic Event Detection (AED laughs/cries/shouts), and broadcast reaction subtitles. Reference: `Docs/SENSEVOICE_FUNASR_HYBRID_INTEGRATION_REPORT.md`.
 - **Control Tower**: The real-time Grafana observability layer tracking agent latencies, quality trends, failure counts, and retry iterations.
 
 ---

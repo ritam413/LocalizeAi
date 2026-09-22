@@ -8,7 +8,7 @@ os.environ["HF_HUB_DISABLE_SYMLINKS"] = "1"
 os.environ["HF_HUB_DISABLE_SYMLINKS_WARNING"] = "1"
 
 from app.engine.stage import BaseStage, ProgressCallback, LogCallback
-from app.engine.subtitle_formatter import clean_segments, purge_hallucinations, deduplicate_segments
+from app.engine.subtitle_formatter import clean_segments, purge_hallucinations, deduplicate_segments, format_srt, format_vtt
 from app.engine.audio_chunker import AudioChunker, AudioChunk
 
 
@@ -27,12 +27,12 @@ class TranscriptionStage(BaseStage):
     - Explicit memory cleanup after execution to free GPU for downstream TTS.
     """
 
-    MODEL_SIZE = "medium"
+    MODEL_SIZE = "turbo"
 
     @staticmethod
     def _normalize_model_name(raw_name: Optional[str]) -> str:
         if not raw_name:
-            return "medium"
+            return "turbo"
         name = str(raw_name).strip().lower()
         if "turbo" in name:
             return "turbo"
@@ -166,20 +166,40 @@ class TranscriptionStage(BaseStage):
             await log_cb("INFO", f"TranscriptionStage: {progress_pct}% complete (chunk {chunk.index + 1}/{total_chunks} done)")
             await progress_cb(progress_pct, f"Transcribing audio: {progress_pct}% complete ({chunk.index + 1}/{total_chunks} chunks)")
 
-        # ── 4. Post-processing & Final Transcript Export ──────────────── #
+        # ── 4. Post-processing & Final Transcript/Subtitle Export ──────── #
         segments_data = purge_hallucinations(accumulated_segments)
         segments_data = deduplicate_segments(segments_data)
+        cleaned_for_subtitles = clean_segments(segments_data)
 
         with open(output_json, "w", encoding="utf-8") as fh:
             json.dump(segments_data, fh, indent=2, ensure_ascii=False)
+
+        # Write active and language-specific subtitles immediately
+        active_lang = source_lang or "en"
+        srt_content = format_srt(cleaned_for_subtitles)
+        vtt_content = format_vtt(cleaned_for_subtitles)
+
+        default_srt = run_dir / "subtitles.srt"
+        default_vtt = run_dir / "subtitles.vtt"
+        lang_srt = run_dir / f"subtitles_{active_lang}.srt"
+        lang_vtt = run_dir / f"subtitles_{active_lang}.vtt"
+
+        default_srt.write_text(srt_content, encoding="utf-8")
+        default_vtt.write_text(vtt_content, encoding="utf-8")
+        lang_srt.write_text(srt_content, encoding="utf-8")
+        lang_vtt.write_text(vtt_content, encoding="utf-8")
 
         await progress_cb(100.0, "Transcription complete")
         return {
             "status": "success",
             "segments": segments_data,
             "audio_path": audio_path,
+            "subtitles_srt_path": str(default_srt),
+            "subtitles_vtt_path": str(default_vtt),
             "artifacts": [
                 {"type": "json", "label": "Transcription JSON", "path": str(output_json)},
+                {"type": "subtitle", "label": f"Subtitles ({active_lang.upper()} SRT)", "path": str(lang_srt)},
+                {"type": "subtitle", "label": f"Subtitles ({active_lang.upper()} VTT)", "path": str(lang_vtt)},
                 {"type": "json", "label": "Transcription Checkpoint", "path": str(checkpoint_json)},
             ],
         }
@@ -227,14 +247,17 @@ class TranscriptionStage(BaseStage):
                     language=source_lang,
                     task="transcribe",
                     beam_size=5,
-                    no_speech_threshold=0.6,
+                    no_speech_threshold=0.85,
+                    log_prob_threshold=-1.5,
                     compression_ratio_threshold=2.4,
                     condition_on_previous_text=False,
+                    temperature=[0.0, 0.2, 0.4],
                     vad_filter=True,
                     vad_parameters=dict(
-                        min_speech_duration_ms=250,
-                        min_silence_duration_ms=500,
-                        speech_pad_ms=100,
+                        threshold=0.30,
+                        min_speech_duration_ms=150,
+                        min_silence_duration_ms=250,
+                        speech_pad_ms=200,
                     ),
                     word_timestamps=True,
                 )

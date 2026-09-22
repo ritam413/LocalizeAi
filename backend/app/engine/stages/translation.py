@@ -316,13 +316,20 @@ class TranslationStage(BaseStage):
             seg["target_language"] = str(target_lang)
 
         # Write output files (subtitles & atomic transcript manifests)
+        srt_content = format_srt(qa_segments)
+        vtt_content = format_vtt(qa_segments)
+
         srt_path = run_dir / f"subtitles_{target_lang}.srt"
         vtt_path = run_dir / f"subtitles_{target_lang}.vtt"
+        default_srt = run_dir / "subtitles.srt"
+        default_vtt = run_dir / "subtitles.vtt"
         transcript_path = run_dir / "transcript.json"
         lang_transcript_path = run_dir / f"transcript_{target_lang}.json"
 
-        srt_path.write_text(format_srt(qa_segments), encoding="utf-8")
-        vtt_path.write_text(format_vtt(qa_segments), encoding="utf-8")
+        srt_path.write_text(srt_content, encoding="utf-8")
+        vtt_path.write_text(vtt_content, encoding="utf-8")
+        default_srt.write_text(srt_content, encoding="utf-8")
+        default_vtt.write_text(vtt_content, encoding="utf-8")
         _atomic_write_json(transcript_path, qa_segments)
         _atomic_write_json(lang_transcript_path, qa_segments)
 

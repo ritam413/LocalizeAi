@@ -19,7 +19,8 @@ import shutil
 import subprocess
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, List, Optional, Union
+from app.engine.subtitle_formatter import clean_segments, format_srt, format_vtt
 
 
 @dataclass
@@ -162,18 +163,71 @@ class BroadcastDeliverablesExporter:
             if Path(dialogue_bus_path).resolve() != dest_dialogue_bus.resolve():
                 shutil.copyfile(str(dialogue_bus_path), str(dest_dialogue_bus))
 
-        # 2. Copy & verify subtitles
+        # 2. Copy & verify subtitles (with fallback discovery and on-the-fly transcript generation)
+        base_dir = Path(output_dir)
+        resolved_srt: Optional[Path] = None
+        resolved_vtt: Optional[Path] = None
+
+        if subtitles_srt_path and Path(subtitles_srt_path).exists() and Path(subtitles_srt_path).stat().st_size > 0:
+            resolved_srt = Path(subtitles_srt_path)
+        else:
+            for cand in [
+                base_dir / f"subtitles_{target_language}.srt",
+                base_dir / "subtitles.srt",
+                base_dir / "subtitles_en.srt",
+            ]:
+                if cand.exists() and cand.stat().st_size > 0:
+                    resolved_srt = cand
+                    break
+
+        if subtitles_vtt_path and Path(subtitles_vtt_path).exists() and Path(subtitles_vtt_path).stat().st_size > 0:
+            resolved_vtt = Path(subtitles_vtt_path)
+        else:
+            for cand in [
+                base_dir / f"subtitles_{target_language}.vtt",
+                base_dir / "subtitles.vtt",
+                base_dir / "subtitles_en.vtt",
+            ]:
+                if cand.exists() and cand.stat().st_size > 0:
+                    resolved_vtt = cand
+                    break
+
+        # If still missing, check if transcript.json exists and auto-generate subtitles
+        if not resolved_srt or not resolved_vtt:
+            transcript_cand = None
+            for t_cand in [
+                base_dir / f"transcript_{target_language}.json",
+                base_dir / "transcript.json",
+            ]:
+                if t_cand.exists() and t_cand.stat().st_size > 10:
+                    transcript_cand = t_cand
+                    break
+
+            if transcript_cand:
+                try:
+                    t_data = json.loads(transcript_cand.read_text(encoding="utf-8"))
+                    if isinstance(t_data, list) and len(t_data) > 0:
+                        cleaned = clean_segments(t_data)
+                        generated_srt = base_dir / "subtitles.srt"
+                        generated_vtt = base_dir / "subtitles.vtt"
+                        generated_srt.write_text(format_srt(cleaned), encoding="utf-8")
+                        generated_vtt.write_text(format_vtt(cleaned), encoding="utf-8")
+                        resolved_srt = resolved_srt or generated_srt
+                        resolved_vtt = resolved_vtt or generated_vtt
+                except Exception:
+                    pass
+
         dest_srt: Optional[Path] = None
-        if subtitles_srt_path and Path(subtitles_srt_path).exists():
+        if resolved_srt and resolved_srt.exists():
             dest_srt = out_dir / "subtitles.srt"
-            if Path(subtitles_srt_path).resolve() != dest_srt.resolve():
-                shutil.copyfile(str(subtitles_srt_path), str(dest_srt))
+            if resolved_srt.resolve() != dest_srt.resolve():
+                shutil.copyfile(str(resolved_srt), str(dest_srt))
 
         dest_vtt: Optional[Path] = None
-        if subtitles_vtt_path and Path(subtitles_vtt_path).exists():
+        if resolved_vtt and resolved_vtt.exists():
             dest_vtt = out_dir / "subtitles.vtt"
-            if Path(subtitles_vtt_path).resolve() != dest_vtt.resolve():
-                shutil.copyfile(str(subtitles_vtt_path), str(dest_vtt))
+            if resolved_vtt.resolve() != dest_vtt.resolve():
+                shutil.copyfile(str(resolved_vtt), str(dest_vtt))
 
         # 3. Multiplex release video if source video & audio exist
         dest_video: Optional[Path] = None

@@ -13,6 +13,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.database import get_db
 from app.db.models import Run, Clip, Preset, StageRun
+from app.core.languages import resolve_language
 from app.engine.executor import RunExecutor
 from app.engine.cancel_registry import signal_cancel
 from app.engine.stages.tts import sanitize_tts_adapter
@@ -88,11 +89,11 @@ async def create_run(
 
     # Defaults if still None
     if subtitle_only is None:
-        subtitle_only = False
+        subtitle_only = (project_mode == "C")
     if use_demucs is None:
-        use_demucs = True
+        use_demucs = (project_mode != "C")
     if whisper_model is None:
-        whisper_model = "medium"
+        whisper_model = "large-v3-turbo"
 
     # Human-readable Run ID generation: {filename_stem}_{6char_uuid}
     while True:
@@ -103,8 +104,25 @@ async def create_run(
 
     run_id = candidate_id
 
+    # Resolve normalized language codes for stage pipeline routing
+    primary_target_lang = target_languages[0] if target_languages else "en"
+    src_code = resolve_language(source_language).code if source_language else "es"
+    tgt_code = resolve_language(primary_target_lang).code if primary_target_lang else "en"
+
+    if subtitle_only or project_mode == "C":
+        # Mode C: Festival Subtitle Master / Subtitle Only
+        if src_code == tgt_code:
+            # Same language (e.g. en == en): transcription produces subtitles & transcript directly, skip translation & deliverables remux
+            stages = ["extraction", "denoise", "transcription"]
+        else:
+            # Cross language (e.g. !en -> en): extraction -> denoise -> transcription -> translation, no steps after translation
+            stages = ["extraction", "denoise", "transcription", "translation"]
+    else:
+        # Mode A & Mode B (Full Dubbing)
+        stages = ["extraction", "denoise", "transcription", "translation", "tts", "duration_align", "remix", "remux"]
+
     frozen_stage_config = {
-        "stages": ["extraction", "denoise", "transcription", "translation"] if subtitle_only else ["extraction", "denoise", "transcription", "translation", "tts", "duration_align", "remix", "remux"],
+        "stages": stages,
         "subtitle_only": subtitle_only,
         "use_demucs": use_demucs,
         "whisper_model": whisper_model,
