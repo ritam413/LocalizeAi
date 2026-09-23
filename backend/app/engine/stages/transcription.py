@@ -7,9 +7,11 @@ from typing import Dict, Any, List, Optional, Tuple
 os.environ["HF_HUB_DISABLE_SYMLINKS"] = "1"
 os.environ["HF_HUB_DISABLE_SYMLINKS_WARNING"] = "1"
 
+from app.config import settings
 from app.engine.stage import BaseStage, ProgressCallback, LogCallback
 from app.engine.subtitle_formatter import clean_segments, purge_hallucinations, deduplicate_segments, format_srt, format_vtt
 from app.engine.audio_chunker import AudioChunker, AudioChunk
+from app.engine.colab_client import ColabGPUClient
 
 
 class TranscriptionStage(BaseStage):
@@ -130,26 +132,68 @@ class TranscriptionStage(BaseStage):
                 completed_chunks = []
                 accumulated_segments = []
 
+        # Check if Colab GPU client is configured (only active on remote client without local CUDA)
+        try:
+            import torch
+            has_local_cuda = torch.cuda.is_available()
+        except Exception:
+            has_local_cuda = False
+
+        colab_worker_url = config.get("colab_worker_url") or settings.COLAB_GPU_WORKER_URL
+        colab_client = ColabGPUClient(base_url=colab_worker_url) if (not has_local_cuda and colab_worker_url and colab_worker_url.strip()) else None
+        colab_active = colab_client is not None and colab_client.is_configured
+
+        if colab_active:
+            await log_cb("INFO", f"TranscriptionStage: Hybrid remote GPU worker active at {colab_client.base_url}")
+        else:
+            engine_desc = "local GPU (CUDA)" if has_local_cuda else "local CPU"
+            await log_cb("INFO", f"TranscriptionStage: Running on {engine_desc} Faster-Whisper ASR engine.")
+
         # ── 3. Sequential Chunk Transcription Loop ────────────────────── #
         for chunk in chunks:
             if chunk.index in completed_chunks:
                 await log_cb("INFO", f"TranscriptionStage: Skipping already completed chunk {chunk.index} [{chunk.start_offset_s}s - {chunk.end_offset_s}s]")
                 continue
 
-            await log_cb("INFO", f"TranscriptionStage: Transcribing chunk {chunk.index + 1}/{total_chunks} [{chunk.start_offset_s}s - {chunk.end_offset_s}s]")
-            
-            chunk_segments, detected_lang = await self._transcribe_single_chunk(
-                chunk_path=chunk.path,
-                source_lang=source_lang,
-                model_name=model_name,
-            )
+            chunk_duration_s = max(0.1, chunk.end_offset_s - chunk.start_offset_s)
+            chunk_segments: List[Dict[str, Any]] = []
 
-            # Offset chunk relative timestamps by chunk.start_offset_s
-            for seg in chunk_segments:
-                seg["start_s"] = round(seg["start_s"] + chunk.start_offset_s, 3)
-                seg["end_s"] = round(seg["end_s"] + chunk.start_offset_s, 3)
-                accumulated_segments.append(seg)
+            if colab_active:
+                await log_cb(
+                    "INFO",
+                    f"TranscriptionStage: Transcribing chunk {chunk.index + 1}/{total_chunks} [{chunk.start_offset_s}s - {chunk.end_offset_s}s] via remote Colab WhisperX GPU",
+                )
+                try:
+                    res = await colab_client.transcribe_chunk(
+                        chunk_path=chunk.path,
+                        offset_s=chunk.start_offset_s,
+                        chunk_duration_s=chunk_duration_s,
+                        source_lang=source_lang,
+                    )
+                    chunk_segments = res.get("segments", [])
+                except Exception as colab_err:
+                    await log_cb(
+                        "WARNING",
+                        f"TranscriptionStage: Remote Colab worker dropped on chunk {chunk.index + 1} ({colab_err}). Initiating local Faster-Whisper recovery.",
+                    )
+                    colab_active = False
 
+            if not colab_active:
+                await log_cb(
+                    "INFO",
+                    f"TranscriptionStage: Transcribing chunk {chunk.index + 1}/{total_chunks} [{chunk.start_offset_s}s - {chunk.end_offset_s}s] via local Faster-Whisper",
+                )
+                local_segments, detected_lang = await self._transcribe_single_chunk(
+                    chunk_path=chunk.path,
+                    source_lang=source_lang,
+                    model_name=model_name,
+                )
+                for seg in local_segments:
+                    seg["start_s"] = round(seg["start_s"] + chunk.start_offset_s, 3)
+                    seg["end_s"] = round(seg["end_s"] + chunk.start_offset_s, 3)
+                    chunk_segments.append(seg)
+
+            accumulated_segments.extend(chunk_segments)
             completed_chunks.append(chunk.index)
             progress_pct = round((len(completed_chunks) / total_chunks) * 100.0, 1)
 

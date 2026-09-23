@@ -1,7 +1,7 @@
 import os
 import tempfile
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 from pydantic_settings import BaseSettings
 from pydantic import ConfigDict
 
@@ -63,12 +63,21 @@ class Settings(BaseSettings):
     OLLAMA_BASE_URL: str = "http://ollama:11434"
     OLLAMA_MODEL: str = "qwen2.5:3b"
 
+    # Remote Colab GPU Worker (Hybrid Client)
+    COLAB_GPU_WORKER_URL: Optional[str] = None
+    COLAB_REQUEST_TIMEOUT_S: float = 180.0
+    COLAB_MAX_RETRIES: int = 3
+
     # Defaults matching 15-schema.md
     GPU_VRAM_MB: int = 4096
     QA_MIN_GAP_MS: int = 100
     QA_MAX_CPS: float = 17.0
     QA_MIN_DURATION_S: float = 1.0
     QA_MAX_LINE_CHARS: int = 42
+
+    @property
+    def is_colab_enabled(self) -> bool:
+        return bool(self.COLAB_GPU_WORKER_URL and self.COLAB_GPU_WORKER_URL.strip())
 
     @property
     def cors_origins_list(self) -> List[str]:
