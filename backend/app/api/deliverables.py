@@ -24,23 +24,31 @@ async def get_deliverables(run_id: str):
     if manifest_file.exists():
         try:
             manifest_data = json.loads(manifest_file.read_text(encoding="utf-8"))
-            return manifest_data
+            has_subtitles = bool(manifest_data.get("files", {}).get("subtitles_vtt") or manifest_data.get("files", {}).get("subtitles_srt"))
+            # If manifest already has subtitles or no subtitles/transcript exist on disk, return it
+            has_disk_subtitles = bool(
+                (run_dir / "subtitles.vtt").exists()
+                or (run_dir / "subtitles.srt").exists()
+                or (run_dir / "transcript.json").exists()
+                or list(run_dir.glob("subtitles_*.vtt"))
+            )
+            if has_subtitles or not has_disk_subtitles:
+                return manifest_data
         except Exception:
             pass
 
-    # If deliverables folder doesn't exist yet, check if output files exist in run_dir
+    # Assemble and package deliverables
     exporter = BroadcastDeliverablesExporter()
     out_dir = run_dir / "deliverables"
-    if not out_dir.exists():
-        out_dir.mkdir(parents=True, exist_ok=True)
+    out_dir.mkdir(parents=True, exist_ok=True)
 
     manifest = await exporter.package_release(
         job_id=run_id,
-        source_video_path=run_dir / "input.mp4" if (run_dir / "input.mp4").exists() else None,
+        source_video_path=run_dir / "input.mp4" if (run_dir / "input.mp4").exists() else (run_dir / "release_candidate.mp4" if (run_dir / "release_candidate.mp4").exists() else None),
         mastered_audio_path=run_dir / "mastered_audio.wav" if (run_dir / "mastered_audio.wav").exists() else None,
         dialogue_bus_path=run_dir / "dialogue_bus.wav" if (run_dir / "dialogue_bus.wav").exists() else None,
-        subtitles_vtt_path=run_dir / "subtitles.vtt" if (run_dir / "subtitles.vtt").exists() else None,
-        subtitles_srt_path=run_dir / "subtitles.srt" if (run_dir / "subtitles.srt").exists() else None,
+        subtitles_vtt_path=None,
+        subtitles_srt_path=None,
         output_dir=run_dir,
     )
 

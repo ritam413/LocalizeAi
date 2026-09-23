@@ -28,6 +28,18 @@ This document tracks the current functionality and implementation status of LOCA
   - **Modules**: `.agents/scripts/ingest_repomix.py`, `.agents/memory/agent_memory.json`, `.agents/memory/query_memory.py`, `.agents/skills/agentmemory/SKILL.md`, `.agents/rules/codebase-indexing.md`, `.agents/rules/session-init.md`, `.agents/memory/symbols_manifest.json`, `.agents/memory/.indexed_hash`.
   - **Verification**: `python .agents/scripts/ingest_repomix.py --local` regenerated 5,835 symbols; `python .agents/memory/query_memory.py "hindi"` and `query_memory.py "stems"` verified.
 
+- **SenseVoice-Small (FunASR) + Faster-Whisper Hybrid ASR & Acoustic Intelligence (Planned Upgrade)**:
+  - **Status**: Architectural Specification Complete (`Docs/SENSEVOICE_FUNASR_HYBRID_INTEGRATION_REPORT.md`)
+  - **Details**: Dual-engine integration combining Alibaba FunASR `SenseVoice-Small` (234M params, ~600MB VRAM, 15x-25x real-time speed) with `Faster-Whisper` (`large-v3-turbo`). Emits real-time Speech Emotion Recognition (`<|HAPPY|>`, `<|SAD|>`, `<|ANGRY|>`, `<|FEARFUL|>`) and Acoustic Event Detection (`<|LAUGHTER|>`, `<|CRY|>`, `<|COUGH|>`, `<|APPLAUSE|>`) directly from actor audio. Injects emotional cues into `StoryAnalystAgent` and `VoiceDirectorAgent` for expressive TTS style matching, and formats dialogue reactions into broadcast subtitle tracks (`Mode C`).
+  - **Modules**: `Docs/SENSEVOICE_FUNASR_HYBRID_INTEGRATION_REPORT.md`, `backend/app/engine/stages/transcription.py`, `backend/app/engine/subtitle_formatter.py`.
+  - **Verification**: Architectural specification & VRAM sizing on GTX 1050 Ti verified.
+
+- **Mode C Festival Subtitle Master Adaptive Stage Routing & Completion (TICKET-43)**:
+  - **Status**: Implemented & Verified
+  - **Details**: In `backend/app/api/runs.py` and `frontend/components/studio/WorkbenchCard.tsx`, Mode C (`project_mode == "C"` / `subtitle_only == True`) dynamically configures the exact pipeline stages needed based on source and target languages. For same-language runs (`source_language == target_language`, e.g. `en == en`), `TranscriptionStage` produces full subtitles and transcripts directly, so the pipeline configures `['extraction', 'denoise', 'transcription']` and completes immediately after transcription, skipping translation and deliverable remux steps. For cross-language runs (`source_language != target_language`, e.g. `!en -> en`), it configures `['extraction', 'denoise', 'transcription', 'translation']` and completes immediately after translation, skipping all subsequent audio dubbing steps (`tts`, `duration_align`, `remix`, `remux`).
+  - **Modules**: `backend/app/api/runs.py`, `frontend/components/studio/WorkbenchCard.tsx`, `backend/tests/test_mode_c_pipeline.py`.
+  - **Verification**: `pytest backend/tests/test_mode_c_pipeline.py` (3/3 passed), full backend suite (144/144 passed), and frontend suite (121/121 passed).
+
 - **Translation Stage Disk Persistence & Multi-Language Manifests (TICKET-32)**:
   - **Status**: Implemented & Verified
   - **Details**: `TranslationStage` atomically persists sanitized dialogue segments with `translated_text` into `transcript.json` (active hot state pointer) and `transcript_{target_lang}.json` (immutable multi-language audit deliverable). Utilizes a 4-line standard library helper `_atomic_write_json` with `.tmp.json` + `os.replace` (`MoveFileExW`) to eliminate partial-write race conditions and Windows `[WinError 32]` file-lock crashes. Guarantees 100% UTF-8 Devanagari script preservation (`ensure_ascii=False`) and incorporates defensive `run_dir.mkdir(parents=True, exist_ok=True)` guards.
@@ -51,6 +63,24 @@ This document tracks the current functionality and implementation status of LOCA
   - **Details**: `AcousticMasteringEngine.composite_dialogue_bus` passes FFmpeg multitrack compositing filtergraphs via `-filter_complex_script` written to isolated temporary files (`.filtergraph_{uuid}.tmp.txt`), eliminating Windows `CreateProcess` 8,191-character command-line buffer overflow crashes (`[WinError 206]`) when compositing 150+ stems. Features strict UTF-8 with `newline="\n"` formatting to defend against Windows CRLF parser errors, defensive stem file validation filtering out non-existent or zero-byte audio stems, a 1.0s silence generator fallback, and deterministic `try ... finally` script file deletion.
   - **Modules**: `backend/app/engine/stages/mixer.py`, `backend/tests/test_scalable_filtergraph.py`, `backend/tests/test_acoustic_mixer.py`.
   - **Verification**: `pytest backend/tests/test_scalable_filtergraph.py` (150-stem scale test passed), `pytest backend/tests/test_acoustic_mixer.py` (10/10 passed), and targeted integration suites (26/26 passed).
+
+- **Hierarchical Batching for Stem Compositing & Windows Command Buffer Fix (TICKET-42)**:
+  - **Status**: Implemented & Verified
+  - **Details**: `AcousticMasteringEngine.composite_dialogue_bus` (`backend/app/engine/stages/mixer.py`) implements hierarchical stem batching (slices of $\le 35$ stems per sub-invocation). While `-filter_complex_script` solved the filtergraph string limit, large runs with 200–500+ stems on Windows exceeded the 32,767-character `CreateProcess` command-line limit due to hundreds of `-i <long_path>` arguments. Batched compositing generates intermediate `.temp_bus_chunk_*.wav` stems that are recursively mixed down via `amix=inputs=N:duration=longest`, keeping command lengths under $\sim 4.5$ KB per execution and cleanly handling arbitrary stem counts without `[WinError 206]`.
+  - **Modules**: `backend/app/engine/stages/mixer.py`, `backend/tests/test_scalable_filtergraph.py`, `backend/tests/test_acoustic_mixer.py`.
+  - **Verification**: `pytest backend/tests/test_scalable_filtergraph.py` (2/2 passed including 350-stem scale test with deep paths in 2.92s).
+
+- **Deliverables Subtitle Packaging & On-the-Fly Generation (TICKET-41)**:
+  - **Status**: Implemented & Verified
+  - **Details**: `BroadcastDeliverablesExporter` (`backend/app/engine/stages/exporter.py`) and `GET /api/v1/runs/{run_id}/deliverables` (`backend/app/api/deliverables.py`) implement robust multi-candidate subtitle discovery (`subtitles_{target_lang}.srt`, `subtitles.srt`, `subtitles_en.srt`) and automatic on-the-fly subtitle generation. If `.srt`/`.vtt` are missing from the run artifacts when packaging deliverables, but `transcript.json` exists in `run_dir`, the exporter immediately formats and writes `subtitles.srt` and `subtitles.vtt` to disk, packaging them into `deliverables/` and `deliverables.json`.
+  - **Modules**: `backend/app/engine/stages/exporter.py`, `backend/app/api/deliverables.py`, `backend/app/engine/stages/transcription.py`, `backend/app/engine/stages/translation.py`.
+  - **Verification**: `pytest backend/tests/test_deliverables_exporter.py` (3/3 passed); verified against run `Santana_Ayo_-_Leaving_Ladies_Nig_37c72f` producing 14KB `subtitles.srt` and `subtitles.vtt` in `deliverables/`.
+
+- **ASR Overlapping Speech Sensitivity & Faster-Whisper Large-v3-Turbo Default (TICKET-39 & TICKET-40)**:
+  - **Status**: Implemented & Verified
+  - **Details**: Default ASR model upgraded to `large-v3-turbo` in int8 on CTranslate2 (~1.3GB VRAM footprint on GTX 1050 Ti). Relaxed Silero VAD parameters (`threshold=0.30`, `min_speech_duration_ms=150`, `min_silence_duration_ms=250`, `speech_pad_ms=200`) and Whisper thresholds (`no_speech_threshold=0.85`, `log_prob_threshold=-1.5`, `temperature=[0.0, 0.2, 0.4]`) to capture rapid overlapping dialogue. `subtitle_formatter.py` stacks simultaneous multi-speaker dialogue turns with broadcast `- ` dashes under `max_chars_per_line=42`.
+  - **Modules**: `backend/app/engine/stages/transcription.py`, `backend/app/engine/subtitle_formatter.py`, `backend/tests/test_transcription_overlap_vad.py`, `backend/tests/test_subtitle_stacking.py`.
+  - **Verification**: `pytest backend/tests/test_transcription_overlap_vad.py backend/tests/test_subtitle_stacking.py` (8/8 passed).
 
 - **Custom Run Slug Generation & Human-Readable Storage Directories (TICKET-37)**:
   - **Status**: Implemented & Verified
@@ -140,17 +170,17 @@ This document tracks the current functionality and implementation status of LOCA
 - **Modules**: `backend/app/engine/stages/denoise.py`
 - **Verification**: `backend/tests/test_denoise_passthrough.py`
 
-### Resumable Chunked ASR Speech Transcription (Faster-Whisper)
+### Resumable Chunked ASR Speech Transcription (Faster-Whisper Large-v3-Turbo & Overlap VAD)
 - **Status**: Implemented & Verified
-- **Details**: Standardized on `faster-whisper` `medium` (int8 CTranslate2) with Silero VAD filtering, integrated with `AudioChunker` for windowed audio slicing (~60s chunks). Features persistent incremental checkpointing (`transcription_checkpoint.json`) written atomically (`.tmp.json` + `os.replace`) after every completed chunk, emitting live progress updates (`20%`, `40%`, etc.) and seamlessly resuming from previously completed chunks on re-runs without duplicating or dropping segments.
+- **Details**: Standardized on `faster-whisper` `large-v3-turbo` (int8 CTranslate2) with relaxed Silero VAD filtering (`threshold=0.30`, `min_speech_duration_ms=150`, `no_speech_threshold=0.85`, `logprob_threshold=-1.5`, `temperature=[0.0, 0.2, 0.4]`), integrated with `AudioChunker` for windowed audio slicing (~60s chunks). Eliminates missing/dropped overlapping speech during multi-speaker crosstalk, runs in ~1.3GB VRAM on GTX 1050 Ti (4GB), and features persistent incremental checkpointing (`transcription_checkpoint.json`) written atomically (`.tmp.json` + `os.replace`) after every completed chunk.
 - **Modules**: `backend/app/engine/stages/transcription.py`, `backend/app/engine/audio_chunker.py`
-- **Verification**: `backend/tests/test_audio_chunker.py`, `backend/tests/test_transcription_checkpointing.py` (106/106 full backend suite passed).
+- **Verification**: `backend/tests/test_transcription_overlap_vad.py`, `backend/tests/test_transcription_checkpointing.py` (140/140 full backend suite passed).
 
-### Subtitle Formatting & QA Sanity Rules
+### Subtitle Formatting & Multi-Speaker Dialogue Stacking
 - **Status**: Implemented & Verified
-- **Details**: End-to-end subtitle generation verified on full-length media files (audio extraction -> HTDemucs separation -> Faster-Whisper ASR -> Translation -> Subtitle Director .srt/.vtt formatting). Includes deduplication, minimum gap enforcement (100ms), minimum duration (1.0s), max characters per second (17.0 CPS), and live log streaming to the frontend console.
+- **Details**: End-to-end subtitle generation verified on full-length media files (audio extraction -> direct pass-through -> Faster-Whisper Turbo ASR -> Translation -> Subtitle Director .srt/.vtt formatting). Includes broadcast multi-speaker dialogue stacking (`- Person 1\n- Person 2`), deduplication, minimum gap enforcement (100ms), minimum duration (1.0s), max characters per line (42 chars), max characters per second (17.0 CPS), and live log streaming to the frontend console.
 - **Modules**: `backend/app/engine/subtitle_formatter.py`, `backend/app/engine/stages/translation.py`, `backend/app/agents/subtitle_director.py`
-- **Verification**: Verified end-to-end with real video runs producing synchronized `.srt` and `.vtt` deliverables.
+- **Verification**: `backend/tests/test_subtitle_stacking.py`, `backend/tests/test_subtitle_formatter.py` (140/140 passed).
 
 ### Subtitle Fine-Tuning & Screenplay Dataset Pipeline (Unsloth richardyoung/qwen2.5-3b-instruct-abliterated)
 - **Status**: Implemented & Verified

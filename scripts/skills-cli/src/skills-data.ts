@@ -9,6 +9,25 @@ export interface SkillInfo {
 }
 
 export const SKILLS: Record<string, SkillInfo> = {
+  "javascript-mastery": {
+    "name": "javascript-mastery",
+    "category": "Development and Programming",
+    "summary": "33+ essential JavaScript concepts every developer should know, inspired by 33-js-concepts.",
+    "whatItDoes": "Deep dive into 33+ core JavaScript concepts including call stack, event loop, closures, prototypes, type coercion, this keyword, Promises, async/await, V8 engine internals, and design patterns.",
+    "whenToUse": "Use when explaining JS concepts, debugging tricky JS behavior, learning language quirks, or writing high-performance JS/TS code.",
+    "howToUse": "Invoke '/javascript-mastery' in chat or follow instructions in skills/javascript-mastery/SKILL.md.",
+    "whenToAvoid": "Avoid when dealing with purely non-JavaScript tasks."
+  },
+  "javascript-mastery-pro": {
+    "name": "javascript-mastery-pro",
+    "category": "Development and Programming",
+    "summary": "Mastery of 33+ essential and advanced JavaScript concepts, runtime internals, event loop, memory management, closures, async patterns, and modern ESNext features.",
+    "whatItDoes": "Advanced JS mastery: runtime internals, microtask queues, memory leak profiling, V8 hidden classes, generator coroutines, WeakMaps, and concurrency patterns.",
+    "whenToUse": "Use for advanced JS architecture, diagnosing event loop lag, memory leaks, and complex async flows.",
+    "howToUse": "Invoke '/javascript-mastery-pro' in chat or follow instructions in skills/javascript-mastery-pro/SKILL.md.",
+    "whenToAvoid": "Avoid for simple surface-level code reviews."
+  },
+
   "addyosmani-perf": {
     "name": "addyosmani-perf",
     "category": "UI/UX & Motion Design",

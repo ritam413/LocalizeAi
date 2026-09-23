@@ -357,23 +357,51 @@ def seconds_to_vtt_time(seconds: float) -> str:
 
 
 def split_text_into_lines(text: str, max_chars_per_line: int = 42) -> List[str]:
-    """Splits subtitle text into at most 2 lines without breaking words when possible."""
-    words = text.strip().split()
-    if not words:
+    """
+    Splits subtitle text into at most 2 lines without breaking words when possible.
+    Preserves and formats broadcast multi-speaker dialogue turns (- Speaker 1\n- Speaker 2).
+    """
+    cleaned = text.strip()
+    if not cleaned:
         return [""]
 
-    line1: List[str] = []
-    line2: List[str] = []
+    # Handle explicit multi-speaker dialogue cues (e.g. "- Line 1 - Line 2" or "- Line 1\n- Line 2")
+    if " - " in cleaned or "\n-" in cleaned or (cleaned.startswith("- ") and " -" in cleaned[2:]):
+        # Normalize newline and dash separators
+        normalized = cleaned.replace("\r\n", "\n").replace("\r", "\n")
+        if "\n-" in normalized:
+            raw_parts = [p.strip().lstrip("-").strip() for p in normalized.split("\n-") if p.strip()]
+        elif " - " in normalized:
+            raw_parts = [p.strip().lstrip("-").strip() for p in normalized.split(" - ") if p.strip()]
+        else:
+            raw_parts = [p.strip().lstrip("-").strip() for p in normalized.split("- ") if p.strip()]
+
+        if len(raw_parts) >= 2:
+            part1 = raw_parts[0]
+            part2 = " ".join(raw_parts[1:])
+            # Enforce max_chars_per_line for each dialogue line
+            line1 = f"- {part1}" if not part1.startswith("-") else part1
+            line2 = f"- {part2}" if not part2.startswith("-") else part2
+            if len(line1) > max_chars_per_line:
+                line1 = line1[:max_chars_per_line].rstrip()
+            if len(line2) > max_chars_per_line:
+                line2 = line2[:max_chars_per_line].rstrip()
+            return [line1, line2]
+
+    # Standard single-speaker word wrapping
+    words = cleaned.split()
+    line1_words: List[str] = []
+    line2_words: List[str] = []
     current_len = 0
 
     for word in words:
-        needed = len(word) + (1 if line1 else 0)
+        needed = len(word) + (1 if line1_words else 0)
         if current_len + needed <= max_chars_per_line:
-            line1.append(word)
+            line1_words.append(word)
             current_len += needed
         else:
-            line2.append(word)
+            line2_words.append(word)
 
-    if not line2:
-        return [" ".join(line1)]
-    return [" ".join(line1), " ".join(line2)]
+    if not line2_words:
+        return [" ".join(line1_words)]
+    return [" ".join(line1_words), " ".join(line2_words)]

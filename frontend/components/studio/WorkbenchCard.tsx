@@ -124,7 +124,7 @@ export function WorkbenchCard({ onRunLaunched }: WorkbenchCardProps) {
           project_mode: projectMode,
           source_language: actualSourceLang,
           target_languages: [targetLang],
-          subtitle_only: !addSubtitles && projectMode === 'C',
+          subtitle_only: projectMode === 'C',
           use_demucs: projectMode !== 'C',
           whisper_model: projectMode === 'A' ? 'medium' : 'medium',
         }),

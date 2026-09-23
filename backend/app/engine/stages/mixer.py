@@ -78,6 +78,34 @@ class AcousticMasteringEngine:
 
         return inputs, filter_str
 
+    async def _composite_dialogue_batch(
+        self,
+        valid_segments: List[Union[Dict[str, Any], DialogueSegmentInput]],
+        output_file: Path,
+    ) -> Path:
+        """Composite a single batch (<= 35 segments) of stems with script-based filtergraph."""
+        import uuid
+        inputs, filter_str = self.build_composite_dialogue_filtergraph(valid_segments)
+        script_file = output_file.parent / f".filtergraph_{uuid.uuid4().hex[:8]}.tmp.txt"
+        try:
+            with open(script_file, "w", encoding="utf-8", newline="\n") as f:
+                f.write(filter_str)
+
+            cmd = [
+                self.ffmpeg_bin,
+                "-y",
+                *inputs,
+                "-filter_complex_script", str(script_file),
+                "-map", "[dialogue_bus]",
+                "-c:a", "pcm_s16le",
+                str(output_file),
+            ]
+            await self._run_command(cmd)
+        finally:
+            if script_file.exists():
+                script_file.unlink(missing_ok=True)
+        return output_file
+
     async def composite_dialogue_bus(
         self,
         dialogue_segments: List[Union[Dict[str, Any], DialogueSegmentInput]],
@@ -85,7 +113,9 @@ class AcousticMasteringEngine:
     ) -> Path:
         """
         Composite multiple timestamped dialogue audio stems into a single
-        continuous dialogue bus using scalable -filter_complex_script.
+        continuous dialogue bus using scalable batched -filter_complex_script.
+        Batches segments in slices of 35 to prevent Windows CreateProcess 32,767-character
+        command-line buffer overflow crashes ([WinError 206]).
         """
         import uuid
 
@@ -114,27 +144,62 @@ class AcousticMasteringEngine:
             await self._run_command(cmd)
             return out
 
-        inputs, filter_str = self.build_composite_dialogue_filtergraph(valid_segments)
+        # If <= 35 stems, execute directly in a single pass
+        batch_size = 35
+        if len(valid_segments) <= batch_size:
+            return await self._composite_dialogue_batch(valid_segments, out)
 
-        # 2. UUID-isolated temporary script file with strict LF encoding
-        script_file = out.parent / f".filtergraph_{uuid.uuid4().hex[:8]}.tmp.txt"
+        # Hierarchical batching for large stem counts
+        temp_chunk_files: List[Path] = []
         try:
-            with open(script_file, "w", encoding="utf-8", newline="\n") as f:
-                f.write(filter_str)
+            for batch_idx in range(0, len(valid_segments), batch_size):
+                batch_slice = valid_segments[batch_idx : batch_idx + batch_size]
+                chunk_file = out.parent / f".temp_bus_chunk_{uuid.uuid4().hex[:8]}_{batch_idx}.wav"
+                temp_chunk_files.append(chunk_file)
+                await self._composite_dialogue_batch(batch_slice, chunk_file)
 
-            cmd = [
-                self.ffmpeg_bin,
-                "-y",
-                *inputs,
-                "-filter_complex_script", str(script_file),
-                "-map", "[dialogue_bus]",
-                "-c:a", "pcm_s16le",
-                str(out),
-            ]
-            await self._run_command(cmd)
+            # Mix down the chunk files into the final output
+            curr_chunks = list(temp_chunk_files)
+            while len(curr_chunks) > 1:
+                next_chunks: List[Path] = []
+                for i in range(0, len(curr_chunks), batch_size):
+                    sub_slice = curr_chunks[i : i + batch_size]
+                    if len(sub_slice) == 1 and len(curr_chunks) > batch_size:
+                        next_chunks.append(sub_slice[0])
+                        continue
+
+                    target_out = out if (len(curr_chunks) <= batch_size and len(sub_slice) == len(curr_chunks)) else (out.parent / f".temp_bus_merge_{uuid.uuid4().hex[:8]}_{i}.wav")
+                    if target_out != out:
+                        temp_chunk_files.append(target_out)
+
+                    chunk_inputs: List[str] = []
+                    for c in sub_slice:
+                        chunk_inputs.extend(["-i", str(c)])
+
+                    n_chunks = len(sub_slice)
+                    mix_filter = f"amix=inputs={n_chunks}:dropout_transition=0:normalize=0:duration=longest"
+                    cmd = [
+                        self.ffmpeg_bin,
+                        "-y",
+                        *chunk_inputs,
+                        "-filter_complex", mix_filter,
+                        "-c:a", "pcm_s16le",
+                        str(target_out),
+                    ]
+                    await self._run_command(cmd)
+                    next_chunks.append(target_out)
+
+                if curr_chunks == next_chunks:
+                    break
+                curr_chunks = next_chunks
+
         finally:
-            if script_file.exists():
-                script_file.unlink(missing_ok=True)
+            for tf in temp_chunk_files:
+                if tf.exists() and tf != out:
+                    try:
+                        tf.unlink(missing_ok=True)
+                    except Exception:
+                        pass
 
         return out
 

@@ -9,6 +9,10 @@ import sys
 import json
 from pathlib import Path
 
+# Ensure UTF-8 output on Windows consoles
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+
 MEMORY_FILE = Path(__file__).parent / "agent_memory.json"
 
 def search_memory(query: str, category: str = None):
