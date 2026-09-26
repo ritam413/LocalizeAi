@@ -67,6 +67,7 @@ export default function RunDashboardPage() {
   const [telemetryEvents, setTelemetryEvents] = useState<TelemetryEvent[]>([]);
   const [dashboardError, setDashboardError] = useState<string | null>(null);
   const [deliverables, setDeliverables] = useState<any>(null);
+  const [selectedAgent, setSelectedAgent] = useState<AgentName>('story_analyst');
   const logEndRef = useRef<HTMLDivElement>(null);
 
   const fetchRunDetails = async () => {
@@ -464,7 +465,7 @@ export default function RunDashboardPage() {
                     ? 'retrying'
                     : 'pending',
                   subtitle_director: telemetryEvents.some((e) => e.agent === 'subtitle_director') ? 'completed' : 'pending',
-                  qa_agent: runData.status === 'completed' ? 'completed' : 'running',
+                  qa_agent: runData.status === 'completed' ? 'completed' : telemetryEvents.some((e) => e.agent === 'qa_agent') ? 'running' : 'pending',
                 }}
                 retries={{
                   director: 0,
@@ -476,6 +477,8 @@ export default function RunDashboardPage() {
                   qa_agent: 0,
                 }}
                 telemetryEvents={telemetryEvents}
+                selectedAgent={selectedAgent}
+                onSelectAgent={setSelectedAgent}
                 runStatus={runData.status}
                 videoDurationSeconds={runData.clip?.duration_s || 35.0}
                 projectMode={runData.project_mode || 'A'}

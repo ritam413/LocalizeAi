@@ -319,6 +319,9 @@ class RunExecutor:
                     "whisper_model": stage_config.get("whisper_model") or stage_config.get("asr_model"),
                     "asr_model": stage_config.get("asr_model") or stage_config.get("whisper_model"),
                     "tts_adapter": stage_config.get("tts_adapter", "kokoro"),
+                    "translation_engine": stage_config.get("translation_engine", "whisper"),
+                    "rephrase_same_lang": stage_config.get("rephrase_same_lang", False),
+                    "force_ollama_translation": stage_config.get("force_ollama_translation", False),
                 }
 
                 stage_lock = await self.get_stage_lock(run_id, stage_name)

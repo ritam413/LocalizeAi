@@ -121,6 +121,10 @@ async def create_run(
         # Mode A & Mode B (Full Dubbing)
         stages = ["extraction", "denoise", "transcription", "translation", "tts", "duration_align", "remix", "remux"]
 
+    translation_engine = payload.get("translation_engine", "whisper")
+    rephrase_same_lang = bool(payload.get("rephrase_same_lang", False))
+    force_ollama_translation = bool(payload.get("force_ollama_translation", False)) or (translation_engine == "ollama")
+
     frozen_stage_config = {
         "stages": stages,
         "subtitle_only": subtitle_only,
@@ -128,6 +132,9 @@ async def create_run(
         "whisper_model": whisper_model,
         "asr_model": whisper_model,
         "tts_adapter": sanitize_tts_adapter(payload.get("tts_adapter")),
+        "translation_engine": translation_engine,
+        "rephrase_same_lang": rephrase_same_lang,
+        "force_ollama_translation": force_ollama_translation,
     }
 
 

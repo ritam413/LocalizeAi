@@ -173,4 +173,5 @@ Desktop.ini
 *.swo
 .antigravity/
 .system_generated/
+.scratch/
 *.log

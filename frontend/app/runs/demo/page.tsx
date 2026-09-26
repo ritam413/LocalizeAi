@@ -424,6 +424,8 @@ export default function DemoRunPage() {
             onSelectAgent={setSelectedAgent}
             runStatus={isCompleted ? 'completed' : 'running'}
             stageProgressMap={stageProgressMap}
+            videoDurationSeconds={TOTAL_DEMO_SECONDS}
+            projectMode="A"
           />
 
           {/* Post-Completion Hero Card to jump to Video */}

@@ -5,6 +5,13 @@ This document tracks the current functionality and implementation status of LOCA
 
 ---
 
+## Translation & Localization Engine Features
+- **Dual-Engine Translation Routing (`Faster-Whisper` ⇄ `Ollama LLM`) & Same-Language Rephrase**:
+  - **Status**: Implemented & Verified
+  - **Details**: Added support for selecting between `Faster-Whisper` (direct speech-to-English audio translation) and `Ollama LLM` (contextual dialogue and cultural adaptation). For non-English to English translation (`es->en`, `ja->en`, `hi->en`), picking Ollama routes dialogue through `_call_ollama_translation` rather than Whisper audio translation. When source and target languages are identical (e.g. `en->en`), added interactive same-language detection with user options to either `[Adapt with Ollama]` (applies colloquial rephrasing) or `[Skip / Verbatim]` (bypasses LLM for zero-latency verbatim subtitle generation). Configured connect timeout on candidate Ollama endpoints to 2.0s with fast-path for stub mode.
+  - **Modules**: `frontend/components/studio/WorkbenchCard.tsx`, `backend/app/engine/stages/translation.py`, `backend/app/api/runs.py`, `backend/app/engine/executor.py`, `backend/tests/test_translation_multilingual.py`.
+  - **Verification**: Frontend Vitest 134/134 passed across 22 test files; Pytest 10/10 passed in `test_translation_multilingual.py` and `test_translation_persistence.py`.
+
 ## Agent Deliberation, Review & Editorial Skills
 - **Council Review (`/council-review`)**: 5-advisor Diverse Multi-Agent Debate (DMAD) system (Architect, Security, Minimalist, DX, Contrarian) + Chairman synthesis for architectural and plan validation.
 - **Adversarial Review (`/adversarial-review`)**: Hostile Red-Team stress-testing across Saboteur (malicious/chaos inputs), Concurrency (races/locks), Resource Scaling (exhaustion/leaks), and Assumptions.
@@ -27,6 +34,30 @@ This document tracks the current functionality and implementation status of LOCA
   - **Details**: Enforces zero-tool fast bypass on non-codebase queries and a deterministic tiered inspection pipeline on repo inquiries. Includes streaming $O(1)$ RAM parser (`ingest_repomix.py`) extracting 5,835 exported symbols across 196 files into an instant $O(1)$ dictionary (`symbols_manifest.json`). Implements structured episodic memory store (`.agents/memory/agent_memory.json` & `query_memory.py`) holding 12 domain invariants (temporal continuity, 4GB VRAM limits, Kokoro 24kHz PCM_16 standard, Demucs bypass pass-through, atomic ASR checkpointing, downstream defensive duration clamping, translation transcript persistence, stems manifest rehydration, scalable FFmpeg filtergraph scripts), 13 bug resolution traces, and clean code patterns.
   - **Modules**: `.agents/scripts/ingest_repomix.py`, `.agents/memory/agent_memory.json`, `.agents/memory/query_memory.py`, `.agents/skills/agentmemory/SKILL.md`, `.agents/rules/codebase-indexing.md`, `.agents/rules/session-init.md`, `.agents/memory/symbols_manifest.json`, `.agents/memory/.indexed_hash`.
   - **Verification**: `python .agents/scripts/ingest_repomix.py --local` regenerated 5,835 symbols; `python .agents/memory/query_memory.py "hindi"` and `query_memory.py "stems"` verified.
+
+- **Voice Director Audio Invariant Metadata (`inv_005` - TICKET-41)**:
+  - **Status**: Implemented & Verified
+  - **Details**: Updated `AGENT_NODES` in `frontend/components/studio/AgentSequenceTrack.tsx` to align with the core system audio invariant (`inv_005` / Kokoro-82M 24kHz PCM_16 standard). Voice Director card configures `techStack: 'Kokoro-82M / Edge-TTS Fallback'`, `outputDesc: 'Raw Synthesized Speech Stems (.wav 24kHz PCM_16)'`, and renders `footerLeft: '24kHz PCM_16'` badge in the DOM. Added defensive prop defaults (`crewStatuses = {}`, `retries = {}`, `telemetryEvents = []`) and safe array iteration guards.
+  - **Modules**: `frontend/components/studio/AgentSequenceTrack.tsx`, `frontend/__tests__/AgentSequenceTrack.test.tsx`.
+  - **Verification**: Vitest (`frontend/__tests__/AgentSequenceTrack.test.tsx`: 2/2 passed, full frontend suite 123/123 passed across 22 test files).
+
+- **2-Row Boustrophedon Serpentine Grid Layout & SVG Turn Conduit (TICKET-42)**:
+  - **Status**: Implemented & Verified
+  - **Details**: Refactored `AgentSequenceTrack.tsx` from a flat grid into a 2-row serpentine boustrophedon sequence track. Row 1 renders left-to-right (`story_analyst` -> `localization_director` -> `voice_director`) with `ArrowRight` connectors. The track features an animated downward SVG turn conduit (`data-testid="serpentine-turn-conduit"`) labeled `"Handoff to Audio Stems ⤵"`, connecting Step 03 to Step 04. Row 2 renders right-to-left (`sync_engineer` -> `subtitle_director` -> `qa_agent`) with reverse `ArrowLeft` connectors. Follows the Light-Blue Mintlify design system with `rounded-[4px]` badges and `rounded-[16px]` card surfaces.
+  - **Modules**: `frontend/components/studio/AgentSequenceTrack.tsx`, `frontend/__tests__/AgentSequenceTrack.test.tsx`.
+  - **Verification**: Vitest (`frontend/__tests__/AgentSequenceTrack.test.tsx`: 4/4 passed; full frontend suite 125/125 passed across 22 test files).
+
+- **Parent Invocation Boundary & Interface Compatibility — `AgentSequenceTrackProps` 9-Prop Contract (TICKET-43)**:
+  - **Status**: Implemented & Verified
+  - **Details**: Both parent call sites now pass all 9 props from `AgentSequenceTrackProps` to `AgentSequenceTrack` with zero breaking changes. `frontend/app/runs/demo/page.tsx` added the missing `videoDurationSeconds={TOTAL_DEMO_SECONDS}` and `projectMode="A"` props. `frontend/app/runs/[id]/page.tsx` added `const [selectedAgent, setSelectedAgent] = useState<AgentName>('story_analyst')` state and wired `selectedAgent` + `onSelectAgent` into the call site — enabling live run agent card selection to lift state up to telemetry inspection panels (`DecisionFeed`, `ProducerBoard`). 5 new Vitest assertions cover: full 9-prop render (zero-breaking-change contract), `onSelectAgent` lift on card click, Mode C agent filtering, selection ring CSS, and live `stageProgressMap` rerender stability.
+  - **Modules**: `frontend/app/runs/demo/page.tsx`, `frontend/app/runs/[id]/page.tsx`, `frontend/__tests__/AgentSequenceTrack.test.tsx`.
+  - **Verification**: Vitest (`AgentSequenceTrack.test.tsx`: 9/9 passed; full frontend suite 130/130 passed across 22 test files).
+
+- **Serpentine Track Unit Test Suite — Mode B Coverage & Spline Assertions (TICKET-44)**:
+  - **Status**: Implemented & Verified
+  - **Details**: Added 4 targeted tests to `frontend/__tests__/AgentSequenceTrack.test.tsx`: (1) all-6-agent-cards + `data-testid="serpentine-turn-conduit"` present in Mode B, (2) `inv_005` 24kHz PCM_16 badge visible in Mode B, (3) `onSelectAgent` fires with `'story_analyst'` on card click, (4) `getOrganicProgress` spline clamps at 0 and 1 with monotone interior. Ponytail: zero new files, zero new deps — shortest append-only diff.
+  - **Modules**: `frontend/__tests__/AgentSequenceTrack.test.tsx`.
+  - **Verification**: Vitest 13/13 passed in 499ms (<2s acceptance criterion).
 
 - **SenseVoice-Small (FunASR) + Faster-Whisper Hybrid ASR & Acoustic Intelligence (Planned Upgrade)**:
   - **Status**: Architectural Specification Complete (`Docs/SENSEVOICE_FUNASR_HYBRID_INTEGRATION_REPORT.md`)

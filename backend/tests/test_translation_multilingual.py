@@ -118,7 +118,7 @@ async def test_translation_en_to_en_skips_ollama_and_prompts_user(translation_st
 
 
 @pytest.mark.asyncio
-async def test_translation_en_to_en_force_ollama(translation_stage, tmp_path):
+async def test_translation_en_to_en_force_ollama_with_rephrase_enabled(translation_stage, tmp_path):
     segments = [
         {"start_s": 0.0, "end_s": 2.0, "source_text": "Welcome to the studio show."},
     ]
@@ -127,7 +127,8 @@ async def test_translation_en_to_en_force_ollama(translation_stage, tmp_path):
         "run_dir": str(tmp_path),
         "source_language": "en",
         "target_language": "en",
-        "force_ollama_translation": True,
+        "translation_engine": "ollama",
+        "rephrase_same_lang": True,
     }
     progress_cb = AsyncMock()
     log_cb = AsyncMock()
@@ -137,8 +138,60 @@ async def test_translation_en_to_en_force_ollama(translation_stage, tmp_path):
     ]) as mock_ollama:
         result = await translation_stage.execute(input_artifacts, config, progress_cb, log_cb)
 
-    # Asserts Ollama IS called when explicitly forced
+    # Asserts Ollama IS called when rephrase is explicitly enabled
     mock_ollama.assert_called_once()
     assert result["status"] == "success"
     assert result["segments"][0]["translated_text"] == "Welcome into our studio broadcast."
+
+
+@pytest.mark.asyncio
+async def test_translation_en_to_en_force_ollama_with_rephrase_skipped(translation_stage, tmp_path):
+    segments = [
+        {"start_s": 0.0, "end_s": 2.0, "source_text": "Welcome to the studio show."},
+    ]
+    input_artifacts = {"segments": segments}
+    config = {
+        "run_dir": str(tmp_path),
+        "source_language": "en",
+        "target_language": "en",
+        "translation_engine": "ollama",
+        "rephrase_same_lang": False,  # User clicked Skip
+    }
+    progress_cb = AsyncMock()
+    log_cb = AsyncMock()
+
+    with patch.object(translation_stage, "_call_ollama_translation") as mock_ollama:
+        result = await translation_stage.execute(input_artifacts, config, progress_cb, log_cb)
+
+    # Asserts Ollama is NOT called when user clicked skip
+    mock_ollama.assert_not_called()
+    assert result["status"] == "success"
+    assert result["segments"][0]["translated_text"] == "Welcome to the studio show."
+
+
+@pytest.mark.asyncio
+async def test_translation_foreign_to_english_with_ollama_engine(translation_stage, tmp_path):
+    segments = [
+        {"start_s": 0.0, "end_s": 2.0, "source_text": "Hola amigos, bienvenidos."},
+    ]
+    input_artifacts = {"segments": segments}
+    config = {
+        "run_dir": str(tmp_path),
+        "source_language": "es",
+        "target_language": "en",
+        "translation_engine": "ollama",
+    }
+    progress_cb = AsyncMock()
+    log_cb = AsyncMock()
+
+    with patch.object(translation_stage, "_call_ollama_translation", return_value=[
+        {"start_s": 0.0, "end_s": 2.0, "source_text": "Hola amigos, bienvenidos.", "translated_text": "Hello friends, welcome.", "target_language": "en"}
+    ]) as mock_ollama:
+        result = await translation_stage.execute(input_artifacts, config, progress_cb, log_cb)
+
+    # Asserts Ollama IS called for foreign-to-English when translation_engine='ollama'
+    mock_ollama.assert_called_once()
+    assert result["status"] == "success"
+    assert result["segments"][0]["translated_text"] == "Hello friends, welcome."
+
 

@@ -34,6 +34,8 @@ export function WorkbenchCard({ onRunLaunched }: WorkbenchCardProps) {
   const [sourceLang, setSourceLang] = useState('auto');
   const [targetLang, setTargetLang] = useState('en');
   const [addSubtitles, setAddSubtitles] = useState(true);
+  const [translationEngine, setTranslationEngine] = useState<'whisper' | 'ollama'>('whisper');
+  const [rephraseSameLang, setRephraseSameLang] = useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [isDragOver, setIsDragOver] = useState(false);
@@ -115,6 +117,7 @@ export function WorkbenchCard({ onRunLaunched }: WorkbenchCardProps) {
       // Map UI model tier to Director Project Mode
       const projectMode = activeModel.modeMapping; // 'A', 'B', or 'C'
       const actualSourceLang = sourceLang === 'auto' ? 'es' : sourceLang;
+      const isSameLanguage = actualSourceLang === targetLang;
 
       const runRes = await fetch('/api/v1/runs', {
         method: 'POST',
@@ -127,6 +130,9 @@ export function WorkbenchCard({ onRunLaunched }: WorkbenchCardProps) {
           subtitle_only: projectMode === 'C',
           use_demucs: projectMode !== 'C',
           whisper_model: projectMode === 'A' ? 'medium' : 'medium',
+          translation_engine: translationEngine,
+          rephrase_same_lang: isSameLanguage ? rephraseSameLang : false,
+          force_ollama_translation: translationEngine === 'ollama',
         }),
       });
 
@@ -366,7 +372,7 @@ export function WorkbenchCard({ onRunLaunched }: WorkbenchCardProps) {
           </div>
 
           {/* Subtitle Toggle */}
-          <label className="flex items-center space-x-2 cursor-pointer ml-2">
+          <label className="flex items-center space-x-2 cursor-pointer ml-1">
             <input
               type="checkbox"
               checked={addSubtitles}
@@ -376,6 +382,34 @@ export function WorkbenchCard({ onRunLaunched }: WorkbenchCardProps) {
             <div className="w-8 h-4.5 bg-[#dbd8e8] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-3.5 after:w-3.5 after:transition-all peer-checked:bg-[#7248ea] relative" />
             <span className="text-xs font-semibold text-[#1a1a1a]">Add Subtitles</span>
           </label>
+
+          {/* Translation Engine Selector */}
+          <div className="flex items-center space-x-1 p-1 bg-[#f8f9fa] rounded-xl border border-[#dbd8e8]/70 ml-1">
+            <button
+              type="button"
+              onClick={() => setTranslationEngine('whisper')}
+              className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
+                translationEngine === 'whisper'
+                  ? 'bg-white text-[#7248ea] shadow-xs'
+                  : 'text-[#575268] hover:text-[#1a1a1a]'
+              }`}
+              title="Fast Direct Audio-to-English Speech Translation"
+            >
+              ⚡ Faster-Whisper
+            </button>
+            <button
+              type="button"
+              onClick={() => setTranslationEngine('ollama')}
+              className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
+                translationEngine === 'ollama'
+                  ? 'bg-white text-[#7248ea] shadow-xs'
+                  : 'text-[#575268] hover:text-[#1a1a1a]'
+              }`}
+              title="Contextual Dialogue & Cultural Adaptation via Ollama LLM"
+            >
+              🦙 Ollama LLM
+            </button>
+          </div>
         </div>
 
         {/* Generate Button */}
@@ -400,6 +434,45 @@ export function WorkbenchCard({ onRunLaunched }: WorkbenchCardProps) {
           </button>
         </div>
       </div>
+
+      {/* Same-Language Rephrase & Cultural Adaptation Prompt */}
+      {((sourceLang !== 'auto' ? sourceLang : 'es') === targetLang) && (
+        <div className="mt-4 p-3.5 rounded-2xl bg-[#f5f3ff] border border-[#d8b4fe]/60 flex flex-wrap items-center justify-between gap-3 text-xs">
+          <div className="flex items-center space-x-2 text-[#581c87]">
+            <Sparkles className="w-4 h-4 text-[#7248ea] shrink-0" />
+            <span>
+              Same language detected (<strong>{targetLang.toUpperCase()} ➔ {targetLang.toUpperCase()}</strong>). Apply Ollama cultural & colloquial rephrasing?
+            </span>
+          </div>
+          <div className="flex items-center space-x-2">
+            <button
+              type="button"
+              onClick={() => {
+                setTranslationEngine('ollama');
+                setRephraseSameLang(true);
+              }}
+              className={`px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer text-xs ${
+                rephraseSameLang && translationEngine === 'ollama'
+                  ? 'bg-[#7248ea] text-white shadow-xs'
+                  : 'bg-white text-[#581c87] border border-[#d8b4fe] hover:bg-[#ede9fe]'
+              }`}
+            >
+              ✓ Adapt with Ollama
+            </button>
+            <button
+              type="button"
+              onClick={() => setRephraseSameLang(false)}
+              className={`px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer text-xs ${
+                !rephraseSameLang
+                  ? 'bg-[#475569] text-white shadow-xs'
+                  : 'bg-white text-[#475569] border border-[#cbd5e1] hover:bg-[#f1f5f9]'
+              }`}
+            >
+              ✕ Skip (Verbatim)
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Error Message */}
       {errorMsg && (

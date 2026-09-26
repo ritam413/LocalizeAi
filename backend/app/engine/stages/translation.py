@@ -103,7 +103,7 @@ class TranslationStage(BaseStage):
                 batch_ok = False
                 for url in candidate_urls:
                     try:
-                        async with httpx.AsyncClient(timeout=180.0) as client:
+                        async with httpx.AsyncClient(timeout=httpx.Timeout(180.0, connect=2.0)) as client:
                             resp = await client.post(url, json=payload)
                             if resp.status_code == 200:
                                 data = resp.json()
@@ -194,21 +194,41 @@ class TranslationStage(BaseStage):
         raw_segments: List[Dict[str, Any]] = input_artifacts.get("segments", [])
         translated_segments: List[Dict[str, Any]] = []
 
-        # ── Pathway 0: Same Language / English-to-English Passthrough ───────── #
-        if source_lang == target_lang:
-            force_ollama = bool(config.get("force_ollama_translation", False))
-            if not force_ollama:
-                await log_cb("INFO", f"Source and target languages are both '{target_lang}'. Skipping Ollama LLM translation.")
+        if config.get("stub_mode") and raw_segments and all(bool(s.get("translated_text")) for s in raw_segments):
+            for seg in raw_segments:
+                seg_copy = dict(seg)
+                seg_copy["target_language"] = target_lang
+                translated_segments.append(seg_copy)
+
+        translation_engine = str(config.get("translation_engine", "whisper")).lower()
+        force_ollama = bool(config.get("force_ollama_translation", False)) or (translation_engine == "ollama")
+        rephrase_same_lang = bool(config.get("rephrase_same_lang", False))
+
+        # ── Pathway 0: Same Language (e.g., en->en, hi->hi) ─────────────────── #
+        if not translated_segments and source_lang == target_lang:
+            if force_ollama and rephrase_same_lang:
+                await log_cb("INFO", f"Source and target are both '{target_lang}'. Applying Ollama LLM colloquial rephrase & cultural adaptation.")
+                await progress_cb(40.0, f"Rephrasing dialogue via Ollama LLM for {target_lang_name}")
+                translated_segments = await self._call_ollama_translation(
+                    segments=raw_segments,
+                    source_lang=source_lang,
+                    target_lang=target_lang,
+                    target_lang_name=target_lang_name,
+                    log_cb=log_cb,
+                    config=config
+                )
+            else:
+                await log_cb("INFO", f"Source and target languages are both '{target_lang}'. Skipping Ollama LLM translation (verbatim subtitles).")
                 await progress_cb(45.0, f"Generating subtitles directly in {target_lang_name} from transcribed dialogue.")
                 for seg in raw_segments:
                     seg_copy = dict(seg)
                     seg_copy["translated_text"] = seg.get("source_text", "")
                     seg_copy["target_language"] = target_lang
                     translated_segments.append(seg_copy)
-                await log_cb("PROMPT", f"Subtitles generated in {target_lang_name}. Ready to proceed to dubbing or trigger Ollama rephrasing with force_ollama_translation=True.")
+                await log_cb("PROMPT", f"Subtitles generated in {target_lang_name}. Ready to proceed to dubbing or trigger Ollama rephrasing with rephrase_same_lang=True.")
 
-        # ── Pathway 1: Target is English & foreign audio is available ──────── #
-        if not translated_segments and audio_path and Path(audio_path).exists() and target_lang == "en" and source_lang != "en":
+        # ── Pathway 1: Faster-Whisper Native Audio Translation (target == "en") ─ #
+        if not translated_segments and translation_engine == "whisper" and audio_path and Path(audio_path).exists() and target_lang == "en" and source_lang != "en":
             def run_whisper_translation():
                 from faster_whisper import WhisperModel
                 import ctranslate2
@@ -277,7 +297,7 @@ class TranslationStage(BaseStage):
             except Exception as e:
                 await log_cb("WARNING", f"Whisper translation pass failed: {e}")
 
-        # ── Pathway 2: Target is non-English (en->hi, es->en->hi, hi->en->ja) ── #
+        # ── Pathway 2: Ollama LLM Dialogue Translation (Any Target / Force LLM) ── #
         if not translated_segments and raw_segments:
             await progress_cb(40.0, f"Querying Ollama LLM for {target_lang_name} dialogue translation")
             translated_segments = await self._call_ollama_translation(

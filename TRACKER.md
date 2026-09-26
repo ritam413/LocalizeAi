@@ -1,5 +1,250 @@
 # LOCALIZE AI — Agent Handoff Log & Task Tracker
-Last updated: 2026-09-23 by antigravity
+Last updated: 2026-09-26 by antigravity
+
+## 2026-09-26 — Dual-Engine Translation Routing (`Faster-Whisper` ⇄ `Ollama LLM`) & Same-Language Rephrasing
+
+### Objective
+Provide users with an interactive choice between `Faster-Whisper` (direct speech-to-English audio translation) and `Ollama LLM` (contextual dialogue and cultural adaptation). When translating foreign dialogue into English (`es->en`, `ja->en`, etc.) with Ollama selected, route the transcribed dialogue through `_call_ollama_translation` rather than Whisper audio translation. When source and target languages are identical (e.g., `en->en`), detect the same-language scenario and allow the user to either apply Ollama cultural adaptation or skip it for direct verbatim subtitles.
+
+### Changes Made
+- **Frontend UI (`frontend/components/studio/WorkbenchCard.tsx`)**:
+  - Added `translationEngine: 'whisper' | 'ollama'` state and segmented selector toggle (⚡ Faster-Whisper vs 🦙 Ollama LLM) in the control row.
+  - Added interactive same-language detection banner when `source_language === target_language` with `[✓ Adapt with Ollama]` and `[✕ Skip (Verbatim)]` buttons.
+  - Included `translation_engine`, `rephrase_same_lang`, and `force_ollama_translation` in the `POST /api/v1/runs` request payload.
+- **Backend API (`backend/app/api/runs.py`)**:
+  - Accepted `translation_engine`, `rephrase_same_lang`, and `force_ollama_translation` in `create_run` and persisted them in `frozen_stage_config`.
+- **Backend Executor (`backend/app/engine/executor.py`)**:
+  - Propagated `translation_engine`, `rephrase_same_lang`, and `force_ollama_translation` into `stage_config_override` for `TranslationStage`.
+- **Backend Translation Stage (`backend/app/engine/stages/translation.py`)**:
+  - Added engine routing: if `translation_engine == 'ollama'` (or `force_ollama_translation=True`), foreign-to-English dialogue routes through `_call_ollama_translation`.
+  - Added same-language condition: if `source_lang == target_lang`, calls Ollama rephrasing only if `force_ollama and rephrase_same_lang`; otherwise bypasses Ollama and writes verbatim subtitles.
+  - Optimized httpx connect timeout to 2.0s with fast-path for stub mode.
+- **Unit Tests (`backend/tests/test_translation_multilingual.py`)**:
+  - Added tests for `en->en` with rephrase enabled (Ollama called) vs skipped (Ollama not called), and foreign-to-English with `translation_engine='ollama'`.
+
+### Files Changed
+- `frontend/components/studio/WorkbenchCard.tsx`
+- `backend/app/api/runs.py`
+- `backend/app/engine/executor.py`
+- `backend/app/engine/stages/translation.py`
+- `backend/tests/test_translation_multilingual.py`
+- `features_implemented.md`
+- `tracker.md`
+
+### Verification
+- **Frontend Vitest**: `npm test --prefix frontend` → 22/22 test files passed, 134/134 tests passed.
+- **Backend Pytest**: `pytest backend/tests/test_translation_multilingual.py backend/tests/test_translation_persistence.py` → 10/10 passed in 0.88s.
+
+### Current State
+Dual-engine translation selection and same-language rephrase/skip functionality are fully implemented and verified across frontend and backend.
+
+### Next Agent Instructions
+1. Inspect `frontend/components/studio/WorkbenchCard.tsx` and `backend/app/engine/stages/translation.py` if adding additional LLM models or prompt templates.
+2. Baseline tests: `npm test --prefix frontend` (134/134 passing) and `pytest backend/tests/test_translation_*.py` (10/10 passing).
+
+---
+
+### Objective
+Execute the full frontend regression suite to verify all serpentine workflow route tickets (TICKET-41 → TICKET-44) produce zero regressions, then update all three persistent memory files (`TRACKER.md`, `features_implemented.md`, `Docs/tickets/README.md`) to serve as the authoritative next-agent handoff.
+
+### Changes Made
+- **Full frontend regression gate passed**: `npm test --prefix frontend` → 22/22 files, 134/134 tests, 0 failures.
+- **`Docs/tickets/README.md`**: Updated TICKET-43 (Completed), TICKET-44 (Completed), TICKET-45 (Completed) with verified test counts.
+- **`Docs/tickets/TICKET-45-regression-and-memory-handoff.md`**: Marked ✅ Completed with verification results.
+- **`features_implemented.md`**: Already has TICKET-41–44 features logged from their respective sessions; no new features this ticket.
+- **`tracker.md`**: This entry.
+
+### Files Changed
+- `Docs/tickets/README.md`
+- `Docs/tickets/TICKET-45-regression-and-memory-handoff.md`
+- `tracker.md`
+
+### Verification
+```
+npm test --prefix frontend
+
+ Test Files  22 passed (22)
+      Tests  134 passed (134)
+   Duration  14.69s
+```
+
+Specific 5 suites called out in TICKET-45 CodeGraph:
+| Suite | Result |
+|---|---|
+| `AgentSequenceTrack.test.tsx` | 13/13 ✅ |
+| `studio_console.test.tsx` | 5/5 ✅ |
+| `stage_progress_and_logs.test.tsx` | 5/5 ✅ |
+| `demo_page_redesign.test.tsx` | 5/5 ✅ |
+| `skeleton_components.test.tsx` | 17/17 ✅ |
+
+### Current State
+**Serpentine Agent Workflow Route sprint (TICKET-41 → TICKET-45) is 100% complete.**
+
+All 5 tickets delivered and verified:
+- **TICKET-41** ✅ Voice Director `inv_005` audio invariant metadata (Kokoro-82M / 24kHz PCM_16)
+- **TICKET-42** ✅ 2-Row Boustrophedon grid layout + animated SVG turn conduit
+- **TICKET-43** ✅ Parent boundary wiring — all 9 `AgentSequenceTrackProps` in both parent pages
+- **TICKET-44** ✅ Mode B unit test suite + `getOrganicProgress` spline assertions (4 tests)
+- **TICKET-45** ✅ Full regression gate (134/134) + persistent memory handoff
+
+### Remaining Work
+None for this sprint. Next work items are open: TICKET-20/21/22/23 (Demucs window planner) and TICKET-44 SenseVoice-Small hybrid ASR implementation.
+
+### Known Issues
+None.
+
+### Next Agent Instructions
+1. Sprint is complete — no immediate action required.
+2. If continuing development, candidate next tickets:
+   - **TICKET-44 SenseVoice** (architectural spec ready at `Docs/SENSEVOICE_FUNASR_HYBRID_INTEGRATION_REPORT.md`) — dual-engine ASR with 15x-25x speedup and speech emotion recognition.
+   - **TICKET-20** (Demucs windowed splicer) — equal-power crossfade DSP.
+3. Baseline for any new work: `npm test --prefix frontend` → 134/134.
+
+---
+
+## 2026-09-23 — Serpentine Track Unit Test Suite (TICKET-44)
+
+
+### Objective
+Add the 4 acceptance-criteria tests for the Mode B serpentine layout and `getOrganicProgress` spline, per the spec in `TICKET-44-serpentine-track-unit-test-suite.md`.
+
+### Changes Made
+- Added `getOrganicProgress` to import line 5 of `frontend/__tests__/AgentSequenceTrack.test.tsx`.
+- Appended TICKET-44 describe block (4 tests): all-6-cards + turn conduit in Mode B, `inv_005` 24kHz badge in Mode B, `onSelectAgent` click callback, spline clamp (`0→0`, `1→1`, `0.08 > 0.12`).
+
+### Files Changed
+- `frontend/__tests__/AgentSequenceTrack.test.tsx`
+- `Docs/tickets/TICKET-44-serpentine-track-unit-test-suite.md`
+- `tracker.md`
+- `features_implemented.md`
+
+### Verification
+- `npm test -- AgentSequenceTrack.test.tsx` → **13/13 passed in 499ms** (<2s acceptance criterion ✅).
+
+### Current State
+13 tests across 4 suites (TICKET-41/42/43/44). TICKET-45 is unblocked.
+
+### Next Agent Instructions
+1. Inspect `Docs/tickets/TICKET-45-regression-and-memory-handoff.md`.
+2. Baseline: `npm test --prefix frontend` → 22/22 files, 134/134 tests.
+
+---
+
+## 2026-09-23 — Parent Invocation Boundary & Interface Compatibility (TICKET-43)
+
+
+### Objective
+Complete the parent-side wiring so both `frontend/app/runs/demo/page.tsx` and `frontend/app/runs/[id]/page.tsx` pass all 9 props from the `AgentSequenceTrackProps` interface to `AgentSequenceTrack`, achieving zero-breaking-change contract fidelity and enabling downstream agent card selection to lift state up to telemetry inspection panels.
+
+### Changes Made
+- **`frontend/app/runs/demo/page.tsx`** (L418–428): Added the two missing props `videoDurationSeconds={TOTAL_DEMO_SECONDS}` and `projectMode="A"` to the call site. The demo always runs Mode A full 6-agent dubbing at 36 seconds.
+- **`frontend/app/runs/[id]/page.tsx`** (L64–70, L455–482): Added `const [selectedAgent, setSelectedAgent] = useState<AgentName>('story_analyst')` state declaration; wired `selectedAgent={selectedAgent}` and `onSelectAgent={setSelectedAgent}` into the call site — these two props were completely absent from the live run dashboard page.
+- **`frontend/__tests__/AgentSequenceTrack.test.tsx`**: Added TICKET-43 describe block with 5 new tests verifying: all-9-prop render (zero-breaking-change), `onSelectAgent` callback lift on card click, Mode C agent filtering, `selectedAgent` selection ring CSS, and `stageProgressMap` live rerender stability.
+
+### Files Changed
+- `frontend/app/runs/demo/page.tsx`
+- `frontend/app/runs/[id]/page.tsx`
+- `frontend/__tests__/AgentSequenceTrack.test.tsx`
+- `Docs/tickets/TICKET-43-parent-boundary-compatibility.md`
+- `features_implemented.md`
+- `tracker.md`
+
+### Implementation Details
+- **context7 slicing**: Loaded only the 9-prop interface boundary (L146–156 of `AgentSequenceTrack.tsx`) and the two call sites (demo L419-427, [id] L455-482) rather than full 448-line file.
+- **serena discovery**: `agentmemory` `inv_014` confirmed Slice C = `frontend/app/runs/demo/page.tsx#L418-428` and `frontend/app/runs/[id]/page.tsx#L455`.
+- The `[id]/page.tsx` had `selectedAgent` completely absent — required both a new state variable AND prop wiring.
+- The `demo/page.tsx` already had `selectedAgent` + `onSelectAgent` wired (line 178, 291), only missing the two scalar props `videoDurationSeconds` and `projectMode`.
+- All test assertions use `fireEvent.click` (not `userEvent`) to stay inside JSDOM without async overhead.
+
+### Verification
+- `npm test -- AgentSequenceTrack.test.tsx --reporter=verbose` → **9/9 tests passed** (416ms).
+- `npm test --prefix frontend` → **22/22 files, 130/130 tests passed** (14.39s).
+
+### Current State
+All 9 `AgentSequenceTrackProps` are correctly wired in both parent pages. TICKET-43 is complete. TICKET-45 (Regression & Memory Handoff) is now unblocked.
+
+### Remaining Work
+None. TICKET-45 is the next ticket.
+
+### Known Issues
+None.
+
+### Next Agent Instructions
+1. Inspect `Docs/tickets/TICKET-45-regression-and-memory-handoff.md`.
+2. Run `npm test --prefix frontend` to confirm 130/130 baseline before starting TICKET-45.
+3. Update `tracker.md` and `features_implemented.md` after TICKET-45 is complete.
+
+---
+
+
+
+### Objective
+Refactor `AgentSequenceTrack.tsx` from a flat grid into a 2-row serpentine boustrophedon sequence track with left-to-right Row 1 flow (`01` -> `02` -> `03`), an animated downward SVG turn conduit (`data-testid="serpentine-turn-conduit"`), and right-to-left Row 2 flow (`04` <- `05` <- `06`), adhering strictly to the Light-Blue Mintlify design system (`rounded-[4px]` badges, `rounded-[16px]` cards, zero `rounded-full` button geometry).
+
+### Changes Made
+- Partitioned `displayNodes` into `row1Nodes` and `row2Nodes` sorted in reverse position order (`b.positionInRow - a.positionInRow`) in `frontend/components/studio/AgentSequenceTrack.tsx`.
+- Rendered Row 1 in 3-column grid (`grid-cols-1 md:grid-cols-3`) with inter-card `ArrowRight` directional badges.
+- Rendered animated downward SVG turn conduit with pulsating dasharray (`data-testid="serpentine-turn-conduit"`) and badge `"Handoff to Audio Stems ⤵"`.
+- Rendered Row 2 in 3-column grid (`grid-cols-1 md:grid-cols-3`) with reverse `ArrowLeft` directional badges connecting `04` (Sync Engineer) -> `05` (Subtitle Director) -> `06` (QA Continuity Agent).
+- Updated test suite in `frontend/__tests__/AgentSequenceTrack.test.tsx` verifying turn conduit rendering and card presence.
+- Updated `Docs/tickets/TICKET-42-boustrophedon-serpentine-grid-layout.md` and `Docs/tickets/README.md` to mark Completed and unblock TICKET-43 and TICKET-44.
+
+### Files Changed
+- `frontend/components/studio/AgentSequenceTrack.tsx`
+- `frontend/__tests__/AgentSequenceTrack.test.tsx`
+- `Docs/tickets/TICKET-42-boustrophedon-serpentine-grid-layout.md`
+- `Docs/tickets/README.md`
+- `features_implemented.md`
+- `tracker.md`
+
+### Verification
+- `npm test -- AgentSequenceTrack.test.tsx` — 4/4 tests passed in 146ms.
+- `npm test --prefix frontend` — 22/22 test files passed, 125/125 tests green in 16.49s.
+
+### Current State
+2-row boustrophedon serpentine route is active and fully verified. TICKET-43 (Parent Boundary Compatibility) and TICKET-44 (Serpentine Unit Test Suite) are unblocked and ready for implementation.
+
+### Next Agent Instructions
+1. Inspect `Docs/tickets/TICKET-43-parent-boundary-compatibility.md` (`frontend/app/runs/demo/page.tsx` and `frontend/app/runs/[id]/page.tsx`).
+2. Verify parent component wiring and run Vitest suite.
+
+---
+
+## 2026-09-23 — Voice Director Audio Invariant Metadata (TICKET-41)
+
+### Objective
+Update `voice_director` node metadata in `frontend/components/studio/AgentSequenceTrack.tsx` to align with the domain audio invariant (`inv_005` / Kokoro-82M 24kHz PCM_16 standard), ensuring tech stack reflects `Kokoro-82M / Edge-TTS Fallback`, output description reflects `Raw Synthesized Speech Stems (.wav 24kHz PCM_16)`, and `footerLeft` badge renders `24kHz PCM_16`.
+
+### Changes Made
+- Updated `AGENT_NODES` array in `frontend/components/studio/AgentSequenceTrack.tsx` (`id: 'voice_director'`):
+  - `techStack: 'Kokoro-82M / Edge-TTS Fallback'`
+  - `outputDesc: 'Raw Synthesized Speech Stems (.wav 24kHz PCM_16)'`
+  - `footerLeft: '24kHz PCM_16'`
+- Added defensive prop defaults (`crewStatuses = {}`, `retries = {}`, `telemetryEvents = []`) and safe `Array.isArray(telemetryEvents)` iteration checks in `AgentSequenceTrack`.
+- Created dedicated unit test suite `frontend/__tests__/AgentSequenceTrack.test.tsx` verifying configuration structure and DOM rendering.
+- Updated `Docs/tickets/TICKET-41-voice-director-audio-invariant.md` and `Docs/tickets/README.md` to mark completed and unblock TICKET-42.
+
+### Files Changed
+- `frontend/components/studio/AgentSequenceTrack.tsx`
+- `frontend/__tests__/AgentSequenceTrack.test.tsx` (New)
+- `Docs/tickets/TICKET-41-voice-director-audio-invariant.md`
+- `Docs/tickets/README.md`
+- `features_implemented.md`
+- `tracker.md`
+
+### Verification
+- `npm test -- AgentSequenceTrack.test.tsx` — 2/2 tests passed in 68ms.
+- `npm test --prefix frontend` — 22/22 test files passed, 123/123 tests green in 14.56s.
+
+### Current State
+Voice Director metadata accurately reflects the Kokoro 24kHz PCM_16 audio invariant across the Agent Sequence Track and full frontend test suite is passing. TICKET-42 (2-Row Boustrophedon Grid Layout & SVG Turn Conduit) is unblocked.
+
+### Next Agent Instructions
+1. Inspect `Docs/tickets/TICKET-42-boustrophedon-serpentine-grid-layout.md`.
+2. Implement the 2-row boustrophedon layout (Row 1 left-to-right nodes 01-03, downward SVG conduit, Row 2 right-to-left nodes 04-06) in `frontend/components/studio/AgentSequenceTrack.tsx`.
+3. Run `npm test -- AgentSequenceTrack.test.tsx` to verify.
+
+---
 
 ## 2026-09-23 — GitHub Pull & Merge (`origin/main` → `main`)
 

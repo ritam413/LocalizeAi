@@ -42,8 +42,15 @@ This directory contains individual specification and execution tickets for the L
 | [TICKET-34](./TICKET-34-executor-state-rehydration-and-mutex.md) | Executor State Rehydration & Single-Flight Stage Mutex | Planned | `backend/app/engine/executor.py` | Pytest | TICKET-32, TICKET-33 |
 | [TICKET-35](./TICKET-35-scalable-filtergraph-script-generation.md) | Scalable Filtergraph Script Generation & Windows 8k Buffer Defense | Planned | `backend/app/engine/stages/mixer.py` | Pytest | TICKET-33, TICKET-34 |
 | [TICKET-36](./TICKET-36-frontend-preview-stream-object-bridge.md) | Frontend Deliverables File Object Streaming Bridge | Planned | `frontend/lib/mediaTrackHelpers.ts` | Vitest | None (Unblocked) |
+| [TICKET-39](./TICKET-39-asr-overlapping-speech-vad-tuning.md) | ASR Overlapping Speech & VAD Tuning | Completed | `backend/app/engine/stages/transcription.py` | Pytest | None |
+| [TICKET-40](./TICKET-40-multispeaker-dialogue-stacking-formatter.md) | Multi-Speaker Overlapping Dialogue Stacking Formatter | Ready | `backend/app/engine/subtitle_formatter.py` | Pytest | None |
+| [TICKET-41](./TICKET-41-voice-director-audio-invariant.md) | Voice Director Audio Invariant Metadata (`inv_005`) | Completed | `frontend/components/studio/AgentSequenceTrack.tsx` | Vitest (2/2 Passed) | None |
+| [TICKET-42](./TICKET-42-boustrophedon-serpentine-grid-layout.md) | 2-Row Boustrophedon Grid Layout & SVG Turn Conduit | Completed | `frontend/components/studio/AgentSequenceTrack.tsx` | Vitest (4/4 Passed) | None |
+| [TICKET-43](./TICKET-43-parent-boundary-compatibility.md) | Parent Invocation Boundary & Interface Compatibility | ✅ Completed | `frontend/app/runs/demo/page.tsx` & `[id]/page.tsx` | Vitest (9/9 Passed) | TICKET-42 |
+| [TICKET-44](./TICKET-44-serpentine-track-unit-test-suite.md) | Serpentine Agent Sequence Track Unit Test Suite | ✅ Completed | `frontend/__tests__/AgentSequenceTrack.test.tsx` | Vitest (13/13 Passed) | TICKET-42 |
+| [TICKET-45](./TICKET-45-regression-and-memory-handoff.md) | Automated Regression Suite & Persistent Memory Handoff | ✅ Completed | `TRACKER.md` & `features_implemented.md` | Vitest (134/134 Passed) | TICKET-43, TICKET-44 |
 
 ## Active Wayfinder Maps
 - [WAYFINDER MAP: Hindi TTS Localization & Resilient Stem Persistence Pipeline](./WAYFINDER_MAP_HINDI_TTS_AND_STEM_PERSISTENCE.md)
-
-
+- [WAYFINDER MAP: Overlapping Speech & Subtitle Stacking](./WAYFINDER_MAP_OVERLAPPING_SPEECH_AND_SUBTITLE_STACKING.md)
+- [WAYFINDER MAP: Restoring Serpentine Agent Workflow Route (2-Row Boustrophedon)](./WAYFINDER_MAP_SERPENTINE_AGENT_WORKFLOW.md)

@@ -85,13 +85,13 @@ export const AGENT_NODES: AgentNodeConfig[] = [
     stepNumber: '03',
     stepLabel: 'Voice Director',
     role: 'Neural Voice Casting & TTS Synthesis',
-    techStack: 'Edge-TTS 300+ Voices / Kokoro-82M',
+    techStack: 'Kokoro-82M / Edge-TTS Fallback',
     inputDesc: 'Adapted Dialogue Script + Speaker Timestamps',
-    outputDesc: 'Raw Synthesized Speech Stems (.wav 48kHz)',
+    outputDesc: 'Raw Synthesized Speech Stems (.wav 24kHz PCM_16)',
     defaultLatency: 6840,
     row: 1,
     positionInRow: 2,
-    footerLeft: 'Edge-TTS',
+    footerLeft: '24kHz PCM_16',
     footerRight: '0 retries',
   },
   {
@@ -217,10 +217,12 @@ const AgentCard: React.FC<AgentCardProps> = ({
       className={`p-3 rounded-[8px] border transition-all duration-200 select-none cursor-pointer flex flex-col justify-between gap-2 btn-spring ${
         isRepaired
           ? 'bg-[#FFFBEB] border-[#FDE68A] hover:border-[#D97706]'
+          : isActive
+          ? 'bg-[#EFF6FF] border-[#2B7FFF] shadow-md ring-2 ring-[#2B7FFF]/30 ring-offset-1'
           : status === 'completed' && node.id === 'qa_agent'
           ? 'bg-[#F0FDF4] border-2 border-[#15803D]'
           : isSelected
-          ? 'bg-white border-[#2B7FFF] shadow-sm ring-1 ring-[#2B7FFF]/30'
+          ? 'bg-white border-[#2B7FFF]/60 shadow-sm ring-1 ring-[#2B7FFF]/20'
           : 'bg-[#F0F6FC] border-[#D0DFEE] hover:border-[#2B7FFF]/60'
       }`}
     >
@@ -278,6 +280,8 @@ const AgentCard: React.FC<AgentCardProps> = ({
               ? 'bg-[#15803D]'
               : isRepaired
               ? 'bg-[#F59E0B]'
+              : isActive
+              ? 'bg-[#2B7FFF] animate-pulse'
               : 'bg-[#2B7FFF]'
           }`}
           style={{ transform: `scaleX(${progressPct / 100})` }}
@@ -288,9 +292,9 @@ const AgentCard: React.FC<AgentCardProps> = ({
 };
 
 export const AgentSequenceTrack: React.FC<AgentSequenceTrackProps> = ({
-  crewStatuses,
-  retries,
-  telemetryEvents,
+  crewStatuses = {} as Record<AgentName, CrewMemberStatus>,
+  retries = {} as Record<AgentName, number>,
+  telemetryEvents = [],
   onSelectAgent,
   selectedAgent: controlledSelectedAgent,
   runStatus = 'running',
@@ -307,11 +311,13 @@ export const AgentSequenceTrack: React.FC<AgentSequenceTrackProps> = ({
   };
 
   const getAgentStatus = (agentId: AgentName): CrewMemberStatus => {
-    return crewStatuses[agentId] || 'pending';
+    return (crewStatuses && crewStatuses[agentId]) || 'pending';
   };
 
   const getAgentEvent = (agentId: AgentName): TelemetryEvent | undefined => {
-    return [...telemetryEvents].reverse().find((e) => e.agent === agentId);
+    return Array.isArray(telemetryEvents)
+      ? [...telemetryEvents].reverse().find((e) => e.agent === agentId)
+      : undefined;
   };
 
   const getAgentLatency = (node: AgentNodeConfig): number => {
@@ -323,12 +329,17 @@ export const AgentSequenceTrack: React.FC<AgentSequenceTrackProps> = ({
     ? AGENT_NODES.filter((n) => n.id === 'story_analyst' || n.id === 'localization_director' || n.id === 'subtitle_director' || n.id === 'qa_agent')
     : AGENT_NODES;
 
+  const row1Nodes = displayNodes.filter((n) => n.row === 1);
+  const row2Nodes = displayNodes
+    .filter((n) => n.row === 2)
+    .sort((a, b) => b.positionInRow - a.positionInRow);
+
   return (
-    <section className="bg-white border border-[#D0DFEE] rounded-[16px] p-5 shadow-sm space-y-3 font-sans">
+    <section className="bg-white border border-[#D0DFEE] rounded-[16px] p-5 shadow-sm space-y-4 font-sans">
       {/* Header with Title and Live Execution Indicator */}
       <div className="flex items-center justify-between text-xs border-b border-[#F0F6FC] pb-2">
         <div className="flex items-center gap-2">
-          <div className="w-2 h-2 rounded-full bg-[#2B7FFF] animate-pulse" />
+          <div className="w-2 h-2 rounded-[2px] bg-[#2B7FFF] animate-pulse" />
           <h2 className="font-bold uppercase tracking-wider text-[#0F172A]">
             Serpentine Agent Workflow Route
           </h2>
@@ -338,9 +349,9 @@ export const AgentSequenceTrack: React.FC<AgentSequenceTrackProps> = ({
         </span>
       </div>
 
-      {/* Grid of Agent Nodes */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-        {displayNodes.map((node) => {
+      {/* Row 1: Left to Right (Steps 01 -> 02 -> 03) */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        {row1Nodes.map((node, idx) => {
           const status = getAgentStatus(node.id);
           const isSelected = activeAgent === node.id;
           const latency = getAgentLatency(node);
@@ -348,21 +359,93 @@ export const AgentSequenceTrack: React.FC<AgentSequenceTrackProps> = ({
           const progressInfo = stageProgressMap?.[node.id];
 
           return (
-            <AgentCard
-              key={node.id}
-              node={node}
-              status={status}
-              isSelected={isSelected}
-              retryCount={retryCount}
-              latencyMs={latency}
-              progressInfo={progressInfo}
-              videoDurationSec={videoDurationSeconds}
-              projectMode={projectMode}
-              onClick={() => handleSelect(node.id)}
-            />
+            <div key={node.id} className="relative flex items-center">
+              <div className="w-full">
+                <AgentCard
+                  node={node}
+                  status={status}
+                  isSelected={isSelected}
+                  retryCount={retryCount}
+                  latencyMs={latency}
+                  progressInfo={progressInfo}
+                  videoDurationSec={videoDurationSeconds}
+                  projectMode={projectMode}
+                  onClick={() => handleSelect(node.id)}
+                />
+              </div>
+              {idx < row1Nodes.length - 1 && (
+                <div
+                  aria-hidden="true"
+                  className="hidden md:flex absolute -right-2 z-10 w-4 h-4 rounded-[4px] bg-white border border-[#D0DFEE] items-center justify-center text-[#2B7FFF] shadow-xs"
+                >
+                  <ArrowRight className="w-2.5 h-2.5" />
+                </div>
+              )}
+            </div>
           );
         })}
       </div>
+
+      {/* Animated Downward Turn Conduit (Step 03 -> Step 04 Handoff) */}
+      {row2Nodes.length > 0 && (
+        <div
+          data-testid="serpentine-turn-conduit"
+          className="hidden md:flex items-center justify-end px-6 py-1 gap-2"
+        >
+          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-[4px] bg-[#F0F6FC] border border-[#D0DFEE] text-[10px] font-mono font-medium text-[#475569] shadow-xs">
+            <span className="w-1.5 h-1.5 rounded-[2px] bg-[#2B7FFF] animate-pulse" />
+            <span>Handoff to Audio Stems ⤵</span>
+          </div>
+          <svg className="w-12 h-6 text-[#2B7FFF]" viewBox="0 0 48 24" fill="none">
+            <path
+              d="M 6 2 C 36 2, 42 22, 42 22"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeDasharray="4 2"
+              className="motion-safe:animate-pulse"
+            />
+          </svg>
+        </div>
+      )}
+
+      {/* Row 2: Right to Left (Steps 04 <- 05 <- 06) */}
+      {row2Nodes.length > 0 && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          {row2Nodes.map((node, idx) => {
+            const status = getAgentStatus(node.id);
+            const isSelected = activeAgent === node.id;
+            const latency = getAgentLatency(node);
+            const retryCount = retries[node.id] || 0;
+            const progressInfo = stageProgressMap?.[node.id];
+
+            return (
+              <div key={node.id} className="relative flex items-center">
+                <div className="w-full">
+                  <AgentCard
+                    node={node}
+                    status={status}
+                    isSelected={isSelected}
+                    retryCount={retryCount}
+                    latencyMs={latency}
+                    progressInfo={progressInfo}
+                    videoDurationSec={videoDurationSeconds}
+                    projectMode={projectMode}
+                    onClick={() => handleSelect(node.id)}
+                  />
+                </div>
+                {idx < row2Nodes.length - 1 && (
+                  <div
+                    aria-hidden="true"
+                    className="hidden md:flex absolute -left-2 z-10 w-4 h-4 rounded-[4px] bg-white border border-[#D0DFEE] items-center justify-center text-[#2B7FFF] shadow-xs"
+                  >
+                    <ArrowLeft className="w-2.5 h-2.5" />
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
     </section>
   );
 };
